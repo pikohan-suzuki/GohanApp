@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">KIT_MAP</string>
+    <string name="drawer_button">drawer button</string>
+
 </resources>
