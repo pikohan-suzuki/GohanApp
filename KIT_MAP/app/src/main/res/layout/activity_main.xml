@@ -13,43 +13,22 @@
         <!--android:layout_height="match_parent">-->
 
     <TextView
-        android:id="@+id/range_x"
+        android:id="@+id/x_range"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="x:" />
 
     <TextView
-        android:id="@+id/range_y"
+        android:id="@+id/y_range"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="y:" />
 
-    <TextView
-        android:id="@+id/distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="distance:" />
-    <!--<ImageView-->
-    <!--android:id="@+id/map_image"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:src="@drawable/b23_1" />-->
+    <ImageView
+        android:id="@+id/droid_Image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/droid"/>
 
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:gravity="right"-->
-    <!--android:orientation="horizontal">-->
-
-    <!--<Button-->
-    <!--android:id="@+id/search_button"-->
-    <!--android:layout_width="60sp"-->
-    <!--android:layout_height="60sp"-->
-    <!--android:background="@drawable/round_button"-->
-    <!--android:text="🔎"-->
-    <!--android:transitionName="search" />-->
-<!--</LinearLayout>-->
-
-    <!--</FrameLayout>-->
 
     </LinearLayout>
