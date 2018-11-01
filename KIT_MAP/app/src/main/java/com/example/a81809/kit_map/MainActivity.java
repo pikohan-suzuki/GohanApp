@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap1;
     private double defaultImageWidth;
     private double defaultImageHeight;
-    private int imageWidth;
+    private int imageWidth ;
     private int imageHeight;
 
     @Override
@@ -43,8 +43,7 @@ public class MainActivity extends AppCompatActivity {
         x_range = findViewById(R.id.x_range);
         y_range = findViewById(R.id.y_range);
         bitmap1 = BitmapFactory.decodeResource(getResources(),R.drawable.droid);
-        imageWidth = bitmap1.getWidth();
-        imageHeight = bitmap1.getHeight();
+
 
         /* Touch event */
         mImageView.setOnTouchListener(mTouchEventLister);
@@ -58,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         defaultImageHeight= mImageView.getWidth();
         defaultImageWidth = mImageView.getWidth();
+        imageWidth=mImageView.getWidth();
+        imageHeight=mImageView.getHeight();
     }
 
 
@@ -79,28 +80,32 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             Log.d("debug", "on Scale Begin");
+
             return true;
         }
 
         public boolean onScale(ScaleGestureDetector detector) {
+            mGestureDetector.setIsLongpressEnabled(false);
             Log.d("debug", "on Scale");
             float factor = detector.getScaleFactor();
-
             Matrix matrix = new Matrix();
             matrix.preScale(factor,factor);
+            if(factor <2.0) {
+                Bitmap bitmap3 = Bitmap.createBitmap(bitmap1, 0, 0,
+                        imageWidth, imageHeight, matrix, true);
 
-            Bitmap bitmap3 = Bitmap.createBitmap(bitmap1, 0, 0,
-                    imageWidth, imageHeight, matrix, true);
+                // drawableに変換
+                Drawable drawable = new BitmapDrawable(getResources(), bitmap3);
 
-            // drawableに変換
-            Drawable drawable = new BitmapDrawable(getResources(), bitmap3);
-
-            mImageView.setImageDrawable(drawable);
+                mImageView.setImageDrawable(drawable);
+                mGestureDetector.setIsLongpressEnabled(true);
+            }
             return true;
         }
 
         public void onScaleEnd(ScaleGestureDetector detector) {
             Log.d("debug", "on Scale End.");
+
         }
     };
 
@@ -126,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
                     Log.d("debug", "onScroll");
+                    mImageView.setX(mImageView.getX() + v*0.5f);
+                    mImageView.setY(mImageView.getY()+v1 *0.5f);
                     return false;
                 }
 
