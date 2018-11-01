@@ -9,8 +9,8 @@
     tools:context=".MainActivity">
 
     <!--<FrameLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent">-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">-->
 
     <TextView
         android:id="@+id/x_range"
@@ -26,9 +26,10 @@
 
     <ImageView
         android:id="@+id/droid_Image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/droid"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/droid"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"/>
 
-
-    </LinearLayout>
+</LinearLayout>
