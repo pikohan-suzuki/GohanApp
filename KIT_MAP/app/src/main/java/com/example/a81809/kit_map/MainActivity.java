@@ -34,8 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
         /* Touch event */
         mImageView.setOnTouchListener(mTouchEventLister);
-        mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
         mGestureDetector = new GestureDetector(this, mGestureListener);
+        mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+
     }
 
 
