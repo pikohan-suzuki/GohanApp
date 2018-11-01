@@ -1,58 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><!--<android.support.v4.widget.DrawerLayout -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <!-- The main content view -->
-    <LinearLayout
-        android:id="@+id/left_draw"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:background="#FFF">
+    <!--<FrameLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
 
-        <Button
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:background="@drawable/round_button"
-            android:text="三"
-            />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/range_x"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="right"
-        android:orientation="horizontal">
+        android:text="x:" />
 
-        <Button
-            android:id="@+id/search_button"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:background="@drawable/round_button"
-            android:text="🔎"
-            android:transitionName="search"/>
+    <TextView
+        android:id="@+id/range_y"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="y:" />
+
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="distance:" />
+    <!--<ImageView-->
+    <!--android:id="@+id/map_image"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:src="@drawable/b23_1" />-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:gravity="right"-->
+    <!--android:orientation="horizontal">-->
+
+    <!--<Button-->
+    <!--android:id="@+id/search_button"-->
+    <!--android:layout_width="60sp"-->
+    <!--android:layout_height="60sp"-->
+    <!--android:background="@drawable/round_button"-->
+    <!--android:text="🔎"-->
+    <!--android:transitionName="search" />-->
+<!--</LinearLayout>-->
+
+    <!--</FrameLayout>-->
+
     </LinearLayout>
-
-    <!-- The navigation drawer -->
-
-    <LinearLayout
-        android:id="@+id/left_drawer"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="left"
-        android:background="#333" >
-
-        <Button
-            android:id="@+id/drawer_button"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="@string/drawer_button" />
-    </LinearLayout>
-</android.support.v4.widget.DrawerLayout>
