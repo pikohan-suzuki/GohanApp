@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
     private ImageView mImageView;
+    private Button center_button;
 
     private Bitmap bitmap1;
     private Bitmap bitmap3;
@@ -37,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private float maxImageHeight;
     private float minImageWidth;
     private float minImageHeight;
+    private float defaultX;
+    private float defaultY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mImageView = findViewById(R.id.droid_Image);
+        center_button = findViewById(R.id.center_button);
         bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.droid);
         bitmap3 = bitmap1;
 
@@ -52,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
         mImageView.setOnTouchListener(mTouchEventLister);
         mGestureDetector = new GestureDetector(this, mGestureListener);
         mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+
+        center_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mImageView.setImageBitmap(bitmap1);
+                mImageView.setX(defaultX);
+                mImageView.setY(defaultY);
+            }
+        });
     }
 
     @Override
@@ -59,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         imageWidth = mImageView.getWidth();
         imageHeight = mImageView.getHeight();
+        defaultX = mImageView.getX();
+        defaultY = mImageView.getY();
 
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display disp = wm.getDefaultDisplay();
@@ -70,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
         int realScreenHeight = realSize.y;
         maxImageHeight = realScreenHeight;
         maxImageWidth = realScreenWidth;
-        minImageHeight = realScreenHeight * 0.5f;
-        maxImageWidth = realScreenWidth * 0.5f;
+        minImageHeight = realScreenHeight * 0.25f;
+        minImageWidth = realScreenWidth * 0.25f;
     }
 
 
@@ -149,10 +165,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+                public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
                     Log.d("debug", "onScroll");
-                    mImageView.setX(mImageView.getX() + v * 0.5f);
-                    mImageView.setY(mImageView.getY() + v1 * 0.5f);
+                    mImageView.setX(mImageView.getX()-distanceX*0.5f);
+                    mImageView.setY(mImageView.getY()-distanceY*0.5f);
+                    Log.d("debug","x:"+mImageView.getX() + " v:" +distanceX+" setY:" + mImageView.getY() +
+                    " b1:" + distanceY +"before_x:" + motionEvent1.getX() +" after_x:"+motionEvent1.getY());
                     return false;
                 }
 
