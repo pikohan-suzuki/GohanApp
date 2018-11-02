@@ -4,16 +4,19 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,14 +28,15 @@ public class MainActivity extends AppCompatActivity {
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
     private ImageView mImageView;
-    private TextView x_range;
-    private TextView y_range;
 
     private Bitmap bitmap1;
-    private double defaultImageWidth;
-    private double defaultImageHeight;
-    private int imageWidth ;
+    private Bitmap bitmap3;
+    private int imageWidth;
     private int imageHeight;
+    private float maxImageWidth;
+    private float maxImageHeight;
+    private float minImageWidth;
+    private float minImageHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,25 +44,34 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mImageView = findViewById(R.id.droid_Image);
-        x_range = findViewById(R.id.x_range);
-        y_range = findViewById(R.id.y_range);
-        bitmap1 = BitmapFactory.decodeResource(getResources(),R.drawable.droid);
+        bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.droid);
+        bitmap3 = bitmap1;
 
 
         /* Touch event */
         mImageView.setOnTouchListener(mTouchEventLister);
         mGestureDetector = new GestureDetector(this, mGestureListener);
         mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
-
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus){
+    public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        defaultImageHeight= mImageView.getWidth();
-        defaultImageWidth = mImageView.getWidth();
-        imageWidth=mImageView.getWidth();
-        imageHeight=mImageView.getHeight();
+        imageWidth = mImageView.getWidth();
+        imageHeight = mImageView.getHeight();
+
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Display disp = wm.getDefaultDisplay();
+
+        Point realSize = new Point();
+        disp.getRealSize(realSize);
+
+        int realScreenWidth = realSize.x;
+        int realScreenHeight = realSize.y;
+        maxImageHeight = realScreenHeight;
+        maxImageWidth = realScreenWidth;
+        minImageHeight = realScreenHeight * 0.5f;
+        maxImageWidth = realScreenWidth * 0.5f;
     }
 
 
@@ -89,15 +102,22 @@ public class MainActivity extends AppCompatActivity {
             Log.d("debug", "on Scale");
             float factor = detector.getScaleFactor();
             Matrix matrix = new Matrix();
-            matrix.preScale(factor,factor);
-            if(factor <2.0) {
-                Bitmap bitmap3 = Bitmap.createBitmap(bitmap1, 0, 0,
-                        imageWidth, imageHeight, matrix, true);
+            matrix.preScale(factor, factor);
+            if (factor < 2.0) {
+                imageHeight = bitmap3.getHeight();
+                imageWidth = bitmap3.getWidth();
+                if (Math.abs(imageHeight * factor - bitmap1.getHeight()) < 25 &&
+                        Math.abs(imageWidth * factor - bitmap1.getWidth()) < 25) {
+                    mImageView.setImageBitmap(bitmap1);
+                } else if (imageHeight * factor < maxImageHeight && imageWidth * factor < maxImageWidth
+                        && imageHeight * factor > minImageHeight && imageWidth * factor > minImageWidth) {
 
-                // drawableに変換
-                Drawable drawable = new BitmapDrawable(getResources(), bitmap3);
-
-                mImageView.setImageDrawable(drawable);
+                    bitmap3 = Bitmap.createBitmap(bitmap3, 0, 0,
+                            imageWidth, imageHeight, matrix, true);
+                    // drawableに変換
+                    Drawable drawable = new BitmapDrawable(getResources(), bitmap3);
+                    mImageView.setImageDrawable(drawable);
+                }
                 mGestureDetector.setIsLongpressEnabled(true);
             }
             return true;
@@ -131,8 +151,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
                     Log.d("debug", "onScroll");
-                    mImageView.setX(mImageView.getX() + v*0.5f);
-                    mImageView.setY(mImageView.getY()+v1 *0.5f);
+                    mImageView.setX(mImageView.getX() + v * 0.5f);
+                    mImageView.setY(mImageView.getY() + v1 * 0.5f);
                     return false;
                 }
 
