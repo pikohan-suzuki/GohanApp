@@ -28,19 +28,23 @@ public class MainActivity extends AppCompatActivity {
 
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
-    private ImageView mImageView;
-    private Button center_button;
 
-    private Bitmap bitmap1;
-    private Bitmap bitmap3;
-    private int imageWidth;
-    private int imageHeight;
-    private float maxImageWidth;
-    private float maxImageHeight;
-    private float minImageWidth;
-    private float minImageHeight;
-    private float defaultX;
-    private float defaultY;
+    private ImageView mImageView;   //マップを表示するイメージビュー
+    private Button center_button;   //画像を元に戻すボタン
+
+    private Bitmap defaultBitmap;   //変更前のビットマップ
+    private Bitmap changedBitmap;   //変更後のビットマップ
+    private int imageWidth;         //画像の現在の幅
+    private int imageHeight;        //画像の現在の高さ
+    private float maxImageWidth;    //最大の画像幅
+    private float maxImageHeight;   //最大の画像の高さ
+    private float minImageWidth;    //最小の画像の幅
+    private float minImageHeight;   //最小の画像の高さ
+    private float defaultX;         //画像のデフォルトx座標
+    private float defaultY;         //画像のデフォルトy座標
+
+    private int building;           //建物番号
+    private int floor;              //階層番号
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
         mImageView = findViewById(R.id.droid_Image);
         center_button = findViewById(R.id.center_button);
-        bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.droid);
-        bitmap3 = bitmap1;
+        defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.droid);
+        changedBitmap = defaultBitmap;
 
 
         /* Touch event */
@@ -58,10 +62,12 @@ public class MainActivity extends AppCompatActivity {
         mGestureDetector = new GestureDetector(this, mGestureListener);
         mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
 
+
+        //＋ボタンのクリックイベント
         center_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mImageView.setImageBitmap(bitmap1);
+                mImageView.setImageBitmap(defaultBitmap);
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
             }
@@ -120,18 +126,18 @@ public class MainActivity extends AppCompatActivity {
             Matrix matrix = new Matrix();
             matrix.preScale(factor, factor);
             if (factor < 2.0) {
-                imageHeight = bitmap3.getHeight();
-                imageWidth = bitmap3.getWidth();
-                if (Math.abs(imageHeight * factor - bitmap1.getHeight()) < 25 &&
-                        Math.abs(imageWidth * factor - bitmap1.getWidth()) < 25) {
-                    mImageView.setImageBitmap(bitmap1);
+                imageHeight = changedBitmap.getHeight();
+                imageWidth = changedBitmap.getWidth();
+                if (Math.abs(imageHeight * factor - defaultBitmap.getHeight()) < 25 &&
+                        Math.abs(imageWidth * factor - defaultBitmap.getWidth()) < 25) {
+                    mImageView.setImageBitmap(defaultBitmap);
                 } else if (imageHeight * factor < maxImageHeight && imageWidth * factor < maxImageWidth
                         && imageHeight * factor > minImageHeight && imageWidth * factor > minImageWidth) {
 
-                    bitmap3 = Bitmap.createBitmap(bitmap3, 0, 0,
+                    changedBitmap = Bitmap.createBitmap(changedBitmap, 0, 0,
                             imageWidth, imageHeight, matrix, true);
                     // drawableに変換
-                    Drawable drawable = new BitmapDrawable(getResources(), bitmap3);
+                    Drawable drawable = new BitmapDrawable(getResources(), changedBitmap);
                     mImageView.setImageDrawable(drawable);
                 }
                 mGestureDetector.setIsLongpressEnabled(true);
@@ -167,10 +173,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
                     Log.d("debug", "onScroll");
-                    mImageView.setX(mImageView.getX()-distanceX*0.5f);
-                    mImageView.setY(mImageView.getY()-distanceY*0.5f);
-                    Log.d("debug","x:"+mImageView.getX() + " v:" +distanceX+" setY:" + mImageView.getY() +
-                    " b1:" + distanceY +"before_x:" + motionEvent1.getX() +" after_x:"+motionEvent1.getY());
+                    mImageView.setX(mImageView.getX() - distanceX * 0.5f);
+                    mImageView.setY(mImageView.getY() - distanceY * 0.5f);
+                    Log.d("debug", "x:" + mImageView.getX() + " v:" + distanceX + " setY:" + mImageView.getY() +
+                            " b1:" + distanceY + "before_x:" + motionEvent1.getX() + " after_x:" + motionEvent1.getY());
                     return false;
                 }
 
