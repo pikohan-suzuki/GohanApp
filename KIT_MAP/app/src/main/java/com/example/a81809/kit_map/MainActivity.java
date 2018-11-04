@@ -9,14 +9,12 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout info_layout;
     private Button goto_button;
     private Button info_button;
+    private LinearLayout info_sideBar;
+    private ImageView room_image;
 
     private int imageWidth;         //画像の現在の幅
     private int imageHeight;        //画像の現在の高さ
@@ -46,9 +46,12 @@ public class MainActivity extends AppCompatActivity {
     private float defaultHeight;
     private float defaultWidth;
     private boolean infoFlag = false;       //infoポップアップが表示されているかのフラグ
+    private boolean roomInfoFlag =false;    //roomInfoサイドバーが表示されているかのフラグ
     private float defaultRoomTextSize;
 
-    private FrameLayout.LayoutParams layoutParams;
+
+    private FrameLayout.LayoutParams frameLayoutParams;
+    private LinearLayout.LayoutParams linearLayoutParams;
 
 
     private int building = 23;           //建物番号
@@ -72,8 +75,11 @@ public class MainActivity extends AppCompatActivity {
         info_layout = findViewById(R.id.info_layout);
         info_button = findViewById(R.id.info_button);
         goto_button = findViewById(R.id.goTo_button);
+        info_sideBar = findViewById(R.id.info_sideBar);
+        room_image = findViewById(R.id.roomImageView);
 
         info_layout.setVisibility(View.INVISIBLE);
+        info_sideBar.setVisibility(View.GONE);
 
         mImageView.setImageResource(floorImage[0]);
 
@@ -87,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
         center_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layoutParams = new FrameLayout.LayoutParams((int) defaultWidth, (int) defaultHeight);
-                mImageView.setLayoutParams(layoutParams);
+                frameLayoutParams = new FrameLayout.LayoutParams((int) defaultWidth, (int) defaultHeight);
+                mImageView.setLayoutParams(frameLayoutParams);
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
                 float textMarginX = defaultX + defaultWidth * roomRange[0][0];
@@ -127,11 +133,25 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("debug", "コミュニケーションスタジオ");
 
+                mImageView.setX(mImageView.getX()- (room0.getX() - (maxImageWidth-room0.getWidth())/2));
+                mImageView.setY(mImageView.getY()- (room0.getY() - (maxImageHeight-room0.getHeight())/2));
+                room0.setX((maxImageWidth-room0.getWidth())/2);
+                room0.setY((maxImageHeight-room0.getHeight())/2);
                 info_layout.setX(room0.getX() + (room0.getWidth() - info_layout.getWidth()) / 2);
                 info_layout.setY(room0.getY() - info_layout.getHeight() - 10);
                 Log.d("debug", "roomX: " + room0.getX() + " roomWidth: " + room0.getWidth() + " infoWidth: " + info_layout.getWidth());
                 info_layout.setVisibility(View.VISIBLE);
                 infoFlag = true;
+
+            }
+        });
+        info_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                info_sideBar.setVisibility(View.VISIBLE);
+                linearLayoutParams = new LinearLayout.LayoutParams((int) (maxImageWidth / 3), (int) maxImageHeight/3);
+                room_image.setLayoutParams(linearLayoutParams);
+                roomInfoFlag=true;
             }
         });
     }
@@ -152,8 +172,6 @@ public class MainActivity extends AppCompatActivity {
         minImageWidth = realScreenWidth * 0.25f;
         defaultHeight = mImageView.getHeight();
         defaultWidth = mImageView.getWidth();
-        defaultRoomNameWidth = room0.getWidth();
-        defaultRoomNameHeight = room0.getHeight();
         defaultRoomTextSize = room0.getTextSize();
         setImageInfo();
         float textMarginX = defaultX + imageWidth * roomRange[0][0];
@@ -181,6 +199,11 @@ public class MainActivity extends AppCompatActivity {
             mGestureDetector.onTouchEvent(e);
             if (infoFlag) {
                 info_layout.setVisibility(View.INVISIBLE);
+                infoFlag=false;
+            }
+            if(roomInfoFlag){
+                info_sideBar.setVisibility(View.GONE);
+                roomInfoFlag=false;
             }
             Log.d("debug", "onTouch");
 
@@ -207,8 +230,8 @@ public class MainActivity extends AppCompatActivity {
                 imageWidth = mImageView.getWidth();
                 if (imageHeight * factor < maxImageHeight && imageWidth * factor < maxImageWidth
                         && imageHeight * factor > minImageHeight && imageWidth * factor > minImageWidth) {
-                    layoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
-                    mImageView.setLayoutParams(layoutParams);
+                    frameLayoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
+                    mImageView.setLayoutParams(frameLayoutParams);
                     float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[0][0] * factor;
                     float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[0][1] * factor;
                     room0.setX(textMarginX);
@@ -216,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
                     if (Math.abs(mImageView.getWidth() - defaultWidth) < 25) {
                         room0.setTextSize(defaultRoomTextSize);
                     } else {
-                        room0.setTextSize(room0.getTextSize() * factor);
+                        room0.setTextSize(defaultRoomTextSize * mImageView.getWidth() / defaultWidth);
                     }
                 }
             }
