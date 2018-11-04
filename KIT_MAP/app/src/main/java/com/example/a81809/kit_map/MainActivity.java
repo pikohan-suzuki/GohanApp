@@ -43,7 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private float minImageHeight;   //最小の画像の高さ
     private float defaultX;         //画像のデフォルトx座標
     private float defaultY;         //画像のデフォルトy座標
-    private boolean infoFlag=false;       //infoポップアップが表示されているかのフラグ
+    private float defaultHeight;
+    private float defaultWidth;
+    private boolean infoFlag = false;       //infoポップアップが表示されているかのフラグ
 
     private FrameLayout.LayoutParams layoutParams;
 
@@ -51,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private int building = 23;           //建物番号
     private int floor = 0;              //階層番号
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
-    private float[][] roomRange ={{0.5f,0.25f}};
+    private float[][] roomRange = {{0.5f, 0.25f}};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         buildingtextView = findViewById(R.id.building_textView);
         floorTextView = findViewById(R.id.floor_textView);
         room0 = findViewById(R.id.room0);
-        info_layout =findViewById(R.id.info_layout);
+        info_layout = findViewById(R.id.info_layout);
         info_button = findViewById(R.id.info_button);
         goto_button = findViewById(R.id.goTo_button);
 
@@ -83,9 +86,16 @@ public class MainActivity extends AppCompatActivity {
         center_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mImageView.setImageResource(floorImage[floor]);
+                layoutParams = new FrameLayout.LayoutParams((int) defaultWidth, (int) defaultHeight);
+                mImageView.setLayoutParams(layoutParams);
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
+                float textMarginX = defaultX + defaultWidth * roomRange[0][0];
+                float textMarginY = defaultY + defaultHeight * roomRange[0][1];
+
+                room0.setX(textMarginX);
+                room0.setY(textMarginY);
+
             }
         });
 
@@ -114,13 +124,13 @@ public class MainActivity extends AppCompatActivity {
         room0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("debug","コミュニケーションスタジオ");
+                Log.d("debug", "コミュニケーションスタジオ");
 
-                info_layout.setX(room0.getX()+(room0.getWidth() - info_layout.getWidth())/2);
-                info_layout.setY(room0.getY()-info_layout.getHeight()-10);
-                Log.d("debug","roomX: " +room0.getX()+ " roomWidth: " + room0.getWidth() + " infoWidth: " + info_layout.getWidth());
+                info_layout.setX(room0.getX() + (room0.getWidth() - info_layout.getWidth()) / 2);
+                info_layout.setY(room0.getY() - info_layout.getHeight() - 10);
+                Log.d("debug", "roomX: " + room0.getX() + " roomWidth: " + room0.getWidth() + " infoWidth: " + info_layout.getWidth());
                 info_layout.setVisibility(View.VISIBLE);
-                infoFlag=true;
+                infoFlag = true;
             }
         });
     }
@@ -139,9 +149,11 @@ public class MainActivity extends AppCompatActivity {
         maxImageWidth = realScreenWidth;
         minImageHeight = realScreenHeight * 0.25f;
         minImageWidth = realScreenWidth * 0.25f;
+        defaultHeight = mImageView.getHeight();
+        defaultWidth = mImageView.getWidth();
         setImageInfo();
-        float textMarginX = defaultX + imageWidth*roomRange[0][0];
-        float textMarginY = defaultY + imageHeight*roomRange[0][1];
+        float textMarginX = defaultX + imageWidth * roomRange[0][0];
+        float textMarginY = defaultY + imageHeight * roomRange[0][1];
 
         room0.setX(textMarginX);
         room0.setY(textMarginY);
@@ -163,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onTouch(View v, MotionEvent e) {
             mScaleGestureDetector.onTouchEvent(e);
             mGestureDetector.onTouchEvent(e);
-            if(infoFlag){
+            if (infoFlag) {
                 info_layout.setVisibility(View.INVISIBLE);
             }
             Log.d("debug", "onTouch");
@@ -187,16 +199,21 @@ public class MainActivity extends AppCompatActivity {
             Log.d("debug", "on Scale");
             float factor = detector.getScaleFactor();
             if (factor < 2.0) {
-
                 imageHeight = mImageView.getHeight();
                 imageWidth = mImageView.getWidth();
-                 if (imageHeight * factor < maxImageHeight && imageWidth * factor < maxImageWidth
+                if (imageHeight * factor < maxImageHeight && imageWidth * factor < maxImageWidth
                         && imageHeight * factor > minImageHeight && imageWidth * factor > minImageWidth) {
                     layoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
                     mImageView.setLayoutParams(layoutParams);
+                    float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[0][0] * factor;
+                    float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[0][1] * factor;
+
+                    room0.setX(textMarginX);
+                    room0.setY(textMarginY);
                 }
-                mGestureDetector.setIsLongpressEnabled(true);
+
             }
+            mGestureDetector.setIsLongpressEnabled(true);
             return true;
         }
 
@@ -231,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                     mImageView.setX(mImageView.getX() - distanceX * 0.5f);
                     mImageView.setY(mImageView.getY() - distanceY * 0.5f);
                     room0.setX(room0.getX() - distanceX * 0.5f);
-                    room0.setY(room0.getY()- distanceY *0.5f);
+                    room0.setY(room0.getY() - distanceY * 0.5f);
                     Log.d("debug", "x:" + mImageView.getX() + " v:" + distanceX + " setY:" + mImageView.getY() +
                             " b1:" + distanceY + "before_x:" + motionEvent1.getX() + " after_x:" + motionEvent1.getY());
                     return false;
