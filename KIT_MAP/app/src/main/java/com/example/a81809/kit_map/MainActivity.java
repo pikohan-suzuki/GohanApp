@@ -62,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
         buildingtextView = findViewById(R.id.building_textView);
         floorTextView = findViewById(R.id.floor_textView);
         room0 = findViewById(R.id.room0);
+        info_layout =findViewById(R.id.info_layout);
+        info_button = findViewById(R.id.info_button);
+        goto_button = findViewById(R.id.goTo_button);
+
+        info_layout.setVisibility(View.INVISIBLE);
 
         mImageView.setImageResource(floorImage[0]);
 
@@ -107,6 +112,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("debug","コミュニケーションスタジオ");
+
+                info_layout.setX(room0.getX()+(room0.getWidth() - info_layout.getWidth())/2);
+                info_layout.setY(room0.getY()-info_layout.getHeight()-10);
+                Log.d("debug","roomX: " +room0.getX()+ " roomWidth: " + room0.getWidth() + " infoWidth: " + info_layout.getWidth());
+                info_layout.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -128,17 +138,13 @@ public class MainActivity extends AppCompatActivity {
         setImageInfo();
         float textMarginX = defaultX + imageWidth*roomRange[0][0];
         float textMarginY = defaultY + imageHeight*roomRange[0][1];
-//        ViewGroup.LayoutParams lp = room0.getLayoutParams();
-//        ViewGroup.MarginLayoutParams mlp =(ViewGroup.MarginLayoutParams)lp;
-//        mlp.setMargins(mlp.leftMargin,(int)textMarginX,mlp.topMargin,(int)textMarginY);
+
         room0.setX(textMarginX);
         room0.setY(textMarginY);
 
     }
 
     private void setImageInfo() {
-//        defaultBitmap = BitmapFactory.decodeResource(getResources(), floorImage[floor]);
-//        changedBitmap = defaultBitmap;
         imageWidth = mImageView.getWidth();
         imageHeight = mImageView.getHeight();
         mImageView.setX((maxImageWidth - imageWidth) / 2);
