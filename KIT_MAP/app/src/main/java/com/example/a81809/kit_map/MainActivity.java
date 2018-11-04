@@ -3,6 +3,8 @@ package com.example.a81809.kit_map;
 import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -10,12 +12,17 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView room_image;
     private Button bSearchButton;
     private EditText searchEditText;
+    private ListView forecastListView;
 
     private int imageWidth;         //画像の現在の幅
     private int imageHeight;        //画像の現在の高さ
@@ -53,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
     private float defaultRoomTextSize;
 
+    private ArrayAdapter<String> arrayAdapter;
+
 
     private FrameLayout.LayoutParams frameLayoutParams;
     private LinearLayout.LayoutParams linearLayoutParams;
@@ -62,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private int floor = 0;              //階層番号
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
     private float[][] roomRange = {{0.5f, 0.25f}};
+    private String[] room = {"コミュニケーションスタジオ 23-104","学生ステーション 23-101","パフォーミングスタジオ 23-106"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         room_image = findViewById(R.id.roomImageView);
         bSearchButton = findViewById(R.id.b_search_button);
         searchEditText = findViewById(R.id.search_editText);
+        forecastListView = findViewById(R.id.search_forecast);
 
         info_layout.setVisibility(View.INVISIBLE);
         info_sideBar.setVisibility(View.GONE);
@@ -167,6 +179,31 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 searchEditText.setVisibility(View.VISIBLE);
                 searchFlag=true;
+            }
+        });
+
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                List<String> rooms = Arrays.asList(room);
+                for(int i=0;i<rooms.size();i++){
+                    if(rooms.get(i).contains(s)){
+                        rooms.remove(i);
+                    }
+                }
+                String str[] = rooms.toArray(new String[rooms.size()]);
+                String[] foods ={"aaaa","bbbb","cccc"};
+                arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,foods);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }

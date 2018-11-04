@@ -30,6 +30,12 @@
             android:layout_height="100dp"
             android:layout_alignParentRight="true"
             android:background="@drawable/search_button" />
+        <ListView
+            android:id="@+id/search_forecast"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content">
+
+        </ListView>
 
     </RelativeLayout>
     <LinearLayout
