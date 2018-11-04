@@ -11,6 +11,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private Button info_button;
     private LinearLayout info_sideBar;
     private ImageView room_image;
+    private Button bSearchButton;
+    private EditText searchEditText;
 
     private int imageWidth;         //画像の現在の幅
     private int imageHeight;        //画像の現在の高さ
@@ -47,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private float defaultWidth;
     private boolean infoFlag = false;       //infoポップアップが表示されているかのフラグ
     private boolean roomInfoFlag =false;    //roomInfoサイドバーが表示されているかのフラグ
+    private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
     private float defaultRoomTextSize;
 
 
@@ -77,9 +81,12 @@ public class MainActivity extends AppCompatActivity {
         goto_button = findViewById(R.id.goTo_button);
         info_sideBar = findViewById(R.id.info_sideBar);
         room_image = findViewById(R.id.roomImageView);
+        bSearchButton = findViewById(R.id.b_search_button);
+        searchEditText = findViewById(R.id.search_editText);
 
         info_layout.setVisibility(View.INVISIBLE);
         info_sideBar.setVisibility(View.GONE);
+        searchEditText.setVisibility(View.GONE);
 
         mImageView.setImageResource(floorImage[0]);
 
@@ -154,6 +161,14 @@ public class MainActivity extends AppCompatActivity {
                 roomInfoFlag=true;
             }
         });
+
+        bSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchEditText.setVisibility(View.VISIBLE);
+                searchFlag=true;
+            }
+        });
     }
 
     @Override
@@ -204,6 +219,10 @@ public class MainActivity extends AppCompatActivity {
             if(roomInfoFlag){
                 info_sideBar.setVisibility(View.GONE);
                 roomInfoFlag=false;
+            }
+            if(searchFlag){
+                searchEditText.setVisibility(View.GONE);
+                searchFlag=false;
             }
             Log.d("debug", "onTouch");
 

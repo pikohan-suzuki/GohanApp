@@ -13,7 +13,25 @@
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent"-->
         <!--android:background="#d9fff6">-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/search_editText"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/marukado"/>
+        <Button
+            android:id="@+id/b_search_button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/search_button" />
 
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,14 +41,14 @@
             android:id="@+id/floor_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp" />
+            android:textSize="50sp" />
 
         <TextView
             android:id="@+id/building_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="23号館"
-            android:textSize="20sp" />
+            android:textSize="50sp" />
     </LinearLayout>
 
 
