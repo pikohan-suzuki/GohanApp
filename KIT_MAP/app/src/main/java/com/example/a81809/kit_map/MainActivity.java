@@ -9,11 +9,14 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
     private Button down_button;
     private TextView buildingtextView;
     private TextView floorTextView;
+    private TextView room0;
+    private LinearLayout info_layout;
+    private Button goto_button;
+    private Button info_button;
 
     private int imageWidth;         //画像の現在の幅
     private int imageHeight;        //画像の現在の高さ
@@ -42,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private int building = 23;           //建物番号
     private int floor = 0;              //階層番号
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
-
+    private float[][] roomRange ={{0.5f,0.25f}};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         down_button = findViewById(R.id.down_button);
         buildingtextView = findViewById(R.id.building_textView);
         floorTextView = findViewById(R.id.floor_textView);
+        room0 = findViewById(R.id.room0);
 
         mImageView.setImageResource(floorImage[0]);
 
@@ -94,6 +102,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        room0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("debug","コミュニケーションスタジオ");
+            }
+        });
     }
 
     @Override
@@ -111,6 +126,14 @@ public class MainActivity extends AppCompatActivity {
         minImageHeight = realScreenHeight * 0.25f;
         minImageWidth = realScreenWidth * 0.25f;
         setImageInfo();
+        float textMarginX = defaultX + imageWidth*roomRange[0][0];
+        float textMarginY = defaultY + imageHeight*roomRange[0][1];
+//        ViewGroup.LayoutParams lp = room0.getLayoutParams();
+//        ViewGroup.MarginLayoutParams mlp =(ViewGroup.MarginLayoutParams)lp;
+//        mlp.setMargins(mlp.leftMargin,(int)textMarginX,mlp.topMargin,(int)textMarginY);
+        room0.setX(textMarginX);
+        room0.setY(textMarginY);
+
     }
 
     private void setImageInfo() {
@@ -194,6 +217,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("debug", "onScroll");
                     mImageView.setX(mImageView.getX() - distanceX * 0.5f);
                     mImageView.setY(mImageView.getY() - distanceY * 0.5f);
+                    room0.setX(room0.getX() - distanceX * 0.5f);
+                    room0.setY(room0.getY()- distanceY *0.5f);
                     Log.d("debug", "x:" + mImageView.getX() + " v:" + distanceX + " setY:" + mImageView.getY() +
                             " b1:" + distanceY + "before_x:" + motionEvent1.getX() + " after_x:" + motionEvent1.getY());
                     return false;
