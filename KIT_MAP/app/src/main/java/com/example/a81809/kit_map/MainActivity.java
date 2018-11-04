@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
 
+    private FrameLayout drawer_layout;
     private ImageView mImageView;   //マップを表示するイメージビュー
     private Button center_button;   //画像を元に戻すボタン
     private Button up_button;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private float minImageHeight;   //最小の画像の高さ
     private float defaultX;         //画像のデフォルトx座標
     private float defaultY;         //画像のデフォルトy座標
+    private boolean infoFlag=false;       //infoポップアップが表示されているかのフラグ
 
     private FrameLayout.LayoutParams layoutParams;
 
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        drawer_layout = findViewById(R.id.drawer_layout);
         mImageView = findViewById(R.id.droid_Image);
         center_button = findViewById(R.id.center_button);
         up_button = findViewById(R.id.up_button);
@@ -71,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         mImageView.setImageResource(floorImage[0]);
 
         /* Touch event */
-        mImageView.setOnTouchListener(mTouchEventLister);
+        drawer_layout.setOnTouchListener(mTouchEventLister);
         mGestureDetector = new GestureDetector(this, mGestureListener);
         mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
 
@@ -117,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 info_layout.setY(room0.getY()-info_layout.getHeight()-10);
                 Log.d("debug","roomX: " +room0.getX()+ " roomWidth: " + room0.getWidth() + " infoWidth: " + info_layout.getWidth());
                 info_layout.setVisibility(View.VISIBLE);
+                infoFlag=true;
             }
         });
     }
@@ -159,6 +163,9 @@ public class MainActivity extends AppCompatActivity {
         public boolean onTouch(View v, MotionEvent e) {
             mScaleGestureDetector.onTouchEvent(e);
             mGestureDetector.onTouchEvent(e);
+            if(infoFlag){
+                info_layout.setVisibility(View.INVISIBLE);
+            }
             Log.d("debug", "onTouch");
 
             return true;
