@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private float defaultHeight;
     private float defaultWidth;
     private boolean infoFlag = false;       //infoポップアップが表示されているかのフラグ
+    private float defaultRoomTextSize;
 
     private FrameLayout.LayoutParams layoutParams;
 
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
                 room0.setX(textMarginX);
                 room0.setY(textMarginY);
-
+                room0.setTextSize(defaultRoomTextSize);
             }
         });
 
@@ -151,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
         minImageWidth = realScreenWidth * 0.25f;
         defaultHeight = mImageView.getHeight();
         defaultWidth = mImageView.getWidth();
+        defaultRoomNameWidth = room0.getWidth();
+        defaultRoomNameHeight = room0.getHeight();
+        defaultRoomTextSize = room0.getTextSize();
         setImageInfo();
         float textMarginX = defaultX + imageWidth * roomRange[0][0];
         float textMarginY = defaultY + imageHeight * roomRange[0][1];
@@ -207,11 +211,14 @@ public class MainActivity extends AppCompatActivity {
                     mImageView.setLayoutParams(layoutParams);
                     float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[0][0] * factor;
                     float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[0][1] * factor;
-
                     room0.setX(textMarginX);
                     room0.setY(textMarginY);
+                    if (Math.abs(mImageView.getWidth() - defaultWidth) < 25) {
+                        room0.setTextSize(defaultRoomTextSize);
+                    } else {
+                        room0.setTextSize(room0.getTextSize() * factor);
+                    }
                 }
-
             }
             mGestureDetector.setIsLongpressEnabled(true);
             return true;
