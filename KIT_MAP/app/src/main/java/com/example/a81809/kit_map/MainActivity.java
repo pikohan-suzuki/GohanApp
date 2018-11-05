@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private float defaultHeight;
     private float defaultWidth;
     private boolean infoFlag = false;       //infoポップアップが表示されているかのフラグ
-    private boolean roomInfoFlag =false;    //roomInfoサイドバーが表示されているかのフラグ
+    private boolean roomInfoFlag = false;    //roomInfoサイドバーが表示されているかのフラグ
     private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
     private float defaultRoomTextSize;
 
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private int floor = 0;              //階層番号
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
     private float[][] roomRange = {{0.5f, 0.25f}};
-    private String[] room = {"コミュニケーションスタジオ 23-104","学生ステーション 23-101","パフォーミングスタジオ 23-106"};
+    private String[] room = {"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,10 +153,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("debug", "コミュニケーションスタジオ");
 
-                mImageView.setX(mImageView.getX()- (room0.getX() - (maxImageWidth-room0.getWidth())/2));
-                mImageView.setY(mImageView.getY()- (room0.getY() - (maxImageHeight-room0.getHeight())/2));
-                room0.setX((maxImageWidth-room0.getWidth())/2);
-                room0.setY((maxImageHeight-room0.getHeight())/2);
+                mImageView.setX(mImageView.getX() - (room0.getX() - (maxImageWidth - room0.getWidth()) / 2));
+                mImageView.setY(mImageView.getY() - (room0.getY() - (maxImageHeight - room0.getHeight()) / 2));
+                room0.setX((maxImageWidth - room0.getWidth()) / 2);
+                room0.setY((maxImageHeight - room0.getHeight()) / 2);
                 info_layout.setX(room0.getX() + (room0.getWidth() - info_layout.getWidth()) / 2);
                 info_layout.setY(room0.getY() - info_layout.getHeight() - 10);
                 Log.d("debug", "roomX: " + room0.getX() + " roomWidth: " + room0.getWidth() + " infoWidth: " + info_layout.getWidth());
@@ -168,9 +169,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 info_sideBar.setVisibility(View.VISIBLE);
-                linearLayoutParams = new LinearLayout.LayoutParams((int) (maxImageWidth / 3), (int) maxImageHeight/3);
+                linearLayoutParams = new LinearLayout.LayoutParams((int) (maxImageWidth / 3), (int) maxImageHeight / 3);
                 room_image.setLayoutParams(linearLayoutParams);
-                roomInfoFlag=true;
+                roomInfoFlag = true;
             }
         });
 
@@ -178,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 searchEditText.setVisibility(View.VISIBLE);
-                searchFlag=true;
+                searchFlag = true;
             }
         });
 
@@ -190,20 +191,25 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                List<String> rooms = Arrays.asList(room);
-                for(int i=0;i<rooms.size();i++){
-                    if(rooms.get(i).contains(s)){
-                        rooms.remove(i);
+                Log.d("debug","text: " + s +" start: " + start + " before: " + before + " count: " + count);
+                List<String> rooms = new ArrayList<String>();
+                for (int i = 0; i < room.length; i++) {
+                    if (room[i].contains(s)) {
+                        rooms.add(rooms.size(),room[i]);
                     }
                 }
                 String str[] = rooms.toArray(new String[rooms.size()]);
-                String[] foods ={"aaaa","bbbb","cccc"};
-                arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,foods);
+                createArrayList(str);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                Log.d("debug","afterTextChanged::" +"text: " + s );
+                if(s.length() ==0){
+                    Log.d("debug","afterTextChanged:: null" );
+                    String str[]=new String[0];
+                    createArrayList(str);
+                }
             }
         });
     }
@@ -234,6 +240,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void createArrayList(String[] array) {
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, array);
+        forecastListView.setAdapter(arrayAdapter);
+    }
+
     private void setImageInfo() {
         imageWidth = mImageView.getWidth();
         imageHeight = mImageView.getHeight();
@@ -251,15 +262,18 @@ public class MainActivity extends AppCompatActivity {
             mGestureDetector.onTouchEvent(e);
             if (infoFlag) {
                 info_layout.setVisibility(View.INVISIBLE);
-                infoFlag=false;
+                infoFlag = false;
             }
-            if(roomInfoFlag){
+            if (roomInfoFlag) {
                 info_sideBar.setVisibility(View.GONE);
-                roomInfoFlag=false;
+                roomInfoFlag = false;
             }
-            if(searchFlag){
+            if (searchFlag) {
                 searchEditText.setVisibility(View.GONE);
-                searchFlag=false;
+                searchEditText.setText("");
+                searchFlag = false;
+                String array[] = new String[0];
+                createArrayList(array);
             }
             Log.d("debug", "onTouch");
 

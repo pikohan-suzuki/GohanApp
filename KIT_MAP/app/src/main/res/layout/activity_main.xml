@@ -22,6 +22,8 @@
             android:id="@+id/search_editText"
             android:layout_width="300dp"
             android:layout_height="50dp"
+            android:layout_marginTop="30dp"
+            android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
             android:background="@drawable/marukado"/>
         <Button
@@ -32,8 +34,11 @@
             android:background="@drawable/search_button" />
         <ListView
             android:id="@+id/search_forecast"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content">
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/search_editText"
+            android:layout_centerInParent="true"
+            android:background="#55a9ff28">
 
         </ListView>
 
