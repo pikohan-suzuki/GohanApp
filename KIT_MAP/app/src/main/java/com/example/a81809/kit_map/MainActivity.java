@@ -1,5 +1,6 @@
 package com.example.a81809.kit_map;
 
+import android.content.Intent;
 import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -212,6 +213,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        goto_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
         bSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -257,10 +266,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("debug", parent.getAdapter().getItem(position) + "aaaa");
-                loop:for (int i = 0; i < 5; i++) {
-                    for(int j =0;j < 10;j++) {
+                loop:
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 10; j++) {
                         if (searchRoomName[i][j] == parent.getAdapter().getItem(position)) {
-                            floor=i;
+                            floor = i;
                             setRoomName();
                             room1[j].callOnClick();
                             searchEditText.setText(String.valueOf(parent.getAdapter().getItem(position)));
