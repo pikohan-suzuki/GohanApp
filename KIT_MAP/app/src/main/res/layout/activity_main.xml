@@ -8,12 +8,36 @@
     tools:context=".MainActivity"
     android:background="#d9fff6"
     >
-    <!--<FrameLayout-->
-        <!--android:id="@+id/background_layout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="#d9fff6">-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/search_editText"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:background="@drawable/marukado"/>
+        <Button
+            android:id="@+id/b_search_button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/search_button" />
+        <ListView
+            android:id="@+id/search_forecast"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/search_editText"
+            android:layout_centerInParent="true"
+            android:background="#55a9ff28">
 
+        </ListView>
+
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,14 +47,14 @@
             android:id="@+id/floor_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp" />
+            android:textSize="50sp" />
 
         <TextView
             android:id="@+id/building_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="23号館"
-            android:textSize="20sp" />
+            android:textSize="50sp" />
     </LinearLayout>
 
 
@@ -41,15 +65,15 @@
         android:layout_gravity="center"
         android:scaleType="centerCrop" />
 
-    <TextView
-        android:id="@+id/room0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:textAlignment="center"
-        android:text="23-104\nコミュニケーション\nスタジオ"
-        android:background="@drawable/marukado"
-        />
+    <!--<TextView-->
+        <!--android:id="@+id/room0"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:clickable="true"-->
+        <!--android:textAlignment="center"-->
+        <!--android:text="23-104\nコミュニケーション\nスタジオ"-->
+        <!--android:background="@drawable/marukado"-->
+        <!--/>-->
 
     <LinearLayout
         android:id="@+id/info_layout"
@@ -164,5 +188,4 @@
             android:layout_height="wrap_content"
             android:text="仮置き"/>
     </LinearLayout>
-    <!--</FrameLayout>-->
 </FrameLayout>
