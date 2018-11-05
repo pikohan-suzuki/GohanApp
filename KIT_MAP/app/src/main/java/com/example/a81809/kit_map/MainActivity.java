@@ -11,6 +11,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,7 +23,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private Button down_button;
     private TextView buildingtextView;
     private TextView floorTextView;
-    private TextView room0;
+//    private TextView room0;
+    private TextView room1[]= new TextView[10];
     private LinearLayout info_layout;
     private Button goto_button;
     private Button info_button;
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
     private float defaultRoomTextSize;
 
+    private int k;
+
     private ArrayAdapter<String> arrayAdapter;
 
 
@@ -72,8 +75,9 @@ public class MainActivity extends AppCompatActivity {
     private int building = 23;           //建物番号
     private int floor = 0;              //階層番号
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
-    private float[][] roomRange = {{0.5f, 0.25f}};
-    private String[] room = {"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106"};
+    private float[][] roomRange = {{0.5f, 0.25f},{0.5f,0.8f}};
+    private String[] roomName ={"23-4\nコミュニケーション\nスタジオ","23-101\n学生ステーション","23-106\nパフォーミング\nスタジオ"};
+    private String[] searchRoomName = {"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
         down_button = findViewById(R.id.down_button);
         buildingtextView = findViewById(R.id.building_textView);
         floorTextView = findViewById(R.id.floor_textView);
-        room0 = findViewById(R.id.room0);
         info_layout = findViewById(R.id.info_layout);
         info_button = findViewById(R.id.info_button);
         goto_button = findViewById(R.id.goTo_button);
@@ -103,6 +106,19 @@ public class MainActivity extends AppCompatActivity {
 
         mImageView.setImageResource(floorImage[0]);
 
+
+//        room0 = findViewById(R.id.room0);
+        for(int i=0; i<1;i++){
+            room1[i] = new TextView(this);
+            room1[i].setText(roomName[i]);
+            drawer_layout.addView(room1[i],new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            room1[i].setClickable(true);
+            room1[i].setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            room1[i].setBackgroundResource(R.drawable.marukado);
+        }
+
+
+
         /* Touch event */
         drawer_layout.setOnTouchListener(mTouchEventLister);
         mGestureDetector = new GestureDetector(this, mGestureListener);
@@ -117,12 +133,14 @@ public class MainActivity extends AppCompatActivity {
                 mImageView.setLayoutParams(frameLayoutParams);
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
-                float textMarginX = defaultX + defaultWidth * roomRange[0][0];
-                float textMarginY = defaultY + defaultHeight * roomRange[0][1];
 
-                room0.setX(textMarginX);
-                room0.setY(textMarginY);
-                room0.setTextSize(defaultRoomTextSize);
+                for(int i=0;i<1;i++) {
+                    float textMarginX = defaultX + defaultWidth * roomRange[i][0];
+                    float textMarginY = defaultY + defaultHeight * roomRange[i][1];
+                    room1[i].setX(textMarginX);
+                    room1[i].setY(textMarginY);
+                    room1[i].setTextSize(defaultRoomTextSize);
+                }
             }
         });
 
@@ -148,23 +166,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        room0.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("debug", "コミュニケーションスタジオ");
+        for(k=0;k<1;k++) {
+            room1[k].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("debug", "コミュニケーションスタジオ");
 
-                mImageView.setX(mImageView.getX() - (room0.getX() - (maxImageWidth - room0.getWidth()) / 2));
-                mImageView.setY(mImageView.getY() - (room0.getY() - (maxImageHeight - room0.getHeight()) / 2));
-                room0.setX((maxImageWidth - room0.getWidth()) / 2);
-                room0.setY((maxImageHeight - room0.getHeight()) / 2);
-                info_layout.setX(room0.getX() + (room0.getWidth() - info_layout.getWidth()) / 2);
-                info_layout.setY(room0.getY() - info_layout.getHeight() - 10);
-                Log.d("debug", "roomX: " + room0.getX() + " roomWidth: " + room0.getWidth() + " infoWidth: " + info_layout.getWidth());
-                info_layout.setVisibility(View.VISIBLE);
-                infoFlag = true;
+                    mImageView.setX(mImageView.getX() - (room1[k].getX() - (maxImageWidth - room1[k].getWidth()) / 2));
+                    mImageView.setY(mImageView.getY() - (room1[k].getY() - (maxImageHeight - room1[k].getHeight()) / 2));
+                    room1[k].setX((maxImageWidth - room1[k].getWidth()) / 2);
+                    room1[k].setY((maxImageHeight - room1[k].getHeight()) / 2);
+                    info_layout.setX(room1[k].getX() + (room1[k].getWidth() - info_layout.getWidth()) / 2);
+                    info_layout.setY(room1[k].getY() - info_layout.getHeight() - 10);
+                    Log.d("debug", "roomX: " + room1[k].getX() + " roomWidth: " + room1[k].getWidth() + " infoWidth: " + info_layout.getWidth());
+                    info_layout.setVisibility(View.VISIBLE);
+                    infoFlag = true;
 
-            }
-        });
+                }
+            });
+        }
         info_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,9 +213,9 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d("debug","text: " + s +" start: " + start + " before: " + before + " count: " + count);
                 List<String> rooms = new ArrayList<String>();
-                for (int i = 0; i < room.length; i++) {
-                    if (room[i].contains(s)) {
-                        rooms.add(rooms.size(),room[i]);
+                for (int i = 0; i < searchRoomName.length; i++) {
+                    if (searchRoomName[i].contains(s)) {
+                        rooms.add(rooms.size(), searchRoomName[i]);
                     }
                 }
                 String str[] = rooms.toArray(new String[rooms.size()]);
@@ -230,14 +250,16 @@ public class MainActivity extends AppCompatActivity {
         minImageWidth = realScreenWidth * 0.25f;
         defaultHeight = mImageView.getHeight();
         defaultWidth = mImageView.getWidth();
-        defaultRoomTextSize = room0.getTextSize();
+        defaultRoomTextSize = room1[0].getTextSize();
         setImageInfo();
-        float textMarginX = defaultX + imageWidth * roomRange[0][0];
-        float textMarginY = defaultY + imageHeight * roomRange[0][1];
 
-        room0.setX(textMarginX);
-        room0.setY(textMarginY);
-
+        for(int i=0;i<1;i++) {
+            float textMarginX = defaultX + defaultWidth * roomRange[i][0];
+            float textMarginY = defaultY + defaultHeight * roomRange[i][1];
+            room1[i].setX(textMarginX);
+            room1[i].setY(textMarginY);
+            room1[i].setTextSize(defaultRoomTextSize);
+        }
     }
 
     private void createArrayList(String[] array) {
@@ -302,14 +324,16 @@ public class MainActivity extends AppCompatActivity {
                         && imageHeight * factor > minImageHeight && imageWidth * factor > minImageWidth) {
                     frameLayoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
                     mImageView.setLayoutParams(frameLayoutParams);
-                    float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[0][0] * factor;
-                    float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[0][1] * factor;
-                    room0.setX(textMarginX);
-                    room0.setY(textMarginY);
-                    if (Math.abs(mImageView.getWidth() - defaultWidth) < 25) {
-                        room0.setTextSize(defaultRoomTextSize);
-                    } else {
-                        room0.setTextSize(defaultRoomTextSize * mImageView.getWidth() / defaultWidth);
+                    for(int i=0;i<1;i++) {
+                        float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[i][0] * factor;
+                        float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[i][1] * factor;
+                        room1[i].setX(textMarginX);
+                        room1[i].setY(textMarginY);
+                        if (Math.abs(mImageView.getWidth() - defaultWidth) < 25) {
+                            room1[i].setTextSize(defaultRoomTextSize);
+                        } else {
+                            room1[i].setTextSize(defaultRoomTextSize * mImageView.getWidth() / defaultWidth);
+                        }
                     }
                 }
             }
@@ -347,8 +371,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("debug", "onScroll");
                     mImageView.setX(mImageView.getX() - distanceX * 0.5f);
                     mImageView.setY(mImageView.getY() - distanceY * 0.5f);
-                    room0.setX(room0.getX() - distanceX * 0.5f);
-                    room0.setY(room0.getY() - distanceY * 0.5f);
+                    for(int i=0;i<1;i++) {
+                        room1[i].setX(room1[i].getX() - distanceX * 0.5f);
+                        room1[i].setY(room1[i].getY() - distanceY * 0.5f);
+                    }
                     Log.d("debug", "x:" + mImageView.getX() + " v:" + distanceX + " setY:" + mImageView.getY() +
                             " b1:" + distanceY + "before_x:" + motionEvent1.getX() + " after_x:" + motionEvent1.getY());
                     return false;

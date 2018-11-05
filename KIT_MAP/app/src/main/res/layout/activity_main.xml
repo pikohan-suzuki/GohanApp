@@ -8,11 +8,6 @@
     tools:context=".MainActivity"
     android:background="#d9fff6"
     >
-    <!--<FrameLayout-->
-        <!--android:id="@+id/background_layout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="#d9fff6">-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,15 +65,15 @@
         android:layout_gravity="center"
         android:scaleType="centerCrop" />
 
-    <TextView
-        android:id="@+id/room0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:textAlignment="center"
-        android:text="23-104\nコミュニケーション\nスタジオ"
-        android:background="@drawable/marukado"
-        />
+    <!--<TextView-->
+        <!--android:id="@+id/room0"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:clickable="true"-->
+        <!--android:textAlignment="center"-->
+        <!--android:text="23-104\nコミュニケーション\nスタジオ"-->
+        <!--android:background="@drawable/marukado"-->
+        <!--/>-->
 
     <LinearLayout
         android:id="@+id/info_layout"
@@ -193,5 +188,4 @@
             android:layout_height="wrap_content"
             android:text="仮置き"/>
     </LinearLayout>
-    <!--</FrameLayout>-->
 </FrameLayout>
