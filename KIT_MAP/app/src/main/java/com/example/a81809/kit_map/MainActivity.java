@@ -1,7 +1,10 @@
 package com.example.a81809.kit_map;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -24,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -271,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
                     for (int j = 0; j < 10; j++) {
                         if (searchRoomName[i][j] == parent.getAdapter().getItem(position)) {
                             floor = i;
+                            setImageInfo();
                             setRoomName();
                             room1[j].callOnClick();
                             searchEditText.setText(String.valueOf(parent.getAdapter().getItem(position)));
@@ -381,7 +386,27 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
+    //スクリーンショットの撮影
+    private Bitmap getViewCapture(View view){
+        view.setDrawingCacheEnabled(true);
+        Bitmap cache = view.getDrawingCache();
+        if(cache != null){
+            Bitmap screenShot = Bitmap.createBitmap(cache);
+            view.setDrawingCacheEnabled(false);
+            return screenShot;
+        }else{
+            return null;
+        }
+    }
+    //屋内か屋外かの判断
+    private boolean isOutdoor(int color){
+        ColorDrawable colorDrawable = (ColorDrawable) drawer_layout.getBackground();
+        if(color == (colorDrawable.getColor())) {
+            return true;
+        }else{
+            return false;
+        }
+    }
     private View.OnTouchListener mTouchEventLister = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent e) {
@@ -468,6 +493,20 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     Log.d("debug", "onSingleTapUp");
+                    Bitmap capture = getViewCapture(drawer_layout);
+                    if(capture!=null){
+                        int coughtColor = capture.getPixel((int)motionEvent.getX(),(int)motionEvent.getY());
+                        if(isOutdoor(coughtColor)){
+                            Toast toast = Toast.makeText(MainActivity.this,"屋外です。",Toast.LENGTH_SHORT);
+                            toast.show();
+                        }else{
+                            Toast toast = Toast.makeText(MainActivity.this,"屋内です。",Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+
+                    }else{
+                        Log.d("debug", "getBitmapColor: failed.");
+                    }
                     return false;
                 }
 

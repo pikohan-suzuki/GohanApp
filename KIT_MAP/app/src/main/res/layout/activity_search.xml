@@ -8,8 +8,9 @@
 
     <Button
         android:id="@+id/return_button"
-        android:layout_width="60sp"
-        android:layout_height="60sp"
-        android:text="return" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="←"
+        android:textSize="45dp" />
 
 </LinearLayout>
