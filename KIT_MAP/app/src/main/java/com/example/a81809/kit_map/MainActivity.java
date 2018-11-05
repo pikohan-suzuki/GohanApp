@@ -13,6 +13,8 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -230,6 +232,33 @@ public class MainActivity extends AppCompatActivity {
                     String str[]=new String[0];
                     createArrayList(str);
                 }
+            }
+        });
+
+        //リスト項目が選択された時のイベントー
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("debug",parent.getAdapter().getItem(position)+"aaaa");
+                int selected;
+                for(int i=0;i<numberOfRooms;i++){
+                    if(searchRoomName[i]==parent.getAdapter().getItem(position)){
+                        selected =i;
+                        room1[i].callOnClick();
+                        searchEditText.setText(String.valueOf(parent.getAdapter().getItem(position)));
+                        String str[] = new String[0];
+                        createArrayList(str);
+                        break;
+                    }
+                }
+            }
+        });
+        //リスト項目が長押しされた時のイベント
+        forecastListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                return false;
             }
         });
     }
