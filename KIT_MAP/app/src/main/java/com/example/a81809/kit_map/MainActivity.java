@@ -39,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private Button down_button;
     private TextView buildingtextView;
     private TextView floorTextView;
-//    private TextView room0;
-    private TextView room1[]= new TextView[10];
+    //    private TextView room0;
+    private TextView room1[] = new TextView[10];
     private LinearLayout info_layout;
     private Button goto_button;
     private Button info_button;
@@ -78,22 +78,22 @@ public class MainActivity extends AppCompatActivity {
     private int building = 0;           //建物番号
     private int floor = 0;              //階層番号
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
-    private float[][][] roomRange = {{{0.5f, 0.25f},{0.01f,0.5f},{0.45f,0.8f},{0.75f,0.25f},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
-            {{0.5f,0.5f},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
-            {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
-            {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
-            {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}}};
-    private String[][] roomName ={{"23-4\nコミュニケーション\nスタジオ","23-101\n学生ステーション","23-106\nパフォーミング\nスタジオ","23-102\nコラボレーション\nスタジオ","","","","","",""},
-            {"テスト\n2階","","","","","","","","",""},
-            {"","","","","","","","","",""},
-            {"","","","","","","","","",""},
-            {"","","","","","","","","",""}};
-    private String[][] searchRoomName = {{"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106","コラボレーションスタジオ 23-102","","","","","",""},
-            {"テスト2階 23-299","","","","","","","","",""},
-            {"","","","","","","","","",""},
-            {"","","","","","","","","",""},
-            {"","","","","","","","","",""}};
-    private String[] buildingName ={"23","","","","","","","","",""};
+    private float[][][] roomRange = {{{0.5f, 0.25f}, {0.01f, 0.5f}, {0.45f, 0.8f}, {0.75f, 0.25f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0.5f, 0.5f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}};
+    private String[][] roomName = {{"23-4\nコミュニケーション\nスタジオ", "23-101\n学生ステーション", "23-106\nパフォーミング\nスタジオ", "23-102\nコラボレーション\nスタジオ", "", "", "", "", "", ""},
+            {"テスト\n2階", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""}};
+    private String[][] searchRoomName = {{"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106", "コラボレーションスタジオ 23-102", "", "", "", "", "", ""},
+            {"テスト2階 23-299", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""}};
+    private String[] buildingName = {"23", "", "", "", "", "", "", "", "", ""};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,17 +124,17 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        room0 = findViewById(R.id.room0);
-        numberOfRooms=10;
-        for(int j =0;j < 10;j++){
-            if(!(roomName[floor][j]!="" && searchRoomName[floor][j]!="" && roomRange[floor][j][0] != 0.f)) {
-                numberOfRooms=j;
+        numberOfRooms = 10;
+        for (int j = 0; j < 10; j++) {
+            if (!(roomName[floor][j] != "" && searchRoomName[floor][j] != "" && roomRange[floor][j][0] != 0.f)) {
+                numberOfRooms = j;
                 break;
             }
         }
 
-        for(int i=0; i<10;i++){
+        for (int i = 0; i < 10; i++) {
             room1[i] = new TextView(this);
-            if(i<numberOfRooms) {
+            if (i < numberOfRooms) {
                 room1[i].setText(roomName[floor][i]);
                 drawer_layout.addView(room1[i], new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 room1[i].setClickable(true);
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        for(k=0;k<numberOfRooms;k++) {
+        for (k = 0; k < numberOfRooms; k++) {
             room1[k].setOnClickListener(onTextViewClickListener);
         }
 
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
 
-                for(int i=0;i<numberOfRooms;i++) {
+                for (int i = 0; i < numberOfRooms; i++) {
                     float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
                     float textMarginY = defaultY + defaultHeight * roomRange[floor][i][1];
                     room1[i].setX(textMarginX);
@@ -182,14 +182,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (floor < 4) {
                     floor++;
-
-                    numberOfRooms=10;
-                    for(int j =0;j < 10;j++){
-                        if(!(roomName[floor][j]!="" && searchRoomName[floor][j]!="" && roomRange[floor][j][0] != 0.f)) {
-                            numberOfRooms=j;
-                            break;
-                        }
-                    }
                     mImageView.setImageResource(floorImage[floor]);
                     setImageInfo();
                     setRoomName();
@@ -202,21 +194,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (floor > 0) {
                     floor--;
-
-                    numberOfRooms=10;
-                    for(int j =0;j < 10;j++){
-                        if(!(roomName[floor][j]!="" && searchRoomName[floor][j]!="" && roomRange[floor][j][0] != 0.f)) {
-                            numberOfRooms=j;
-                            break;
-                        }
-                    }
                     mImageView.setImageResource(floorImage[floor]);
                     setImageInfo();
                     setRoomName();
                 }
             }
         });
-
 
 
         info_button.setOnClickListener(new View.OnClickListener() {
@@ -245,11 +228,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d("debug","text: " + s +" start: " + start + " before: " + before + " count: " + count);
+                Log.d("debug", "text: " + s + " start: " + start + " before: " + before + " count: " + count);
                 List<String> rooms = new ArrayList<String>();
-                for (int i = 0; i < searchRoomName.length; i++) {
-                    if (searchRoomName[floor][i].contains(s)) {
-                        rooms.add(rooms.size(), searchRoomName[floor][i]);
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 10; j++) {
+                        if (searchRoomName[i][j].contains(s) && searchRoomName[i][j] != "") {
+                            rooms.add(rooms.size(), searchRoomName[i][j]);
+                        }
                     }
                 }
                 String str[] = rooms.toArray(new String[rooms.size()]);
@@ -258,10 +243,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                Log.d("debug","afterTextChanged::" +"text: " + s );
-                if(s.length() ==0){
-                    Log.d("debug","afterTextChanged:: null" );
-                    String str[]=new String[0];
+                Log.d("debug", "afterTextChanged::" + "text: " + s);
+                if (s.length() == 0) {
+                    Log.d("debug", "afterTextChanged:: null");
+                    String str[] = new String[0];
                     createArrayList(str);
                 }
             }
@@ -271,16 +256,18 @@ public class MainActivity extends AppCompatActivity {
         forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("debug",parent.getAdapter().getItem(position)+"aaaa");
-                int selected;
-                for(int i=0;i<numberOfRooms;i++){
-                    if(searchRoomName[i]==parent.getAdapter().getItem(position)){
-                        selected =i;
-                        room1[i].callOnClick();
-                        searchEditText.setText(String.valueOf(parent.getAdapter().getItem(position)));
-                        String str[] = new String[0];
-                        createArrayList(str);
-                        break;
+                Log.d("debug", parent.getAdapter().getItem(position) + "aaaa");
+                loop:for (int i = 0; i < 5; i++) {
+                    for(int j =0;j < 10;j++) {
+                        if (searchRoomName[i][j] == parent.getAdapter().getItem(position)) {
+                            floor=i;
+                            setRoomName();
+                            room1[j].callOnClick();
+                            searchEditText.setText(String.valueOf(parent.getAdapter().getItem(position)));
+                            String str[] = new String[0];
+                            createArrayList(str);
+                            break loop;
+                        }
                     }
                 }
             }
@@ -294,19 +281,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private View.OnClickListener onTextViewClickListener = new View.OnClickListener(){
+
+    private View.OnClickListener onTextViewClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
 
-            Log.d("debug", "TextTapped: "+ v);
+            Log.d("debug", "TextTapped: " + v);
             float X_moveRange = (v.getX() - (maxImageWidth - v.getWidth()) / 2);
-            float Y_moveRange = (v.getY() - (maxImageHeight- v.getHeight()) / 2);
+            float Y_moveRange = (v.getY() - (maxImageHeight - v.getHeight()) / 2);
             mImageView.setX(mImageView.getX() - X_moveRange);
             mImageView.setY(mImageView.getY() - Y_moveRange);
-            for(int i=0;i<numberOfRooms;i++) {
-                Log.d("debug","room1: X:" + room1[i].getX() + " maxImageWidth: " + maxImageWidth +" v.Width: " + v.getWidth() +" v.X: " + v.getX());
-                room1[i].setX(room1[i].getX()-X_moveRange);
-                room1[i].setY(room1[i].getY()-Y_moveRange);
+            for (int i = 0; i < numberOfRooms; i++) {
+                Log.d("debug", "room1: X:" + room1[i].getX() + " maxImageWidth: " + maxImageWidth + " v.Width: " + v.getWidth() + " v.X: " + v.getX());
+                room1[i].setX(room1[i].getX() - X_moveRange);
+                room1[i].setY(room1[i].getY() - Y_moveRange);
 
             }
 
@@ -318,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -337,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
         defaultRoomTextSize = room1[0].getTextSize();
         setImageInfo();
 
-        for(int i=0;i<numberOfRooms;i++) {
+        for (int i = 0; i < numberOfRooms; i++) {
             float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
             float textMarginY = defaultY + defaultHeight * roomRange[floor][i][1];
             room1[i].setX(textMarginX);
@@ -361,20 +350,28 @@ public class MainActivity extends AppCompatActivity {
         floorTextView.setText("F" + (floor + 1));
     }
 
-    private void setRoomName(){
-        for(int i=0; i<10;i++){
-            if(i<numberOfRooms) {
+    private void setRoomName() {
+        numberOfRooms = 10;
+        for (int j = 0; j < 10; j++) {
+            if (!(roomName[floor][j] != "" && searchRoomName[floor][j] != "" && roomRange[floor][j][0] != 0.f)) {
+                numberOfRooms = j;
+                break;
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            if (i < numberOfRooms) {
                 room1[i].setText(roomName[floor][i]);
                 float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
                 float textMarginY = defaultY + defaultHeight * roomRange[floor][i][1];
                 room1[i].setX(textMarginX);
                 room1[i].setY(textMarginY);
                 room1[i].setTextSize(defaultRoomTextSize);
-            }else{
+            } else {
                 room1[i].setText("");
             }
         }
     }
+
     private View.OnTouchListener mTouchEventLister = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent e) {
@@ -422,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
                         && imageHeight * factor > minImageHeight && imageWidth * factor > minImageWidth) {
                     frameLayoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
                     mImageView.setLayoutParams(frameLayoutParams);
-                    for(int i=0;i<numberOfRooms;i++) {
+                    for (int i = 0; i < numberOfRooms; i++) {
                         float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[floor][i][0] * factor;
                         float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[floor][i][1] * factor;
                         room1[i].setX(textMarginX);
@@ -469,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("debug", "onScroll");
                     mImageView.setX(mImageView.getX() - distanceX * 0.5f);
                     mImageView.setY(mImageView.getY() - distanceY * 0.5f);
-                    for(int i=0;i<numberOfRooms;i++) {
+                    for (int i = 0; i < numberOfRooms; i++) {
                         room1[i].setX(room1[i].getX() - distanceX * 0.5f);
                         room1[i].setY(room1[i].getY() - distanceY * 0.5f);
                     }
