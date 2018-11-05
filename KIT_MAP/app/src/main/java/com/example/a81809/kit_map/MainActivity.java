@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean roomInfoFlag = false;    //roomInfoサイドバーが表示されているかのフラグ
     private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
     private float defaultRoomTextSize;
+    private int numberOfRooms;
 
     private int k;
 
@@ -72,12 +73,13 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout.LayoutParams linearLayoutParams;
 
 
-    private int building = 23;           //建物番号
+    private int building = 0;           //建物番号
     private int floor = 0;              //階層番号
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
-    private float[][] roomRange = {{0.5f, 0.25f},{0.5f,0.8f}};
-    private String[] roomName ={"23-4\nコミュニケーション\nスタジオ","23-101\n学生ステーション","23-106\nパフォーミング\nスタジオ"};
-    private String[] searchRoomName = {"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106"};
+    private float[][] roomRange = {{0.5f, 0.25f},{0.01f,0.5f},{0.45f,0.8f},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+    private String[] roomName ={"23-4\nコミュニケーション\nスタジオ","23-101\n学生ステーション","23-106\nパフォーミング\nスタジオ","","","","","","",""};
+    private String[] searchRoomName = {"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106","","","","","","",""};
+    private String[] buildingName ={"23","","","","","","","","",""};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +110,15 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        room0 = findViewById(R.id.room0);
-        for(int i=0; i<1;i++){
+        numberOfRooms=10;
+        for(int j =0;j < 10;j++){
+            if(!(roomName[j]!="" && searchRoomName[j]!="" && roomRange[j][0] != 0.f)) {
+                numberOfRooms=j;
+                break;
+            }
+        }
+
+        for(int i=0; i<numberOfRooms;i++){
             room1[i] = new TextView(this);
             room1[i].setText(roomName[i]);
             drawer_layout.addView(room1[i],new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -117,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
             room1[i].setBackgroundResource(R.drawable.marukado);
         }
 
+        for(k=0;k<numberOfRooms;k++) {
+            room1[k].setOnClickListener(onTextViewClickListener);
+        }
 
 
         /* Touch event */
@@ -134,12 +147,16 @@ public class MainActivity extends AppCompatActivity {
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
 
-                for(int i=0;i<1;i++) {
+                for(int i=0;i<numberOfRooms;i++) {
                     float textMarginX = defaultX + defaultWidth * roomRange[i][0];
                     float textMarginY = defaultY + defaultHeight * roomRange[i][1];
                     room1[i].setX(textMarginX);
                     room1[i].setY(textMarginY);
                     room1[i].setTextSize(defaultRoomTextSize);
+                }
+                if (infoFlag) {
+                    info_layout.setVisibility(View.INVISIBLE);
+                    infoFlag = false;
                 }
             }
         });
@@ -166,25 +183,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        for(k=0;k<1;k++) {
-            room1[k].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("debug", "コミュニケーションスタジオ");
 
-                    mImageView.setX(mImageView.getX() - (room1[k].getX() - (maxImageWidth - room1[k].getWidth()) / 2));
-                    mImageView.setY(mImageView.getY() - (room1[k].getY() - (maxImageHeight - room1[k].getHeight()) / 2));
-                    room1[k].setX((maxImageWidth - room1[k].getWidth()) / 2);
-                    room1[k].setY((maxImageHeight - room1[k].getHeight()) / 2);
-                    info_layout.setX(room1[k].getX() + (room1[k].getWidth() - info_layout.getWidth()) / 2);
-                    info_layout.setY(room1[k].getY() - info_layout.getHeight() - 10);
-                    Log.d("debug", "roomX: " + room1[k].getX() + " roomWidth: " + room1[k].getWidth() + " infoWidth: " + info_layout.getWidth());
-                    info_layout.setVisibility(View.VISIBLE);
-                    infoFlag = true;
 
-                }
-            });
-        }
         info_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,7 +233,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    private View.OnClickListener onTextViewClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
 
+            Log.d("debug", "TextTapped: "+ v);
+            float X_moveRange = (v.getX() - (maxImageWidth - v.getWidth()) / 2);
+            float Y_moveRange = (v.getY() - (maxImageHeight- v.getHeight()) / 2);
+            mImageView.setX(mImageView.getX() - X_moveRange);
+            mImageView.setY(mImageView.getY() - Y_moveRange);
+            for(int i=0;i<numberOfRooms;i++) {
+                Log.d("debug","room1: X:" + room1[i].getX() + " maxImageWidth: " + maxImageWidth +" v.Width: " + v.getWidth() +" v.X: " + v.getX());
+                room1[i].setX(room1[i].getX()-X_moveRange);
+                room1[i].setY(room1[i].getY()-Y_moveRange);
+
+            }
+
+            info_layout.setX(v.getX() + (v.getWidth() - info_layout.getWidth()) / 2);
+            info_layout.setY(v.getY() - info_layout.getHeight() - 10);
+            Log.d("debug", "roomX: " + v.getX() + " roomWidth: " + v.getWidth() + " infoWidth: " + info_layout.getWidth());
+            info_layout.setVisibility(View.VISIBLE);
+            infoFlag = true;
+
+        }
+    };
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -253,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
         defaultRoomTextSize = room1[0].getTextSize();
         setImageInfo();
 
-        for(int i=0;i<1;i++) {
+        for(int i=0;i<numberOfRooms;i++) {
             float textMarginX = defaultX + defaultWidth * roomRange[i][0];
             float textMarginY = defaultY + defaultHeight * roomRange[i][1];
             room1[i].setX(textMarginX);
@@ -324,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
                         && imageHeight * factor > minImageHeight && imageWidth * factor > minImageWidth) {
                     frameLayoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
                     mImageView.setLayoutParams(frameLayoutParams);
-                    for(int i=0;i<1;i++) {
+                    for(int i=0;i<numberOfRooms;i++) {
                         float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[i][0] * factor;
                         float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[i][1] * factor;
                         room1[i].setX(textMarginX);
@@ -371,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("debug", "onScroll");
                     mImageView.setX(mImageView.getX() - distanceX * 0.5f);
                     mImageView.setY(mImageView.getY() - distanceY * 0.5f);
-                    for(int i=0;i<1;i++) {
+                    for(int i=0;i<numberOfRooms;i++) {
                         room1[i].setX(room1[i].getX() - distanceX * 0.5f);
                         room1[i].setY(room1[i].getY() - distanceY * 0.5f);
                     }
