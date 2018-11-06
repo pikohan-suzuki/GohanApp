@@ -105,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = new Intent(getApplication(),checkPermissionActivity.class);
+        startActivity(intent);
+
         drawer_layout = findViewById(R.id.drawer_layout);
         mImageView = findViewById(R.id.droid_Image);
         center_button = findViewById(R.id.center_button);

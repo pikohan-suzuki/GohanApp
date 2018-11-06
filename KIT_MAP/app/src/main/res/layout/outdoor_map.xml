@@ -9,5 +9,12 @@
     android:background="#d9fff6"
     >
 
+    <ImageView
+    android:id="@+id/outdoor_image"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+        android:src="@drawable/b23"
+    android:layout_gravity="center"
+    android:scaleType="fitCenter" />
 
 </FrameLayout>
