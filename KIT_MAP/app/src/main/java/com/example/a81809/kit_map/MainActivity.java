@@ -1,10 +1,18 @@
 package com.example.a81809.kit_map;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -29,7 +37,25 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
     private Button down_button;
     private TextView buildingtextView;
     private TextView floorTextView;
-    //    private TextView room0;
     private TextView room1[] = new TextView[10];
     private LinearLayout info_layout;
     private Button goto_button;
@@ -54,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     private Button bSearchButton;
     private EditText searchEditText;
     private ListView forecastListView;
+    private ImageView locationImageView;
 
     private int imageWidth;         //画像の現在の幅
     private int imageHeight;        //画像の現在の高さ
@@ -71,7 +97,27 @@ public class MainActivity extends AppCompatActivity {
     private float defaultRoomTextSize;
     private int numberOfRooms;
 
+    private FusedLocationProviderClient fusedLocationClient;
+    private SettingsClient settingsClient;
+    private LocationSettingsRequest locationSettingsRequest;
+    private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
+    private Location location;
+
+    private String lastUpdateTime;
+    private Boolean requestingLocationUpdates;
+    private static final int REQUEST_CHECK_SETTINGS = 0x1;
+
     private int k;
+
+    private final double imageLatitude = 0.0002864;
+    private final double imageLongitude = 0.000047367;
+    private final double imageLeftLatitude = 136.629138083022;
+    private final double imageTopLongitude = 36.531387;
+    private boolean firstFlg =true;
+    private double firstLatitude;
+    private double firstLongitude;
+
 
     private ArrayAdapter<String> arrayAdapter;
 
@@ -105,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(getApplication(),checkPermissionActivity.class);
+        Intent intent = new Intent(getApplication(), checkPermissionActivity.class);
         startActivity(intent);
 
         drawer_layout = findViewById(R.id.drawer_layout);
@@ -123,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         bSearchButton = findViewById(R.id.b_search_button);
         searchEditText = findViewById(R.id.search_editText);
         forecastListView = findViewById(R.id.search_forecast);
+        locationImageView = findViewById(R.id.location);
 
         info_layout.setVisibility(View.INVISIBLE);
         info_sideBar.setVisibility(View.GONE);
@@ -130,8 +177,13 @@ public class MainActivity extends AppCompatActivity {
 
         mImageView.setImageResource(floorImage[0]);
 
-
-//        room0 = findViewById(R.id.room0);
+        fusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(this);
+        settingsClient = LocationServices.getSettingsClient(this);
+        createLocationCallback();
+        createLocationRequest();
+        buildLocationSettingsRequest();
+        startLocationUpdates();
         numberOfRooms = 10;
         for (int j = 0; j < 10; j++) {
             if (!(roomName[floor][j] != "" && searchRoomName[floor][j] != "" && roomRange[floor][j][0] != 0.f)) {
@@ -223,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
         goto_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
+                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
                 startActivity(intent);
             }
         });
@@ -298,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
     }
 
     private View.OnClickListener onTextViewClickListener = new View.OnClickListener() {
@@ -389,27 +442,30 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     //スクリーンショットの撮影
-    private Bitmap getViewCapture(View view){
+    private Bitmap getViewCapture(View view) {
         view.setDrawingCacheEnabled(true);
         Bitmap cache = view.getDrawingCache();
-        if(cache != null){
+        if (cache != null) {
             Bitmap screenShot = Bitmap.createBitmap(cache);
             view.setDrawingCacheEnabled(false);
             return screenShot;
-        }else{
+        } else {
             return null;
         }
     }
+
     //屋内か屋外かの判断
-    private boolean isOutdoor(int color){
+    private boolean isOutdoor(int color) {
         ColorDrawable colorDrawable = (ColorDrawable) drawer_layout.getBackground();
-        if(color == (colorDrawable.getColor())) {
+        if (color == (colorDrawable.getColor())) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
+
     private View.OnTouchListener mTouchEventLister = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent e) {
@@ -497,19 +553,19 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     Log.d("debug", "onSingleTapUp");
                     Bitmap capture = getViewCapture(drawer_layout);
-                    if(capture!=null){
-                        int coughtColor = capture.getPixel((int)motionEvent.getX(),(int)motionEvent.getY());
-                        if(isOutdoor(coughtColor)){
-                            Toast toast = Toast.makeText(MainActivity.this,"屋外です。",Toast.LENGTH_SHORT);
+                    if (capture != null) {
+                        int coughtColor = capture.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
+                        if (isOutdoor(coughtColor)) {
+                            Toast toast = Toast.makeText(MainActivity.this, "屋外です。", Toast.LENGTH_SHORT);
                             setContentView(R.layout.outdoor_map);
 
                             toast.show();
-                        }else{
-                            Toast toast = Toast.makeText(MainActivity.this,"屋内です。",Toast.LENGTH_SHORT);
+                        } else {
+                            Toast toast = Toast.makeText(MainActivity.this, "屋内です。", Toast.LENGTH_SHORT);
                             toast.show();
                         }
 
-                    }else{
+                    } else {
                         Log.d("debug", "getBitmapColor: failed.");
                     }
                     return false;
@@ -520,6 +576,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("debug", "onScroll");
                     mImageView.setX(mImageView.getX() - distanceX * 0.5f);
                     mImageView.setY(mImageView.getY() - distanceY * 0.5f);
+                    locationImageView.setX(locationImageView.getX() - distanceX * 0.5f);
+                    locationImageView.setY(locationImageView.getY() - distanceY * 0.5f);
                     for (int i = 0; i < numberOfRooms; i++) {
                         room1[i].setX(room1[i].getX() - distanceX * 0.5f);
                         room1[i].setY(room1[i].getY() - distanceY * 0.5f);
@@ -540,4 +598,187 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
             };
+
+    // locationのコールバックを受け取る
+    private void createLocationCallback() {
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                location = locationResult.getLastLocation();
+
+                lastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+                updateLocationUI();
+            }
+        };
+    }
+
+    private void updateLocationUI() {
+        // getLastLocation()からの情報がある場合のみ
+        if (location != null) {
+
+            if(firstFlg){
+                firstFlg=false;
+                firstLatitude=location.getLatitude();
+                firstLongitude=location.getLongitude();
+                Toast toast = Toast.makeText(this,"firstLocationChanged.",Toast.LENGTH_SHORT);
+                toast.show();
+                locationImageView.setX((maxImageWidth-locationImageView.getWidth())/2);
+                locationImageView.setY((maxImageHeight-locationImageView.getHeight())/2);
+            }else{
+                double marginX = mImageView.getX() - ((location.getLatitude() - firstLatitude)*mImageView.getWidth()/imageLatitude) ;
+                double marginY = mImageView.getY() -((location.getLongitude() - firstLongitude)*mImageView.getHeight()/imageLongitude);
+                Toast toast = Toast.makeText(this,"lati:"+location.getLatitude()+"long:"+location.getLongitude(),Toast.LENGTH_SHORT);
+                toast.show();
+                mImageView.setX((float)marginX);
+                mImageView.setY((float)marginY);
+            }
+
+        }
+    }
+
+    private void createLocationRequest() {
+        locationRequest = new LocationRequest();
+
+        locationRequest.setPriority(
+                LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // 単位：msec
+        locationRequest.setInterval(1000);
+        // このインターバル時間は正確です。これより早いアップデートはしません。
+        // 単位：msec
+        locationRequest.setFastestInterval(1000);
+
+    }
+
+    // 端末で測位できる状態か確認する。wifi, GPSなどがOffになっているとエラー情報のダイアログが出る
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder =
+                new LocationSettingsRequest.Builder();
+
+        builder.addLocationRequest(locationRequest);
+        locationSettingsRequest = builder.build();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode,
+                                    int resultCode, Intent data) {
+        switch (requestCode) {
+            // Check for the integer request code originally supplied to startResolutionForResult().
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        Log.i("debug", "User agreed to make required location settings changes.");
+                        // Nothing to do. startLocationupdates() gets called in onResume again.
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        Log.i("debug", "User chose not to make required location settings changes.");
+                        requestingLocationUpdates = false;
+                        break;
+                }
+                break;
+        }
+    }
+
+    // FusedLocationApiによるlocation updatesをリクエスト
+    private void startLocationUpdates() {
+        // Begin by checking if the device has the necessary location settings.
+        settingsClient.checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<LocationSettingsResponse>() {
+                            @Override
+                            public void onSuccess(
+                                    LocationSettingsResponse locationSettingsResponse) {
+                                Log.i("debug", "All location settings are satisfied.");
+
+                                // パーミッションの確認
+                                if (ActivityCompat.checkSelfPermission(
+                                        MainActivity.this,
+                                        Manifest.permission.ACCESS_FINE_LOCATION) !=
+                                        PackageManager.PERMISSION_GRANTED
+                                        && ActivityCompat.checkSelfPermission(
+                                        MainActivity.this,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                                        PackageManager.PERMISSION_GRANTED) {
+
+                                    // TODO: Consider calling
+                                    //    ActivityCompat#requestPermissions
+                                    // here to request the missing permissions, and then overriding
+                                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                    //                                          int[] grantResults)
+                                    // to handle the case where the user grants the permission. See the documentation
+                                    // for ActivityCompat#requestPermissions for more details.
+                                    return;
+                                }
+                                fusedLocationClient.requestLocationUpdates(
+                                        locationRequest, locationCallback, Looper.myLooper());
+
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                Log.i("debug", "Location settings are not satisfied. Attempting to upgrade " +
+                                        "location settings ");
+                                try {
+                                    // Show the dialog by calling startResolutionForResult(), and check the
+                                    // result in onActivityResult().
+                                    ResolvableApiException rae = (ResolvableApiException) e;
+                                    rae.startResolutionForResult(
+                                            MainActivity.this,
+                                            REQUEST_CHECK_SETTINGS);
+
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Log.i("debug", "PendingIntent unable to execute request.");
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                String errorMessage = "Location settings are inadequate, and cannot be " +
+                                        "fixed here. Fix in Settings.";
+                                Log.e("debug", errorMessage);
+                                Toast.makeText(MainActivity.this,
+                                        errorMessage, Toast.LENGTH_LONG).show();
+
+                                requestingLocationUpdates = false;
+                        }
+
+                    }
+                });
+
+        requestingLocationUpdates = true;
+    }
+
+    private void stopLocationUpdates() {
+        if (!requestingLocationUpdates) {
+            Log.d("debug", "stopLocationUpdates: " +
+                    "updates never requested, no-op.");
+
+
+            return;
+        }
+
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+                .addOnCompleteListener(this,
+                        new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                requestingLocationUpdates = false;
+                            }
+                        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // バッテリー消費を鑑みLocation requestを止める
+        stopLocationUpdates();
+    }
+//    @Override
+//    protected void onResume(){
+//        startLocationUpdates();
+//    }
 }

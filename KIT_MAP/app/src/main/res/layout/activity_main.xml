@@ -8,6 +8,12 @@
     tools:context=".MainActivity"
     android:background="#d9fff6"
     >
+    <ImageView
+        android:id="@+id/location"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:src="@drawable/location"
+        android:scaleType="fitCenter"/>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
