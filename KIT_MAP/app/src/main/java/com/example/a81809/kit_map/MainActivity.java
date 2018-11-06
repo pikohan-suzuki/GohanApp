@@ -498,6 +498,8 @@ public class MainActivity extends AppCompatActivity {
                         int coughtColor = capture.getPixel((int)motionEvent.getX(),(int)motionEvent.getY());
                         if(isOutdoor(coughtColor)){
                             Toast toast = Toast.makeText(MainActivity.this,"屋外です。",Toast.LENGTH_SHORT);
+                            setContentView(R.layout.outdoor_map);
+
                             toast.show();
                         }else{
                             Toast toast = Toast.makeText(MainActivity.this,"屋内です。",Toast.LENGTH_SHORT);
