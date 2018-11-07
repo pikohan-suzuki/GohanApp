@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     private final double imageLatitude = 0.000379; //y
     private final double imageTopLongitude = 36.531387;
     private final double imageLeftLatitude = 136.629138083022;
-    private boolean firstFlg =true;
+    private boolean firstFlg = true;
     private double firstLatitude;
     private double firstLongitude;
 
@@ -224,8 +224,8 @@ public class MainActivity extends AppCompatActivity {
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
 
-                locationImageView.setX((maxImageWidth-locationImageView.getWidth())/2);
-                locationImageView.setY((maxImageHeight-locationImageView.getHeight())/2);
+                locationImageView.setX((maxImageWidth - locationImageView.getWidth() - locationImageView.getWidth()) / 2);
+                locationImageView.setY((maxImageHeight - locationImageView.getHeight() - locationImageView.getHeight()) / 2);
 
                 for (int i = 0; i < numberOfRooms; i++) {
                     float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
@@ -398,7 +398,7 @@ public class MainActivity extends AppCompatActivity {
         minImageWidth = realScreenWidth * 0.25f;
         defaultHeight = mImageView.getHeight();
         defaultWidth = mImageView.getWidth();
-        defaultRoomTextSize = 14*1280/maxImageWidth;
+        defaultRoomTextSize = 14 * 1280 / maxImageWidth;
         setImageInfo();
 
         for (int i = 0; i < numberOfRooms; i++) {
@@ -519,8 +519,8 @@ public class MainActivity extends AppCompatActivity {
                     frameLayoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
                     mImageView.setLayoutParams(frameLayoutParams);
                     //現在地を変更
-                    locationImageView.setX(locationImageView.getX()+(locationImageView.getX()-mImageView.getX())*factor);
-                    locationImageView.setY(locationImageView.getY()+(locationImageView.getY()-mImageView.getY())*factor);
+                    locationImageView.setX(mImageView.getX() + (locationImageView.getX() - mImageView.getX() +(locationImageView.getWidth()*mImageView.getWidth()/defaultWidth)) * factor - locationImageView.getWidth()*mImageView.getWidth()/defaultWidth);//
+                    locationImageView.setY(mImageView.getY() + (locationImageView.getY() - mImageView.getY() +(locationImageView.getHeight()*mImageView.getHeight()/defaultHeight)) * factor - locationImageView.getHeight()*mImageView.getHeight()/defaultHeight);//
                     for (int i = 0; i < numberOfRooms; i++) {
                         float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[floor][i][0] * factor;
                         float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[floor][i][1] * factor;
@@ -626,28 +626,28 @@ public class MainActivity extends AppCompatActivity {
         // getLastLocation()からの情報がある場合のみ
         if (location != null) {
 
-            if(firstFlg){
-                firstFlg=false;
-                firstLatitude=location.getLatitude();
-                firstLongitude=location.getLongitude();
-                Toast toast = Toast.makeText(this,"firstLocationChanged.",Toast.LENGTH_SHORT);
+            if (firstFlg) {
+                        firstFlg = false;
+                firstLatitude = location.getLatitude();
+                firstLongitude = location.getLongitude();
+                Toast toast = Toast.makeText(this, "firstLocationChanged.", Toast.LENGTH_SHORT);
                 toast.show();
-                locationImageView.setX((maxImageWidth-locationImageView.getWidth())/2);
-                locationImageView.setY((maxImageHeight-locationImageView.getHeight())/2);
-            }else{
+                locationImageView.setX((maxImageWidth - locationImageView.getWidth()));
+                locationImageView.setY((maxImageHeight - locationImageView.getHeight()));
+            } else {
 
-                double marginX = ((location.getLongitude() - firstLongitude)*mImageView.getWidth()/imageLongitude);
-                double marginY =((location.getLatitude()-firstLatitude)*mImageView.getHeight()/imageLatitude);
-                Toast toast = Toast.makeText(this,"lati:"+location.getLatitude()+"long:"+location.getLongitude(),Toast.LENGTH_SHORT);
+                double marginX = ((location.getLongitude() - firstLongitude) * mImageView.getWidth() / imageLongitude);
+                double marginY = ((location.getLatitude() - firstLatitude) * mImageView.getHeight() / imageLatitude);
+                Toast toast = Toast.makeText(this, "lati:" + location.getLatitude() + "long:" + location.getLongitude(), Toast.LENGTH_SHORT);
                 toast.show();
-                mImageView.setX((float)(mImageView.getX() -marginX));
-                mImageView.setY((float)(mImageView.getY() -marginY));
+                mImageView.setX((float) (mImageView.getX() - marginX));
+                mImageView.setY((float) (mImageView.getY() - marginY));
                 for (int i = 0; i < numberOfRooms; i++) {
-                    room1[i].setX((float)(room1[i].getX() - marginX));
-                    room1[i].setY((float)(room1[i].getY() - marginY));
+                    room1[i].setX((float) (room1[i].getX() - marginX));
+                    room1[i].setY((float) (room1[i].getY() - marginY));
                 }
-                firstLatitude=location.getLatitude();
-                firstLongitude=location.getLongitude();
+                firstLatitude = location.getLatitude();
+                firstLongitude = location.getLongitude();
             }
 
         }
