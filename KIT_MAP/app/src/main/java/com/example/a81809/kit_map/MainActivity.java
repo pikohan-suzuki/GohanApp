@@ -110,10 +110,11 @@ public class MainActivity extends AppCompatActivity {
 
     private int k;
 
-    private final double imageLatitude = 0.0002864;
-    private final double imageLongitude = 0.000047367;
-    private final double imageLeftLatitude = 136.629138083022;
+
+    private final double imageLongitude = 0.000858; //x
+    private final double imageLatitude = 0.000379; //y
     private final double imageTopLongitude = 36.531387;
+    private final double imageLeftLatitude = 136.629138083022;
     private boolean firstFlg =true;
     private double firstLatitude;
     private double firstLongitude;
@@ -394,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
         minImageWidth = realScreenWidth * 0.25f;
         defaultHeight = mImageView.getHeight();
         defaultWidth = mImageView.getWidth();
-        defaultRoomTextSize = room1[0].getTextSize();
+        defaultRoomTextSize = 14*1280/maxImageWidth;
         setImageInfo();
 
         for (int i = 0; i < numberOfRooms; i++) {
@@ -627,12 +628,17 @@ public class MainActivity extends AppCompatActivity {
                 locationImageView.setX((maxImageWidth-locationImageView.getWidth())/2);
                 locationImageView.setY((maxImageHeight-locationImageView.getHeight())/2);
             }else{
-                double marginX = mImageView.getX() - ((location.getLatitude() - firstLatitude)*mImageView.getWidth()/imageLatitude) ;
-                double marginY = mImageView.getY() -((location.getLongitude() - firstLongitude)*mImageView.getHeight()/imageLongitude);
+//                double getX = mImageView.getX();
+//                double loca = location.getLatitude();
+//                double Wid = mImageView.getHeight();
+                double marginX = mImageView.getX() -((location.getLongitude() - firstLongitude)*mImageView.getWidth()/imageLongitude);
+                double marginY = mImageView.getY() -((location.getLatitude()-firstLatitude)*mImageView.getHeight()/imageLatitude);
                 Toast toast = Toast.makeText(this,"lati:"+location.getLatitude()+"long:"+location.getLongitude(),Toast.LENGTH_SHORT);
                 toast.show();
                 mImageView.setX((float)marginX);
                 mImageView.setY((float)marginY);
+                firstLatitude=location.getLatitude();
+                firstLongitude=location.getLongitude();
             }
 
         }
