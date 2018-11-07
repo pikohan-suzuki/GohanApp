@@ -560,22 +560,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     Log.d("debug", "onSingleTapUp");
-                    Bitmap capture = getViewCapture(drawer_layout);
-                    if (capture != null) {
-                        int coughtColor = capture.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
-                        if (isOutdoor(coughtColor)) {
-                            Toast toast = Toast.makeText(MainActivity.this, "屋外です。", Toast.LENGTH_SHORT);
-                            setContentView(R.layout.outdoor_map);
 
-                            toast.show();
-                        } else {
-                            Toast toast = Toast.makeText(MainActivity.this, "屋内です。", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-
-                    } else {
-                        Log.d("debug", "getBitmapColor: failed.");
-                    }
                     return false;
                 }
 
@@ -632,8 +617,8 @@ public class MainActivity extends AppCompatActivity {
                 firstLongitude = location.getLongitude();
                 Toast toast = Toast.makeText(this, "firstLocationChanged.", Toast.LENGTH_SHORT);
                 toast.show();
-                locationImageView.setX((maxImageWidth - locationImageView.getWidth()));
-                locationImageView.setY((maxImageHeight - locationImageView.getHeight()));
+                locationImageView.setX((maxImageWidth - locationImageView.getWidth())/2);
+                locationImageView.setY((maxImageHeight - locationImageView.getHeight())/2);
             } else {
 
                 double marginX = ((location.getLongitude() - firstLongitude) * mImageView.getWidth() / imageLongitude);
@@ -648,6 +633,25 @@ public class MainActivity extends AppCompatActivity {
                 }
                 firstLatitude = location.getLatitude();
                 firstLongitude = location.getLongitude();
+
+                Bitmap capture = getViewCapture(mImageView);
+                if (capture != null) {
+                    double x = (locationImageView.getX()-mImageView.getX()+locationImageView.getWidth()/2);
+                    double y = (locationImageView.getY()-mImageView.getY()+locationImageView.getHeight()/2);
+                    int coughtColor = capture.getPixel((int)x,(int)y);
+                    if (isOutdoor(coughtColor)) {
+                        Toast toast1 = Toast.makeText(MainActivity.this, "屋外です。", Toast.LENGTH_SHORT);
+                        setContentView(R.layout.outdoor_map);
+                        toast1.show();
+                    } else {
+                        Toast toast1 = Toast.makeText(MainActivity.this, "屋内です。", Toast.LENGTH_SHORT);
+                        toast1.show();
+                    }
+
+                } else {
+                    Log.d("debug", "getBitmapColor: failed.");
+                }
+
             }
 
         }
