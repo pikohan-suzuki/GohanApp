@@ -519,8 +519,8 @@ public class MainActivity extends AppCompatActivity {
                     frameLayoutParams = new FrameLayout.LayoutParams((int) (imageWidth * factor), (int) (imageHeight * factor));
                     mImageView.setLayoutParams(frameLayoutParams);
                     //現在地を変更
-                    locationImageView.setX(mImageView.getX() + (locationImageView.getX() - mImageView.getX() +(locationImageView.getWidth()*mImageView.getWidth()/defaultWidth)) * factor - locationImageView.getWidth()*mImageView.getWidth()/defaultWidth);//
-                    locationImageView.setY(mImageView.getY() + (locationImageView.getY() - mImageView.getY() +(locationImageView.getHeight()*mImageView.getHeight()/defaultHeight)) * factor - locationImageView.getHeight()*mImageView.getHeight()/defaultHeight);//
+                    locationImageView.setX(mImageView.getX() + (locationImageView.getX() - mImageView.getX() + (locationImageView.getWidth() * mImageView.getWidth() / defaultWidth)) * factor - locationImageView.getWidth() * mImageView.getWidth() / defaultWidth);//
+                    locationImageView.setY(mImageView.getY() + (locationImageView.getY() - mImageView.getY() + (locationImageView.getHeight() * mImageView.getHeight() / defaultHeight)) * factor - locationImageView.getHeight() * mImageView.getHeight() / defaultHeight);//
                     for (int i = 0; i < numberOfRooms; i++) {
                         float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[floor][i][0] * factor;
                         float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[floor][i][1] * factor;
@@ -612,13 +612,13 @@ public class MainActivity extends AppCompatActivity {
         if (location != null) {
 
             if (firstFlg) {
-                        firstFlg = false;
+                firstFlg = false;
                 firstLatitude = location.getLatitude();
                 firstLongitude = location.getLongitude();
                 Toast toast = Toast.makeText(this, "firstLocationChanged.", Toast.LENGTH_SHORT);
                 toast.show();
-                locationImageView.setX((maxImageWidth - locationImageView.getWidth())/2);
-                locationImageView.setY((maxImageHeight - locationImageView.getHeight())/2);
+                locationImageView.setX((maxImageWidth - locationImageView.getWidth()) / 2);
+                locationImageView.setY((maxImageHeight - locationImageView.getHeight()) / 2);
             } else {
 
                 double marginX = ((location.getLongitude() - firstLongitude) * mImageView.getWidth() / imageLongitude);
@@ -636,9 +636,9 @@ public class MainActivity extends AppCompatActivity {
 
                 Bitmap capture = getViewCapture(mImageView);
                 if (capture != null) {
-                    double x = (locationImageView.getX()-mImageView.getX()+locationImageView.getWidth()/2);
-                    double y = (locationImageView.getY()-mImageView.getY()+locationImageView.getHeight()/2);
-                    int coughtColor = capture.getPixel((int)x,(int)y);
+                    double x = (locationImageView.getX() - mImageView.getX() + locationImageView.getWidth() / 2);
+                    double y = (locationImageView.getY() - mImageView.getY() + locationImageView.getHeight() / 2);
+                    int coughtColor = capture.getPixel((int) x, (int) y);
                     if (isOutdoor(coughtColor)) {
                         Toast toast1 = Toast.makeText(MainActivity.this, "屋外です。", Toast.LENGTH_SHORT);
                         setContentView(R.layout.outdoor_map);
