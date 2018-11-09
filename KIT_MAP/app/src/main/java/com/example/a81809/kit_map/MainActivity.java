@@ -482,8 +482,8 @@ public class MainActivity extends AppCompatActivity {
 
     //屋内か屋外かの判断
     private boolean isOutdoor(int color) {
-        ColorDrawable colorDrawable = (ColorDrawable) drawer_layout.getBackground();
-        if (color == (colorDrawable.getColor())) {
+//        ColorDrawable colorDrawable = (ColorDrawable) drawer_layout.getBackground();
+        if (color == 0) {
             return true;
         } else {
             return false;
@@ -648,11 +648,11 @@ public class MainActivity extends AppCompatActivity {
                 double marginY = ((imageTopLatitude - imageLatitude / 2 - location.getLatitude()) * mImageView.getHeight() / imageLatitude );
                 Toast toast = Toast.makeText(this, "lati:" + location.getLatitude() + "long:" + location.getLongitude(), Toast.LENGTH_SHORT);
                 toast.show();
-                mImageView.setX((float) marginX+(locationImageView.getX()-maxImageWidth/2) +locationImageView.getWidth()/2);
-                mImageView.setY((float) -marginY+(locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2);
+                mImageView.setX((float) marginX+((locationImageView.getX()-maxImageWidth/2) +locationImageView.getWidth()/2)+(maxImageWidth-mImageView.getWidth())/2);
+                mImageView.setY((float) -marginY+((locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2)+(maxImageHeight-mImageView.getHeight())/2);
                 for (int i = 0; i < numberOfRooms; i++) {
-                    room1[i].setX((float) (marginX+roomRange[floor][i][0]*mImageView.getWidth()+(locationImageView.getX()-maxImageWidth/2+locationImageView.getWidth()/2)));
-                    room1[i].setY((float) (-marginY+roomRange[floor][i][1]*mImageView.getHeight()+(locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2));
+                    room1[i].setX((float)(marginX+((locationImageView.getX()-maxImageWidth/2) +locationImageView.getWidth()/2)+(maxImageWidth-mImageView.getWidth())/2)+roomRange[floor][i][0]*mImageView.getWidth() );
+                    room1[i].setY((float) (-marginY+((locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2)+(maxImageHeight-mImageView.getHeight())/2)+roomRange[floor][i][1]*mImageView.getHeight() );
                 }
                 latestLatitude = location.getLatitude();
                 latestLongitude = location.getLongitude();
@@ -660,23 +660,20 @@ public class MainActivity extends AppCompatActivity {
                 beforeImageY = (float) -marginY;
 
                 Bitmap capture = getViewCapture(mImageView);
-                if (capture != null) {
-                    double x = (locationImageView.getX() - mImageView.getX() + locationImageView.getWidth() / 2);
-                    double y = (locationImageView.getY() - mImageView.getY() + locationImageView.getHeight() / 2);
-                    if (x > 0 && x < mImageView.getWidth() && y > 0 && y < mImageView.getHeight()) {
-                        int coughtColor = capture.getPixel((int) x, (int) y);
-                        if (isOutdoor(coughtColor)) {
+//                if (capture != null) {
+//                    double x = (locationImageView.getX() - mImageView.getX() + locationImageView.getWidth() / 2);
+//                    double y = (locationImageView.getY() - mImageView.getY() + locationImageView.getHeight() / 2);
+//                    if (x > 0 && x < mImageView.getWidth() && y > 0 && y < mImageView.getHeight()) {
+//                        int coughtColor = capture.getPixel((int) x, (int) y);
+//                        if (isOutdoor(coughtColor)) {
 //                            goToOutdoor(location.getLongitude(),location.getLatitude());
-                        } else {
-//
-                        }
-                    } else {
+//                        }
+//                    } else {
 //                        goToOutdoor(location.getLongitude(),location.getLatitude());
-
-                    }
-                } else {
-                    Log.d("debug", "getBitmapColor: failed.");
-                }
+//                    }
+//                } else {
+//                    Log.d("debug", "getBitmapColor: failed.");
+//                }
             }
 
 
