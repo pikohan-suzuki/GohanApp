@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -63,23 +64,23 @@ public class MainActivity extends AppCompatActivity {
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
 
-    private FrameLayout drawer_layout;
+    private FrameLayout drawer_layout;  //メインのレイアウト
     private ImageView mImageView;   //マップを表示するイメージビュー
     private Button center_button;   //画像を元に戻すボタン
-    private Button up_button;
-    private Button down_button;
-    private TextView buildingtextView;
-    private TextView floorTextView;
-    private TextView room1[] = new TextView[10];
-    private LinearLayout info_layout;
-    private Button goto_button;
-    private Button info_button;
-    private LinearLayout info_sideBar;
-    private ImageView room_image;
-    private Button bSearchButton;
-    private EditText searchEditText;
-    private ListView forecastListView;
-    private ImageView locationImageView;
+    private Button up_button;       //▲ボタン
+    private Button down_button;     //▼ボタン
+    private TextView buildingtextView;  //建物名を表示しているテキスト
+    private TextView floorTextView;     //階層を表示しているテキスト
+    private TextView room1[] = new TextView[10];    //部屋名を表示するテキスト配列
+    private LinearLayout info_layout;   //部屋名をタップしたときに出てくるポップアップ
+    private Button goto_button;         //ここにいくのボタン
+    private Button info_button;         //INFOボタン
+    private LinearLayout info_sideBar;  //部屋情報を表示するサイドバー
+    private ImageView room_image;       //部屋の画像
+    private Button bSearchButton;       //🔎ボタン
+    private EditText searchEditText;    //検索の入力
+    private ListView forecastListView;  // 予測検索のリストビュー
+    private ImageView locationImageView;    //現在地の◎ボタン（屋内)
 
     private int imageWidth;         //画像の現在の幅
     private int imageHeight;        //画像の現在の高さ
@@ -89,14 +90,17 @@ public class MainActivity extends AppCompatActivity {
     private float minImageHeight;   //最小の画像の高さ
     private float defaultX;         //画像のデフォルトx座標
     private float defaultY;         //画像のデフォルトy座標
-    private float defaultHeight;
-    private float defaultWidth;
+    private float defaultHeight;    //画像のデフォルトheight
+    private float defaultWidth;     //画像のデフォルトwidth
     private boolean infoFlag = false;       //infoポップアップが表示されているかのフラグ
     private boolean roomInfoFlag = false;    //roomInfoサイドバーが表示されているかのフラグ
     private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
-    private float defaultRoomTextSize;
-    private int numberOfRooms;
+    private float defaultRoomTextSize;      //部屋名のデフォルトテキストサイズ
+    private int numberOfRooms;              //現在表示している階層の部屋の数
+    private float beforeImageX;
+    private float beforeImageY;
 
+    //位置情報取得用の変数
     private FusedLocationProviderClient fusedLocationClient;
     private SettingsClient settingsClient;
     private LocationSettingsRequest locationSettingsRequest;
@@ -108,44 +112,63 @@ public class MainActivity extends AppCompatActivity {
     private Boolean requestingLocationUpdates;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    private int k;
+    private int k;  //部屋をしている添え字（変更予定）
 
 
-    private final double imageLongitude = 0.000858; //x
-    private final double imageLatitude = 0.000379; //y
-    private final double imageTopLongitude = 36.531387;
-    private final double imageLeftLatitude = 136.629138083022;
-    private boolean firstFlg = true;
-    private double firstLatitude;
-    private double firstLongitude;
+    private final double imageLongitude = 0.000858; //x　経度(変更予定）
+    private final double imageLatitude = 0.000379; //y　緯度（変更予定）
+    private final double imageLeftLongitude = 136.6291380; //23号館の西側の経度  136.629138083022
+    private final double imageTopLatitude = 36.531387;  //23号館の北側の緯度
+    private boolean firstFlg = true;    //初めて自位置情報を取得することを判断するフラグ
+    private double firstLatitude;       //初期値の経度
+    private double firstLongitude;      //初期値の緯度
+    private double latestLatitude;      //最新の経度
+    private double latestLongitude;     //最新の緯度
 
-
+    //予測検索表示用のアダプター
     private ArrayAdapter<String> arrayAdapter;
 
-
+    //画像の大きさ変更用の変数
     private FrameLayout.LayoutParams frameLayoutParams;
     private LinearLayout.LayoutParams linearLayoutParams;
 
 
     private int building = 0;           //建物番号
     private int floor = 0;              //階層番号
+    //フロアの画像配列
     private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
+    //部屋の位置(画像端からの%)
     private float[][][] roomRange = {{{0.5f, 0.25f}, {0.01f, 0.5f}, {0.45f, 0.8f}, {0.75f, 0.25f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0.5f, 0.5f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}};
+    //部屋の名前
     private String[][] roomName = {{"23-4\nコミュニケーション\nスタジオ", "23-101\n学生ステーション", "23-106\nパフォーミング\nスタジオ", "23-102\nコラボレーション\nスタジオ", "", "", "", "", "", ""},
             {"テスト\n2階", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""}};
+    //部屋の名前（検索用）
     private String[][] searchRoomName = {{"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106", "コラボレーションスタジオ 23-102", "", "", "", "", "", ""},
             {"テスト2階 23-299", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""}};
+    //建物の名前
     private String[] buildingName = {"23", "", "", "", "", "", "", "", "", ""};
+
+    //屋外用の変数
+    private ImageView outdoor_locationImageView;    //現在地の◎ボタン(屋外)
+    private double outImageLongitute = 0.001324;
+    private double outImageLatitude = 0.000585;
+    private double outLeftLongitute = 136.628923583022;
+    private double outTopLatitude = 36.5314899181035;
+
+    private double xRangeMargin;
+    private double yRangeMargin;
+
+    private ImageView outDoorImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         searchEditText = findViewById(R.id.search_editText);
         forecastListView = findViewById(R.id.search_forecast);
         locationImageView = findViewById(R.id.location);
+
 
         info_layout.setVisibility(View.INVISIBLE);
         info_sideBar.setVisibility(View.GONE);
@@ -224,8 +248,8 @@ public class MainActivity extends AppCompatActivity {
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
 
-                locationImageView.setX((maxImageWidth - locationImageView.getWidth() - locationImageView.getWidth()) / 2);
-                locationImageView.setY((maxImageHeight - locationImageView.getHeight() - locationImageView.getHeight()) / 2);
+                locationImageView.setX(((maxImageWidth-  locationImageView.getWidth()) / 2));
+                locationImageView.setY((maxImageHeight  - locationImageView.getHeight()) / 2);
 
                 for (int i = 0; i < numberOfRooms; i++) {
                     float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
@@ -387,15 +411,11 @@ public class MainActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display disp = wm.getDefaultDisplay();
-        Point realSize = new Point();
-        disp.getRealSize(realSize);
-        int realScreenWidth = realSize.x;
-        int realScreenHeight = realSize.y;
 
-        maxImageHeight = realScreenHeight;
-        maxImageWidth = realScreenWidth;
-        minImageHeight = realScreenHeight * 0.25f;
-        minImageWidth = realScreenWidth * 0.25f;
+        maxImageHeight = drawer_layout.getHeight();
+        maxImageWidth = drawer_layout.getWidth();
+        minImageHeight = drawer_layout.getHeight() * 0.25f;
+        minImageWidth =drawer_layout.getWidth() * 0.25f;
         defaultHeight = mImageView.getHeight();
         defaultWidth = mImageView.getWidth();
         defaultRoomTextSize = 14 * 1280 / maxImageWidth;
@@ -615,44 +635,50 @@ public class MainActivity extends AppCompatActivity {
                 firstFlg = false;
                 firstLatitude = location.getLatitude();
                 firstLongitude = location.getLongitude();
+                latestLatitude = firstLatitude;
+                latestLongitude = firstLongitude;
                 Toast toast = Toast.makeText(this, "firstLocationChanged.", Toast.LENGTH_SHORT);
                 toast.show();
                 locationImageView.setX((maxImageWidth - locationImageView.getWidth()) / 2);
                 locationImageView.setY((maxImageHeight - locationImageView.getHeight()) / 2);
+                beforeImageX = mImageView.getX();
+                beforeImageY = mImageView.getY();
             } else {
-
-                double marginX = ((location.getLongitude() - firstLongitude) * mImageView.getWidth() / imageLongitude);
-                double marginY = ((location.getLatitude() - firstLatitude) * mImageView.getHeight() / imageLatitude);
+                double marginX = ((imageLeftLongitude + imageLongitude / 2 - location.getLongitude()) * mImageView.getWidth() / imageLongitude );
+                double marginY = ((imageTopLatitude - imageLatitude / 2 - location.getLatitude()) * mImageView.getHeight() / imageLatitude );
                 Toast toast = Toast.makeText(this, "lati:" + location.getLatitude() + "long:" + location.getLongitude(), Toast.LENGTH_SHORT);
                 toast.show();
-                mImageView.setX((float) (mImageView.getX() - marginX));
-                mImageView.setY((float) (mImageView.getY() - marginY));
+                mImageView.setX((float) marginX+(locationImageView.getX()-maxImageWidth/2) +locationImageView.getWidth()/2);
+                mImageView.setY((float) -marginY+(locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2);
                 for (int i = 0; i < numberOfRooms; i++) {
-                    room1[i].setX((float) (room1[i].getX() - marginX));
-                    room1[i].setY((float) (room1[i].getY() - marginY));
+                    room1[i].setX((float) (marginX+roomRange[floor][i][0]*mImageView.getWidth()+(locationImageView.getX()-maxImageWidth/2+locationImageView.getWidth()/2)));
+                    room1[i].setY((float) (-marginY+roomRange[floor][i][1]*mImageView.getHeight()+(locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2));
                 }
-                firstLatitude = location.getLatitude();
-                firstLongitude = location.getLongitude();
+                latestLatitude = location.getLatitude();
+                latestLongitude = location.getLongitude();
+                beforeImageX = (float) marginX;
+                beforeImageY = (float) -marginY;
 
                 Bitmap capture = getViewCapture(mImageView);
                 if (capture != null) {
                     double x = (locationImageView.getX() - mImageView.getX() + locationImageView.getWidth() / 2);
                     double y = (locationImageView.getY() - mImageView.getY() + locationImageView.getHeight() / 2);
-                    int coughtColor = capture.getPixel((int) x, (int) y);
-                    if (isOutdoor(coughtColor)) {
-                        Toast toast1 = Toast.makeText(MainActivity.this, "屋外です。", Toast.LENGTH_SHORT);
-                        setContentView(R.layout.outdoor_map);
-                        toast1.show();
+                    if (x > 0 && x < mImageView.getWidth() && y > 0 && y < mImageView.getHeight()) {
+                        int coughtColor = capture.getPixel((int) x, (int) y);
+                        if (isOutdoor(coughtColor)) {
+//                            goToOutdoor(location.getLongitude(),location.getLatitude());
+                        } else {
+//
+                        }
                     } else {
-                        Toast toast1 = Toast.makeText(MainActivity.this, "屋内です。", Toast.LENGTH_SHORT);
-                        toast1.show();
-                    }
+//                        goToOutdoor(location.getLongitude(),location.getLatitude());
 
+                    }
                 } else {
                     Log.d("debug", "getBitmapColor: failed.");
                 }
-
             }
+
 
         }
     }
@@ -798,4 +824,23 @@ public class MainActivity extends AppCompatActivity {
 //    protected void onResume(){
 //        startLocationUpdates();
 //    }
+
+    private void goToOutdoor(final double longitude, final double latitude) {
+        setContentView(R.layout.outdoor_map);
+        outDoorImageView = findViewById(R.id.outdoor_image);
+        outdoor_locationImageView = findViewById(R.id.out_location);
+
+        final ViewTreeObserver observer = outdoor_locationImageView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        final double xMargin = (imageLeftLongitude - outLeftLongitute - (firstLongitude - longitude) + imageLongitude / 2) / outImageLongitute * outDoorImageView.getWidth();
+                        final double yMargin = (outTopLatitude - imageTopLatitude + (latitude - firstLatitude) + imageLatitude / 2) / outImageLatitude * outDoorImageView.getHeight();
+                        outdoor_locationImageView.setX((float) (outDoorImageView.getX() + xMargin));
+                        outdoor_locationImageView.setY((float) (outDoorImageView.getY() + yMargin));
+                    }
+                }
+        );
+    }
 }
