@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -54,10 +55,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.File;
+import java.sql.Time;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchEditText;    //検索の入力
     private ListView forecastListView;  // 予測検索のリストビュー
     private ImageView locationImageView;    //現在地の◎ボタン（屋内)
+    private ImageView outdoorImageView;
 
     private int imageWidth;         //画像の現在の幅
     private int imageHeight;        //画像の現在の高さ
@@ -97,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
     private float defaultRoomTextSize;      //部屋名のデフォルトテキストサイズ
     private int numberOfRooms;              //現在表示している階層の部屋の数
-    private float beforeImageX;
-    private float beforeImageY;
 
     //位置情報取得用の変数
     private FusedLocationProviderClient fusedLocationClient;
@@ -111,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
     private String lastUpdateTime;
     private Boolean requestingLocationUpdates;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
+
+    private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener;
 
     private int k;  //部屋をしている添え字（変更予定）
 
@@ -133,31 +138,52 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout.LayoutParams linearLayoutParams;
 
 
-    private int building = 0;           //建物番号
+    private int building = 1;           //建物番号
     private int floor = 0;              //階層番号
     //フロアの画像配列
-    private int[] floorImage = {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5};
+    private int[][] floorImage = {{R.drawable.school_map},{R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5}};
     //部屋の位置(画像端からの%)
-    private float[][][] roomRange = {{{0.5f, 0.25f}, {0.01f, 0.5f}, {0.45f, 0.8f}, {0.75f, 0.25f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-            {{0.5f, 0.5f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+    private float[][][][] roomRange = {{{{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}};
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}},
+            {{{0.5f, 0.25f}, {0.01f, 0.5f}, {0.45f, 0.8f}, {0.75f, 0.25f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0.5f, 0.5f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}}};
     //部屋の名前
-    private String[][] roomName = {{"23-4\nコミュニケーション\nスタジオ", "23-101\n学生ステーション", "23-106\nパフォーミング\nスタジオ", "23-102\nコラボレーション\nスタジオ", "", "", "", "", "", ""},
-            {"テスト\n2階", "", "", "", "", "", "", "", "", ""},
+    private String[][][] roomName = {{{"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
-            {"", "", "", "", "", "", "", "", "", ""}};
+            {"", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""}},
+            {{"23-4\nコミュニケーション\nスタジオ", "23-101\n学生ステーション", "23-106\nパフォーミング\nスタジオ", "23-102\nコラボレーション\nスタジオ", "", "", "", "", "", ""},
+                    {"テスト\n2階", "", "", "", "", "", "", "", "", ""},
+                    {"", "", "", "", "", "", "", "", "", ""},
+                    {"", "", "", "", "", "", "", "", "", ""},
+                    {"", "", "", "", "", "", "", "", "", ""}}};
     //部屋の名前（検索用）
-    private String[][] searchRoomName = {{"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106", "コラボレーションスタジオ 23-102", "", "", "", "", "", ""},
-            {"テスト2階 23-299", "", "", "", "", "", "", "", "", ""},
+    private String[][][] searchRoomName = {{{"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
             {"", "", "", "", "", "", "", "", "", ""},
-            {"", "", "", "", "", "", "", "", "", ""}};
-    //建物の名前
-    private String[] buildingName = {"23", "", "", "", "", "", "", "", "", ""};
+            {"", "", "", "", "", "", "", "", "", ""},
+            {"", "", "", "", "", "", "", "", "", ""}},
+            {{"コミュニケーションスタジオ 23-104", "学生ステーション 23-101", "パフォーミングスタジオ 23-106", "コラボレーションスタジオ 23-102", "", "", "", "", "", ""},
+                    {"テスト2階 23-299", "", "", "", "", "", "", "", "", ""},
+                    {"", "", "", "", "", "", "", "", "", ""},
+                    {"", "", "", "", "", "", "", "", "", ""},
+                    {"", "", "", "", "", "", "", "", "", ""}}};
 
+    //建物の名前
+    private String[] buildingName = {"", "23", "", "", "", "", "", "", "", "", ""};
+
+    private double[] buildingLeftLongitude = {136.626368, 136.6291380};
+    private double[] buildingTopLatitude = {36.532157, 36.531387};
+    private double[] buildingLongitude = {0.004656, 0.000858};
+    private double[] buildingLatitude = {0.002556, 0.000379};
+    private double[][] floorAltitude = {{0}, {56.599998, 60.9, 65.3, 69.2, 73.3}};
     //屋外用の変数
     private ImageView outdoor_locationImageView;    //現在地の◎ボタン(屋外)
     private double outImageLongitute = 0.001324;
@@ -168,8 +194,6 @@ public class MainActivity extends AppCompatActivity {
     private double xRangeMargin;
     private double yRangeMargin;
 
-    private ImageView outDoorImageView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,8 +202,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplication(), checkPermissionActivity.class);
         startActivity(intent);
 
+        mImageView = findViewById(R.id.indoor_image);
         drawer_layout = findViewById(R.id.drawer_layout);
-        mImageView = findViewById(R.id.droid_Image);
         center_button = findViewById(R.id.center_button);
         up_button = findViewById(R.id.up_button);
         down_button = findViewById(R.id.down_button);
@@ -195,12 +219,9 @@ public class MainActivity extends AppCompatActivity {
         forecastListView = findViewById(R.id.search_forecast);
         locationImageView = findViewById(R.id.location);
 
-
         info_layout.setVisibility(View.INVISIBLE);
         info_sideBar.setVisibility(View.GONE);
         searchEditText.setVisibility(View.GONE);
-
-        mImageView.setImageResource(floorImage[0]);
 
         fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(this);
@@ -209,9 +230,13 @@ public class MainActivity extends AppCompatActivity {
         createLocationRequest();
         buildLocationSettingsRequest();
         startLocationUpdates();
+
+        mImageView.setImageResource(floorImage[building][0]);
+        outdoorImageView=findViewById(R.id.outdoor_image);
+        outdoorImageView.setImageResource(R.drawable.school_map);
         numberOfRooms = 10;
         for (int j = 0; j < 10; j++) {
-            if (!(roomName[floor][j] != "" && searchRoomName[floor][j] != "" && roomRange[floor][j][0] != 0.f)) {
+            if (!(roomName[building][floor][j] != "" && searchRoomName[building][floor][j] != "" && roomRange[building][floor][j][0] != 0.f)) {
                 numberOfRooms = j;
                 break;
             }
@@ -220,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 10; i++) {
             room1[i] = new TextView(this);
             if (i < numberOfRooms) {
-                room1[i].setText(roomName[floor][i]);
+                room1[i].setText(roomName[building][floor][i]);
                 drawer_layout.addView(room1[i], new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 room1[i].setClickable(true);
                 room1[i].setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
@@ -248,12 +273,12 @@ public class MainActivity extends AppCompatActivity {
                 mImageView.setX(defaultX);
                 mImageView.setY(defaultY);
 
-                locationImageView.setX(((maxImageWidth-  locationImageView.getWidth()) / 2));
-                locationImageView.setY((maxImageHeight  - locationImageView.getHeight()) / 2);
+                locationImageView.setX(((maxImageWidth - locationImageView.getWidth()) / 2));
+                locationImageView.setY((maxImageHeight - locationImageView.getHeight()) / 2);
 
                 for (int i = 0; i < numberOfRooms; i++) {
-                    float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
-                    float textMarginY = defaultY + defaultHeight * roomRange[floor][i][1];
+                    float textMarginX = defaultX + defaultWidth * roomRange[building][floor][i][0];
+                    float textMarginY = defaultY + defaultHeight * roomRange[building][floor][i][1];
                     room1[i].setX(textMarginX);
                     room1[i].setY(textMarginY);
                     room1[i].setTextSize(defaultRoomTextSize);
@@ -270,9 +295,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (floor < 4) {
                     floor++;
-                    mImageView.setImageResource(floorImage[floor]);
-                    setImageInfo();
-                    setRoomName();
+                    changeFloor();
                 }
             }
         });
@@ -282,9 +305,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (floor > 0) {
                     floor--;
-                    mImageView.setImageResource(floorImage[floor]);
-                    setImageInfo();
-                    setRoomName();
+                    changeFloor();
                 }
             }
         });
@@ -328,8 +349,8 @@ public class MainActivity extends AppCompatActivity {
                 List<String> rooms = new ArrayList<String>();
                 for (int i = 0; i < 5; i++) {
                     for (int j = 0; j < 10; j++) {
-                        if (searchRoomName[i][j].contains(s) && searchRoomName[i][j] != "") {
-                            rooms.add(rooms.size(), searchRoomName[i][j]);
+                        if (searchRoomName[building][i][j].contains(s) && searchRoomName[building][i][j] != "") {
+                            rooms.add(rooms.size(), searchRoomName[building][i][j]);
                         }
                     }
                 }
@@ -379,6 +400,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+        mGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                removeOnGlobalLayoutListener(mImageView.getViewTreeObserver(), mGlobalLayoutListener);
+            }
+        };
     }
 
     private View.OnClickListener onTextViewClickListener = new View.OnClickListener() {
@@ -415,15 +444,15 @@ public class MainActivity extends AppCompatActivity {
         maxImageHeight = drawer_layout.getHeight();
         maxImageWidth = drawer_layout.getWidth();
         minImageHeight = drawer_layout.getHeight() * 0.25f;
-        minImageWidth =drawer_layout.getWidth() * 0.25f;
+        minImageWidth = drawer_layout.getWidth() * 0.25f;
         defaultHeight = mImageView.getHeight();
         defaultWidth = mImageView.getWidth();
         defaultRoomTextSize = 14 * 1280 / maxImageWidth;
         setImageInfo();
 
         for (int i = 0; i < numberOfRooms; i++) {
-            float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
-            float textMarginY = defaultY + defaultHeight * roomRange[floor][i][1];
+            float textMarginX = defaultX + defaultWidth * roomRange[building][floor][i][0];
+            float textMarginY = defaultY + defaultHeight * roomRange[building][floor][i][1];
             room1[i].setX(textMarginX);
             room1[i].setY(textMarginY);
             room1[i].setTextSize(defaultRoomTextSize);
@@ -448,16 +477,16 @@ public class MainActivity extends AppCompatActivity {
     private void setRoomName() {
         numberOfRooms = 10;
         for (int j = 0; j < 10; j++) {
-            if (!(roomName[floor][j] != "" && searchRoomName[floor][j] != "" && roomRange[floor][j][0] != 0.f)) {
+            if (!(roomName[building][floor][j] != "" && searchRoomName[building][floor][j] != "" && roomRange[building][floor][j][0] != 0.f)) {
                 numberOfRooms = j;
                 break;
             }
         }
         for (int i = 0; i < 10; i++) {
             if (i < numberOfRooms) {
-                room1[i].setText(roomName[floor][i]);
-                float textMarginX = defaultX + defaultWidth * roomRange[floor][i][0];
-                float textMarginY = defaultY + defaultHeight * roomRange[floor][i][1];
+                room1[i].setText(roomName[building][floor][i]);
+                float textMarginX = defaultX + defaultWidth * roomRange[building][floor][i][0];
+                float textMarginY = defaultY + defaultHeight * roomRange[building][floor][i][1];
                 room1[i].setX(textMarginX);
                 room1[i].setY(textMarginY);
                 room1[i].setTextSize(defaultRoomTextSize);
@@ -484,6 +513,14 @@ public class MainActivity extends AppCompatActivity {
     private boolean isOutdoor(int color) {
 //        ColorDrawable colorDrawable = (ColorDrawable) drawer_layout.getBackground();
         if (color == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isIndoor(int color) {
+        if (color == -1055568) {
             return true;
         } else {
             return false;
@@ -542,8 +579,8 @@ public class MainActivity extends AppCompatActivity {
                     locationImageView.setX(mImageView.getX() + (locationImageView.getX() - mImageView.getX() + (locationImageView.getWidth() * mImageView.getWidth() / defaultWidth)) * factor - locationImageView.getWidth() * mImageView.getWidth() / defaultWidth);//
                     locationImageView.setY(mImageView.getY() + (locationImageView.getY() - mImageView.getY() + (locationImageView.getHeight() * mImageView.getHeight() / defaultHeight)) * factor - locationImageView.getHeight() * mImageView.getHeight() / defaultHeight);//
                     for (int i = 0; i < numberOfRooms; i++) {
-                        float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[floor][i][0] * factor;
-                        float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[floor][i][1] * factor;
+                        float textMarginX = mImageView.getX() + mImageView.getWidth() * roomRange[building][floor][i][0] * factor;
+                        float textMarginY = mImageView.getY() + mImageView.getHeight() * roomRange[building][floor][i][1] * factor;
                         room1[i].setX(textMarginX);
                         room1[i].setY(textMarginY);
                         if (Math.abs(mImageView.getWidth() - defaultWidth) < 25) {
@@ -641,39 +678,84 @@ public class MainActivity extends AppCompatActivity {
                 toast.show();
                 locationImageView.setX((maxImageWidth - locationImageView.getWidth()) / 2);
                 locationImageView.setY((maxImageHeight - locationImageView.getHeight()) / 2);
-                beforeImageX = mImageView.getX();
-                beforeImageY = mImageView.getY();
             } else {
-                double marginX = ((imageLeftLongitude + imageLongitude / 2 - location.getLongitude()) * mImageView.getWidth() / imageLongitude );
-                double marginY = ((imageTopLatitude - imageLatitude / 2 - location.getLatitude()) * mImageView.getHeight() / imageLatitude );
-                Toast toast = Toast.makeText(this, "lati:" + location.getLatitude() + "long:" + location.getLongitude(), Toast.LENGTH_SHORT);
-                toast.show();
-                mImageView.setX((float) marginX+((locationImageView.getX()-maxImageWidth/2) +locationImageView.getWidth()/2)+(maxImageWidth-mImageView.getWidth())/2);
-                mImageView.setY((float) -marginY+((locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2)+(maxImageHeight-mImageView.getHeight())/2);
-                for (int i = 0; i < numberOfRooms; i++) {
-                    room1[i].setX((float)(marginX+((locationImageView.getX()-maxImageWidth/2) +locationImageView.getWidth()/2)+(maxImageWidth-mImageView.getWidth())/2)+roomRange[floor][i][0]*mImageView.getWidth() );
-                    room1[i].setY((float) (-marginY+((locationImageView.getY()-maxImageHeight/2)+locationImageView.getHeight()/2)+(maxImageHeight-mImageView.getHeight())/2)+roomRange[floor][i][1]*mImageView.getHeight() );
+//            double marginX = ((buildingLeftLongitude[building] + buildingLongitude[building] / 2 - location.getLongitude()) * mImageView.getWidth() / buildingLongitude[building]);
+//            double marginY = ((buildingTopLatitude[building] - buildingLatitude[building] / 2 - location.getLatitude()) * mImageView.getHeight() / buildingLatitude[building]);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                latestLatitude = location.getLatitude();
-                latestLongitude = location.getLongitude();
-                beforeImageX = (float) marginX;
-                beforeImageY = (float) -marginY;
-
+                double marginX;
+                double marginY;
+                if(building!=0) {
+                    marginX = ((location.getLongitude() - buildingLeftLongitude[building]) * mImageView.getWidth() / buildingLongitude[building]);
+                    marginY = ((buildingTopLatitude[building] - location.getLatitude()) * mImageView.getHeight() / buildingLatitude[building]);
+                }else{
+                    double xx = outdoorImageView.getWidth();
+                    marginX = ((location.getLongitude() - buildingLeftLongitude[building]) * 3158 / buildingLongitude[building]);
+                    marginY = ((buildingTopLatitude[building] - location.getLatitude()) * 2670 / buildingLatitude[building]);
+                }
+                Toast toast = Toast.makeText(this, "lati:" + location.getLatitude() + "long:" + location.getLongitude(), Toast.LENGTH_SHORT);
+            toast.show();
+            double dd = locationImageView.getX();
+            double ddd=locationImageView.getWidth();
+            mImageView.setX((float)(-marginX+maxImageWidth/2+locationImageView.getWidth()/2) +locationImageView.getX()-maxImageWidth/2);
+            mImageView.setY((float)(-marginY+maxImageHeight/2+locationImageView.getHeight()/2)+ locationImageView.getY() +locationImageView.getHeight()/2 - maxImageHeight/2);
+//            mImageView.setX((float) marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2);
+//            mImageView.setY((float) -marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2);
+            for (int i = 0; i < numberOfRooms; i++) {
+//                room1[i].setX((float) (marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2) + roomRange[building][floor][i][0] * mImageView.getWidth());
+//                room1[i].setY((float) (-marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2) + roomRange[building][floor][i][1] * mImageView.getHeight());
+                room1[i].setX((mImageView.getX()+ mImageView.getWidth()*roomRange[building][floor][i][0]));
+                room1[i].setY((mImageView.getY()+ mImageView.getHeight()*roomRange[building][floor][i][1]));
+            }
+            latestLatitude = location.getLatitude();
+            latestLongitude = location.getLongitude();
+            if (building != 0) {
+                if (location.getAltitude() >= floorAltitude[building][0]) {
+                    if (location.getAltitude() > floorAltitude[building][floorAltitude[building].length - 1]) {
+                        floor = floorAltitude[building].length - 1;
+                        changeFloor();
+                    } else {
+                        for (int i = 1; i < floorAltitude[building].length; i++) {
+                            if (location.getAltitude() < floorAltitude[building][i]) {
+                                floor = i - 1;
+                                changeFloor();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!(floor != 0 && building != 0)) {
                 Bitmap capture = getViewCapture(mImageView);
-//                if (capture != null) {
-//                    double x = (locationImageView.getX() - mImageView.getX() + locationImageView.getWidth() / 2);
-//                    double y = (locationImageView.getY() - mImageView.getY() + locationImageView.getHeight() / 2);
-//                    if (x > 0 && x < mImageView.getWidth() && y > 0 && y < mImageView.getHeight()) {
-//                        int coughtColor = capture.getPixel((int) x, (int) y);
-//                        if (isOutdoor(coughtColor)) {
-//                            goToOutdoor(location.getLongitude(),location.getLatitude());
-//                        }
-//                    } else {
-//                        goToOutdoor(location.getLongitude(),location.getLatitude());
-//                    }
-//                } else {
-//                    Log.d("debug", "getBitmapColor: failed.");
-//                }
+                if (capture != null) {
+//                    double x = (locationImageView.getX() - ((float) marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2) + locationImageView.getWidth() / 2);
+//                    double y = (locationImageView.getY() - ((float) -marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2) + locationImageView.getHeight() / 2);
+                    double x = marginX;
+                    double y = marginY;
+                    if (x > 0 && x < mImageView.getWidth() && y > 0 && y < mImageView.getHeight()) {
+
+                        int coughtColor = capture.getPixel((int) x, (int) y);
+                        Log.d("debug", "coughtColor" + coughtColor);
+                        if (building != 0) {
+                            if (isOutdoor(coughtColor)) {
+                                goToOutdoor(location.getLongitude(), location.getLatitude());
+                            }
+                        } else {
+                            if (isIndoor(coughtColor)) {
+//                                goToRoom(coughtColor, location.getLongitude(), location.getLatitude());
+                            }
+                        }
+
+                    } else if(building!=0) {
+                        goToOutdoor(location.getLongitude(), location.getLatitude());
+                    }
+                } else {
+                    Log.d("debug", "getBitmapColor: failed.");
+                }
+                }
             }
 
 
@@ -817,27 +899,62 @@ public class MainActivity extends AppCompatActivity {
         // バッテリー消費を鑑みLocation requestを止める
         stopLocationUpdates();
     }
-//    @Override
-//    protected void onResume(){
-//        startLocationUpdates();
-//    }
 
-    private void goToOutdoor(final double longitude, final double latitude) {
-        setContentView(R.layout.outdoor_map);
-        outDoorImageView = findViewById(R.id.outdoor_image);
-        outdoor_locationImageView = findViewById(R.id.out_location);
+    private void goToOutdoor( double longitude, double latitude) {
 
-        final ViewTreeObserver observer = outdoor_locationImageView.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        final double xMargin = (imageLeftLongitude - outLeftLongitute - (firstLongitude - longitude) + imageLongitude / 2) / outImageLongitute * outDoorImageView.getWidth();
-                        final double yMargin = (outTopLatitude - imageTopLatitude + (latitude - firstLatitude) + imageLatitude / 2) / outImageLatitude * outDoorImageView.getHeight();
-                        outdoor_locationImageView.setX((float) (outDoorImageView.getX() + xMargin));
-                        outdoor_locationImageView.setY((float) (outDoorImageView.getY() + yMargin));
-                    }
+        mImageView.setImageResource(R.drawable.school_map);
+        mImageView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
+        building = 0;
+        floor = 0;
+        setImageInfo();
+        setRoomName();
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void goToRoom(int color, double longitude, double latitude) {
+        switch (color) {
+            case -1055568:
+                building = 1;
+                floor = 0;
+                mImageView.setImageResource(floorImage[building][floor]);
+                setImageInfo();
+                setRoomName();
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-        );
+        }
+    }
+
+    private void changeFloor() {
+        mImageView.setImageResource(floorImage[building][floor]);
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        setImageInfo();
+        setRoomName();
+    }
+
+
+
+
+    private static void removeOnGlobalLayoutListener(ViewTreeObserver observer, ViewTreeObserver.OnGlobalLayoutListener listener) {
+        if (observer == null) {
+            return ;
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            observer.removeGlobalOnLayoutListener(listener);
+        } else {
+            observer.removeOnGlobalLayoutListener(listener);
+        }
     }
 }

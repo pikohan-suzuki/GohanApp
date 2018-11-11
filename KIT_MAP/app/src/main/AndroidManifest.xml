@@ -23,7 +23,10 @@
         <activity android:name=".SearchActivity">
 
         </activity>
+
         <activity android:name=".checkPermissionActivity"/>
+
+        <activity android:name=".MapsActivity"/>
     </application>
 
 </manifest>

@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:scaleType="fitCenter"
-        android:src="@drawable/b23" />
+        android:src="@drawable/school_map" />
 
     <ImageView
         android:id="@+id/out_location"

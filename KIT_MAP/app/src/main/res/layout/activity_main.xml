@@ -9,11 +9,17 @@
     tools:context=".MainActivity">
 
     <ImageView
-        android:id="@+id/droid_Image"
+        android:id="@+id/indoor_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:scaleType="centerCrop" />
+        android:scaleType="fitCenter" />
+    <ImageView
+        android:id="@+id/outdoor_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
 
     <LinearLayout
         android:id="@+id/info_layout"
