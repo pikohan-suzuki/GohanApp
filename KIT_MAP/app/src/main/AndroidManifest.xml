@@ -26,7 +26,6 @@
 
         <activity android:name=".checkPermissionActivity"/>
 
-        <activity android:name=".MapsActivity"/>
     </application>
 
 </manifest>

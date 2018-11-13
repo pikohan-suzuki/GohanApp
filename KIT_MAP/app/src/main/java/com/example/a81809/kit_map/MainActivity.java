@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
@@ -27,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -55,8 +51,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import java.io.File;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -103,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean searchFlag = false;     //searchEditTextが表示されているかのフラグ
     private float defaultRoomTextSize;      //部屋名のデフォルトテキストサイズ
     private int numberOfRooms;              //現在表示している階層の部屋の数
+    private int numberOfFacilities;         //現在表示している階層の施設の数
 
     //位置情報取得用の変数
     private FusedLocationProviderClient fusedLocationClient;
@@ -142,22 +137,22 @@ public class MainActivity extends AppCompatActivity {
     private int building = 1;           //建物番号
     private int floor = 0;              //階層番号
     //フロアの画像配列
-    private int[][] floorImage = {{R.drawable.school_map},{R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5}};
+    private int[][] floorImage = {{R.drawable.school_map}, {R.drawable.b23_1, R.drawable.b23_2, R.drawable.b23_3, R.drawable.b23_4, R.drawable.b23_5}};
 
-    //施設の画像配列
-    private int[][][] facilityImageType ={{{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}},
-            {{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}}};
+    //施設の種別　1:プリンター　2:自販機
+    private int[][][] facilityImageType = {{{0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}},
+            {{1, 2, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}}};
     //施設の位置（画面端からの%)
-    private float[][][][] facilityRange = {{{{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}},
-            {{{0.5f, 0.25f}, {0.01f, 0.5f}, {0.45f, 0.8f}, {0.75f, 0.25f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-                    {{0.5f, 0.5f}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}}};
+    private float[][][][] facilityRange = {{{{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}},
+            {{{0.6f, 0.43f}, {0.22f, 0.47f}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+                    {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}}};
 
     //部屋の位置(画像端からの%)
     private float[][][][] roomRange = {{{{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
@@ -249,12 +244,22 @@ public class MainActivity extends AppCompatActivity {
         startLocationUpdates();
 
         mImageView.setImageResource(floorImage[building][0]);
-        outdoorImageView=findViewById(R.id.outdoor_image);
+        outdoorImageView = findViewById(R.id.outdoor_image);
         outdoorImageView.setImageResource(R.drawable.school_map);
+
+
         numberOfRooms = 10;
         for (int j = 0; j < 10; j++) {
             if (!(roomName[building][floor][j] != "" && searchRoomName[building][floor][j] != "" && roomRange[building][floor][j][0] != 0.f)) {
                 numberOfRooms = j;
+                break;
+            }
+        }
+
+        numberOfFacilities = 5;
+        for (int i = 0; i < 5; i++) {
+            if (!(facilityImageType[building][floor][i] != 0 && facilityRange[building][floor][i][0] != 0.f)) {
+                numberOfFacilities = i;
                 break;
             }
         }
@@ -267,6 +272,24 @@ public class MainActivity extends AppCompatActivity {
                 room1[i].setClickable(true);
                 room1[i].setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 room1[i].setBackgroundResource(R.drawable.marukado);
+            }
+        }
+
+        for (int i = 0; i < 5; i++) {
+            facility[i] = new ImageView(this);
+            if (i < numberOfFacilities) {
+                switch (facilityImageType[building][floor][i]) {
+                    case 1:
+                        facility[i].setImageResource(R.drawable.printer_icon);
+                        break;
+                    case 2:
+                        facility[i].setImageResource(R.drawable.vending_machine_icon);
+                        break;
+                }
+                drawer_layout.addView(facility[i], new FrameLayout.LayoutParams(144, 144));
+                facility[i].setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            }else{
+                facility[i].setVisibility(View.GONE);
             }
         }
 
@@ -300,6 +323,20 @@ public class MainActivity extends AppCompatActivity {
                     room1[i].setY(textMarginY);
                     room1[i].setTextSize(defaultRoomTextSize);
                 }
+                if (infoFlag) {
+                    info_layout.setVisibility(View.INVISIBLE);
+                    infoFlag = false;
+                }
+
+                for (int i = 0; i < numberOfFacilities; i++) {
+                    float textMarginX = defaultX + defaultWidth * facilityRange[building][floor][i][0];
+                    float textMarginY = defaultY + defaultHeight * facilityRange[building][floor][i][1];
+                    facility[i].setX(textMarginX);
+                    facility[i].setY(textMarginY);
+//                    facility[i].setTextSize(defaultRoomTextSize);
+                }
+
+
                 if (infoFlag) {
                     info_layout.setVisibility(View.INVISIBLE);
                     infoFlag = false;
@@ -418,7 +455,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         mGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -440,7 +476,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("debug", "room1: X:" + room1[i].getX() + " maxImageWidth: " + maxImageWidth + " v.Width: " + v.getWidth() + " v.X: " + v.getX());
                 room1[i].setX(room1[i].getX() - X_moveRange);
                 room1[i].setY(room1[i].getY() - Y_moveRange);
-
+            }
+            for (int i = 0; i < numberOfFacilities; i++) {
+                Log.d("debug", "room1: X:" + room1[i].getX() + " maxImageWidth: " + maxImageWidth + " v.Width: " + v.getWidth() + " v.X: " + v.getX());
+                facility[i].setX(facility[i].getX() - X_moveRange);
+                facility[i].setY(facility[i].getY() - Y_moveRange);
             }
 
             info_layout.setX(v.getX() + (v.getWidth() - info_layout.getWidth()) / 2);
@@ -473,6 +513,13 @@ public class MainActivity extends AppCompatActivity {
             room1[i].setX(textMarginX);
             room1[i].setY(textMarginY);
             room1[i].setTextSize(defaultRoomTextSize);
+        }
+
+        for (int i = 0; i < numberOfFacilities; i++) {
+            float textMarginX = defaultX + defaultWidth * facilityRange[building][floor][i][0];
+            float textMarginY = defaultY + defaultHeight * facilityRange[building][floor][i][1];
+            facility[i].setX(textMarginX);
+            facility[i].setY(textMarginY);
         }
     }
 
@@ -509,6 +556,27 @@ public class MainActivity extends AppCompatActivity {
                 room1[i].setTextSize(defaultRoomTextSize);
             } else {
                 room1[i].setText("");
+            }
+        }
+        numberOfFacilities = 5;
+        for (int i = 0; i < 5; i++) {
+            if (!(facilityImageType[building][floor][i] != 0 && facilityRange[building][floor][i][0] != 0.f)) {
+                numberOfFacilities = i;
+                break;
+            }
+        }
+
+        for (int i = 0; i < 5; i++) {
+            facility[i] = new ImageView(this);
+            if (i < numberOfFacilities) {
+                switch (facilityImageType[building][floor][i]) {
+                    case 1:
+                        facility[i].setImageResource(R.drawable.printer_icon);
+                    case 2:
+                        facility[i].setImageResource(R.drawable.vending_machine_icon);
+                }
+                drawer_layout.addView(facility[i], new FrameLayout.LayoutParams(100, 100));
+                facility[i].setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             }
         }
     }
@@ -606,6 +674,12 @@ public class MainActivity extends AppCompatActivity {
                             room1[i].setTextSize(defaultRoomTextSize * mImageView.getWidth() / defaultWidth);
                         }
                     }
+                    for (int i = 0; i < numberOfFacilities; i++) {
+                        float textMarginX = mImageView.getX() + mImageView.getWidth() * facilityRange[building][floor][i][0] * factor;
+                        float textMarginY = mImageView.getY() + mImageView.getHeight() * facilityRange[building][floor][i][1] * factor;
+                        facility[i].setX(textMarginX);
+                        facility[i].setY(textMarginY);
+                    }
                 }
             }
             mGestureDetector.setIsLongpressEnabled(true);
@@ -648,6 +722,10 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < numberOfRooms; i++) {
                         room1[i].setX(room1[i].getX() - distanceX * 0.5f);
                         room1[i].setY(room1[i].getY() - distanceY * 0.5f);
+                    }
+                    for (int i = 0; i < numberOfFacilities; i++) {
+                        facility[i].setX(facility[i].getX() - distanceX * 0.5f);
+                        facility[i].setY(facility[i].getY() - distanceY * 0.5f);
                     }
                     Log.d("debug", "x:" + mImageView.getX() + " v:" + distanceX + " setY:" + mImageView.getY() +
                             " b1:" + distanceY + "before_x:" + motionEvent1.getX() + " after_x:" + motionEvent1.getY());
@@ -705,73 +783,83 @@ public class MainActivity extends AppCompatActivity {
                 }
                 double marginX;
                 double marginY;
-                if(building!=0) {
+                if (building != 0) {
                     marginX = ((location.getLongitude() - buildingLeftLongitude[building]) * mImageView.getWidth() / buildingLongitude[building]);
                     marginY = ((buildingTopLatitude[building] - location.getLatitude()) * mImageView.getHeight() / buildingLatitude[building]);
-                }else{
+                } else {
                     double xx = outdoorImageView.getWidth();
                     marginX = ((location.getLongitude() - buildingLeftLongitude[building]) * 3158 / buildingLongitude[building]);
                     marginY = ((buildingTopLatitude[building] - location.getLatitude()) * 2670 / buildingLatitude[building]);
                 }
                 Toast toast = Toast.makeText(this, "lati:" + location.getLatitude() + "long:" + location.getLongitude(), Toast.LENGTH_SHORT);
-            toast.show();
-            double dd = locationImageView.getX();
-            double ddd=locationImageView.getWidth();
-            mImageView.setX((float)(-marginX+maxImageWidth/2+locationImageView.getWidth()/2) +locationImageView.getX()-maxImageWidth/2);
-            mImageView.setY((float)(-marginY+maxImageHeight/2+locationImageView.getHeight()/2)+ locationImageView.getY() +locationImageView.getHeight()/2 - maxImageHeight/2);
+                toast.show();
+                double dd = locationImageView.getX();
+                double ddd = locationImageView.getWidth();
+                mImageView.setX((float) (-marginX + maxImageWidth / 2 + locationImageView.getWidth() / 2) + locationImageView.getX() - maxImageWidth / 2);
+                mImageView.setY((float) (-marginY + maxImageHeight / 2 + locationImageView.getHeight() / 2) + locationImageView.getY() + locationImageView.getHeight() / 2 - maxImageHeight / 2);
 //            mImageView.setX((float) marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2);
 //            mImageView.setY((float) -marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2);
-            for (int i = 0; i < numberOfRooms; i++) {
+                for (int i = 0; i < numberOfRooms; i++) {
 //                room1[i].setX((float) (marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2) + roomRange[building][floor][i][0] * mImageView.getWidth());
 //                room1[i].setY((float) (-marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2) + roomRange[building][floor][i][1] * mImageView.getHeight());
-                room1[i].setX((mImageView.getX()+ mImageView.getWidth()*roomRange[building][floor][i][0]));
-                room1[i].setY((mImageView.getY()+ mImageView.getHeight()*roomRange[building][floor][i][1]));
-            }
-            latestLatitude = location.getLatitude();
-            latestLongitude = location.getLongitude();
-            if (building != 0) {
-                if (location.getAltitude() >= floorAltitude[building][0]) {
-                    if (location.getAltitude() > floorAltitude[building][floorAltitude[building].length - 1]) {
-                        floor = floorAltitude[building].length - 1;
-                        changeFloor();
-                    } else {
-                        for (int i = 1; i < floorAltitude[building].length; i++) {
-                            if (location.getAltitude() < floorAltitude[building][i]) {
-                                floor = i - 1;
-                                changeFloor();
-                                break;
+                    room1[i].setX((mImageView.getX() + mImageView.getWidth() * roomRange[building][floor][i][0]));
+                    room1[i].setY((mImageView.getY() + mImageView.getHeight() * roomRange[building][floor][i][1]));
+                }
+                for (int i = 0; i < numberOfFacilities; i++) {
+//                room1[i].setX((float) (marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2) + roomRange[building][floor][i][0] * mImageView.getWidth());
+//                room1[i].setY((float) (-marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2) + roomRange[building][floor][i][1] * mImageView.getHeight());
+                    facility[i].setX((mImageView.getX() + mImageView.getWidth() * facilityRange[building][floor][i][0]));
+                    facility[i].setY((mImageView.getY() + mImageView.getHeight() * facilityRange[building][floor][i][1]));
+                }
+                latestLatitude = location.getLatitude();
+                latestLongitude = location.getLongitude();
+                if (building != 0) {
+                    if (location.getAltitude() >= floorAltitude[building][0]) {
+                        if (location.getAltitude() > floorAltitude[building][floorAltitude[building].length - 1]) {
+                            floor = floorAltitude[building].length - 1;
+                            changeFloor();
+                        } else {
+                            for (int i = 1; i < floorAltitude[building].length; i++) {
+                                if (location.getAltitude() < floorAltitude[building][i] ) {
+                                    if(floor==0){
+                                        break;
+                                    }else {
+                                        floor = i - 1;
+                                        changeFloor();
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-            if (!(floor != 0 && building != 0)) {
-                Bitmap capture = getViewCapture(mImageView);
-                if (capture != null) {
+                if (!(floor != 0 && building != 0)) {
+                    Bitmap capture = getViewCapture(mImageView);
+                    if (capture != null) {
 //                    double x = (locationImageView.getX() - ((float) marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2) + locationImageView.getWidth() / 2);
 //                    double y = (locationImageView.getY() - ((float) -marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2) + locationImageView.getHeight() / 2);
-                    double x = marginX;
-                    double y = marginY;
-                    if (x > 0 && x < mImageView.getWidth() && y > 0 && y < mImageView.getHeight()) {
+                        double x = marginX;
+                        double y = marginY;
+                        if (x > 0 && x < mImageView.getWidth() && y > 0 && y < mImageView.getHeight()) {
 
-                        int coughtColor = capture.getPixel((int) x, (int) y);
-                        Log.d("debug", "coughtColor" + coughtColor);
-                        if (building != 0) {
-                            if (isOutdoor(coughtColor)) {
-                                goToOutdoor(location.getLongitude(), location.getLatitude());
-                            }
-                        } else {
-                            if (isIndoor(coughtColor)) {
+                            int coughtColor = capture.getPixel((int) x, (int) y);
+                            Log.d("debug", "coughtColor" + coughtColor);
+                            if (building != 0) {
+                                if (isOutdoor(coughtColor)) {
+//                                goToOutdoor(location.getLongitude(), location.getLatitude());
+                                }
+                            } else {
+                                if (isIndoor(coughtColor)) {
 //                                goToRoom(coughtColor, location.getLongitude(), location.getLatitude());
+                                }
                             }
-                        }
 
-                    } else if(building!=0) {
-                        goToOutdoor(location.getLongitude(), location.getLatitude());
+                        } else if (building != 0) {
+//                        goToOutdoor(location.getLongitude(), location.getLatitude());
+                        }
+                    } else {
+                        Log.d("debug", "getBitmapColor: failed.");
                     }
-                } else {
-                    Log.d("debug", "getBitmapColor: failed.");
-                }
                 }
             }
 
@@ -917,10 +1005,10 @@ public class MainActivity extends AppCompatActivity {
         stopLocationUpdates();
     }
 
-    private void goToOutdoor( double longitude, double latitude) {
+    private void goToOutdoor(double longitude, double latitude) {
 
-        mImageView.setImageResource(R.drawable.school_map);
-        mImageView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
+//        mImageView.setImageResource(R.drawable.school_map);
+//        mImageView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
         building = 0;
         floor = 0;
         setImageInfo();
@@ -961,11 +1049,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     private static void removeOnGlobalLayoutListener(ViewTreeObserver observer, ViewTreeObserver.OnGlobalLayoutListener listener) {
         if (observer == null) {
-            return ;
+            return;
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
