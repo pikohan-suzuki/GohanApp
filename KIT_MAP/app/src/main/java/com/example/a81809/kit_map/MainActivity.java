@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
             {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}},
-            {{{0.6f, 0.43f}, {0.22f, 0.47f}, {0, 0}, {0, 0}, {0, 0}},
+            {{{0.65f, 0.49f}, {0.22f, 0.54f}, {0, 0}, {0, 0}, {0, 0}},
                     {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
                     {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
                     {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
@@ -329,8 +329,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 for (int i = 0; i < numberOfFacilities; i++) {
-                    float textMarginX = defaultX + defaultWidth * facilityRange[building][floor][i][0];
-                    float textMarginY = defaultY + defaultHeight * facilityRange[building][floor][i][1];
+                    float textMarginX = defaultX + defaultWidth * facilityRange[building][floor][i][0]-facility[i].getWidth()/2;
+                    float textMarginY = defaultY + defaultHeight * facilityRange[building][floor][i][1]-facility[i].getHeight()/2;
                     facility[i].setX(textMarginX);
                     facility[i].setY(textMarginY);
 //                    facility[i].setTextSize(defaultRoomTextSize);
@@ -516,8 +516,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         for (int i = 0; i < numberOfFacilities; i++) {
-            float textMarginX = defaultX + defaultWidth * facilityRange[building][floor][i][0];
-            float textMarginY = defaultY + defaultHeight * facilityRange[building][floor][i][1];
+            float textMarginX = defaultX + defaultWidth * facilityRange[building][floor][i][0]-facility[i].getWidth()/2;
+            float textMarginY = defaultY + defaultHeight * facilityRange[building][floor][i][1]-facility[i].getHeight()/2;
             facility[i].setX(textMarginX);
             facility[i].setY(textMarginY);
         }
@@ -808,8 +808,8 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < numberOfFacilities; i++) {
 //                room1[i].setX((float) (marginX + ((locationImageView.getX() - maxImageWidth / 2) + locationImageView.getWidth() / 2) + (maxImageWidth - mImageView.getWidth()) / 2) + roomRange[building][floor][i][0] * mImageView.getWidth());
 //                room1[i].setY((float) (-marginY + ((locationImageView.getY() - maxImageHeight / 2) + locationImageView.getHeight() / 2) + (maxImageHeight - mImageView.getHeight()) / 2) + roomRange[building][floor][i][1] * mImageView.getHeight());
-                    facility[i].setX((mImageView.getX() + mImageView.getWidth() * facilityRange[building][floor][i][0]));
-                    facility[i].setY((mImageView.getY() + mImageView.getHeight() * facilityRange[building][floor][i][1]));
+                    facility[i].setX((mImageView.getX() + mImageView.getWidth() * facilityRange[building][floor][i][0]-facility[i].getWidth()/2));
+                    facility[i].setY((mImageView.getY() + mImageView.getHeight() * facilityRange[building][floor][i][1]-facility[i].getHeight()/2));
                 }
                 latestLatitude = location.getLatitude();
                 latestLongitude = location.getLongitude();
