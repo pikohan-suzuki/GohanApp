@@ -115,12 +115,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void setImage(int address){
         mapImageView.setImageResource(address);
+        Log.d("debug",";;;;;;;;;"+mapImageView.getWidth()+"+"+mapImageView.getHeight()+"+"+mapImageView.getX()+"+"+mapImageView.getY());
         loadnumber =0;
     }
 
     public class imageTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
+            Log.d("debug","touched");
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     if(firsttap){
