@@ -7,6 +7,10 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:orientation="vertical">-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -54,15 +58,18 @@
             android:text="保存" />
 
     </LinearLayout>
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    <ImageView
-        android:id="@+id/mapImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitCenter" />
-    </RelativeLayout>
+
+
+
+        <ImageView
+            android:id="@+id/mapImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border"
+            android:scaleType="centerCrop"
+            android:src="@drawable/b1234" />
+
 </LinearLayout>
 
     <!--<com.example.a81809.getloadrange.MyView--><!--android:id="@+id/my_view"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent" />--><!--</RelativeLayout>-->
+
