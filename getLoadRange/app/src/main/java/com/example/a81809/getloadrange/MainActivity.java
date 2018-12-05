@@ -112,9 +112,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        RelativeLayout r = (RelativeLayout)findViewById(R.id.parent_layout);
-        viewMaxSize = getViewSize(r);
-//        changeImageSize(mapImageView);
+        if(mapImageView.getWidth() !=0) {
+            FrameLayout r = (FrameLayout) findViewById(R.id.parent_layout);
+            viewMaxSize = getViewSize(r);
+            changeImageSize(mapImageView);
+        }
     }
     public static Point getViewSize(View View){
         Point point = new Point(0, 0);
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             facter=getViewSize(v).x/viewMaxSize.x;
         FrameLayout.LayoutParams frameLayoutParams;
         frameLayoutParams = new FrameLayout.LayoutParams((int)(getViewSize(v).x*facter) ,(int)(getViewSize(v).y*facter));
-//        frameLayoutParams = new FrameLayout.LayoutParams((int)(getViewSize(v).x*0.5) ,(int)(getViewSize(v).y*0.5));
+//        frameLayoutParams = new FrameLayout.LayoutParams(500 ,500);
         mapImageView.setLayoutParams(frameLayoutParams);
     }
     @Override
@@ -180,14 +182,18 @@ public class MainActivity extends AppCompatActivity {
         Log.d("debug",";;;;;;;;;"+mapImageView.getWidth()+"+"+mapImageView.getHeight()+"+"+mapImageView.getX()+"+"+mapImageView.getY());
         firsttap=true;
 //        now.setText("1");
-        loadnumber =0;
+        try {
+            wait(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         changeImageSize(mapImageView);
     }
 
     public class imageTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            Log.d("debug","touched");
+            Log.d("debug","touched: x="+event.getX()+" y:="+event.getY() );
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     if(firsttap){
