@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+
 public class DatabaseRead {
     SQLiteDatabase db;
     Cursor cursor;
@@ -12,10 +14,10 @@ public class DatabaseRead {
         DatabaseOpenHelper helper = new DatabaseOpenHelper(context,"database.db", null, 1);
         db = helper.getReadableDatabase();
     }
-    private String searchData(String sql){
+    private ArrayList<String> searchData(String sql,String[] where){
         cursor = null;
         try {
-            cursor = db.rawQuery(sql,new String[]{});
+            cursor = db.rawQuery(sql,where);
             return readData(cursor);
         } catch(Exception e) {
             e.printStackTrace();
@@ -27,20 +29,55 @@ public class DatabaseRead {
             }
         }
     }
-    private String readData(Cursor cursor){
+    private ArrayList<String> readData(Cursor cursor){
         //カーソル開始位置を先頭にする
         cursor.moveToFirst();
-        String str="";
+        ArrayList<String> str=new ArrayList<String>();
         for (int i = 1; i <= cursor.getCount(); i++) {
             //SQL文の結果から、必要な値を取り出す
-            str += cursor.getString(0);
+            str.add( cursor.getString(0));
             cursor.moveToNext();
         }
         return str;
     }
 
-    public String getBuildingName(){
-        String sql ="SELECT * FROM building";
-        return searchData(sql);
+    public ArrayList<String> getBuildingName(){
+        String sql ="SELECT * FROM room";
+        return searchData(sql,new String[] {});
+    }
+    public String[] getFloorImageSize(int building_number,int floor){
+        String[] str = new String[2];
+        String sql ="SELECT width FROM floor WHERE building_number= ? AND floor = ?";
+        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        ArrayList<String> list= searchData(sql,where);
+        str[0]=list.get(0);
+        sql ="SELECT height FROM floor WHERE building_number= ? AND floor = ?";
+        list=searchData(sql,where);
+        str[1]=list.get(0);
+        return str;
+    }
+    public int getImageResource(int building_number,int floor){
+        String sql = "SELECT image FROM floor WHERE building_number= ? AND floor = ?";
+        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        ArrayList<String> list = searchData(sql,where);
+        return Integer.parseInt(list.get(0));
+    }
+
+    public  int getFacilityType(int building_number,int floor,int id){
+        String sql = "SELECT type FROM facility WHERE building_number= ? AND floor = ? AND id = ?";
+        String[] where = {String.valueOf(building_number),String.valueOf(floor),String.valueOf(id)};
+        ArrayList<String > list = searchData(sql,where);
+        return Integer.parseInt(list.get(0));
+    }
+    public String[] getFacilityRange(int building_number,int floor,int id) {
+        String[] str = new String[2];
+        String sql = "SELECT x FROM facility WHERE building_number= ? AND floor = ? AND id = ?";
+        String[] where = {String.valueOf(building_number), String.valueOf(floor), String.valueOf(id)};
+        ArrayList<String> list = searchData(sql, where);
+        str[0] = list.get(0);
+        sql = "SELECT height FROM floor WHERE building_number= ? AND floor = ? AND id = ?";
+        list = searchData(sql, where);
+        str[1] = list.get(0);
+        return str;
     }
 }
