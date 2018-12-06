@@ -69,15 +69,15 @@ public class DatabaseRead {
         ArrayList<String > list = searchData(sql,where);
         return Integer.parseInt(list.get(0));
     }
-    public String[] getFacilityRange(int building_number,int floor,int id) {
-        String[] str = new String[2];
+    public int[] getFacilityRange(int building_number,int floor,int id) {
+        int[] range = new int[2];
         String sql = "SELECT x FROM facility WHERE building_number= ? AND floor = ? AND id = ?";
         String[] where = {String.valueOf(building_number), String.valueOf(floor), String.valueOf(id)};
         ArrayList<String> list = searchData(sql, where);
-        str[0] = list.get(0);
+        range[0] = Integer.parseInt(list.get(0));
         sql = "SELECT height FROM floor WHERE building_number= ? AND floor = ? AND id = ?";
         list = searchData(sql, where);
-        str[1] = list.get(0);
-        return str;
+        range[1] = Integer.parseInt(list.get(0));
+        return range;
     }
 }
