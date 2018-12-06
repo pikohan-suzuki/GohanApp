@@ -5,11 +5,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class DatabaseRead {
-    SQLiteDatabase db;
-    Cursor cursor;
+    private SQLiteDatabase db;
+    private Cursor cursor;
 
     public DatabaseRead(Context context,String databaseName){
-        DatabaseOpenHelper helper = new DatabaseOpenHelper(context,"database.db", null, 1);
+        DatabaseOpenHelper helper = new DatabaseOpenHelper(context,databaseName, null, 1);
         db = helper.getReadableDatabase();
     }
     private String searchData(String sql){
@@ -39,8 +39,12 @@ public class DatabaseRead {
         return str;
     }
 
-    public String getBuildingName(){
-        String sql ="SELECT * FROM building";
+    public String getBuildingName() {
+        String sql = "SELECT name FROM building";
+        return searchData(sql);
+    }
+    public String getId(){
+        String sql = "SELECT name FROM test";
         return searchData(sql);
     }
 }

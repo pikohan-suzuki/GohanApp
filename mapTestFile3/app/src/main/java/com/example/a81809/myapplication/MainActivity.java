@@ -18,8 +18,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DatabaseRead database = new DatabaseRead(getApplication(),"database.db");
-        String str = database.getBuildingName();
+        DatabaseRead database = new DatabaseRead(getApplication(),"test.db");
+//        String str = database.getBuildingName();
+        String str = database.getId();
         Log.d("debug","pppppppppp"+str);
     }
 }
