@@ -1,10 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:yourapp="http://schemas.android.com/tools">
-    <!--<item-->
-        <!--android:id="@+id/item1"-->
-        <!--android:title="hogehoge"-->
-        <!--app:showAsAction="always" />-->
+
     <item
         android:id="@+id/file"
         android:title="出力ファイル"
@@ -19,9 +16,5 @@
         android:id="@+id/clear"
         android:title="クリア"
         yourapp:showAsAction="never"/>
-    <!--<item-->
-        <!--android:id="@+id/save"-->
-        <!--android:title="保存"-->
-        <!--yourapp:showAsAction="never"/>-->
 
 </menu>
