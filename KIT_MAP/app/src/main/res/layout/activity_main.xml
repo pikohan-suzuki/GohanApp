@@ -5,82 +5,29 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
     android:background="#d9fff6"
-    >
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/search_editText"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="30dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerInParent="true"
-            android:background="@drawable/marukado"/>
-        <Button
-            android:id="@+id/b_search_button"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/search_button" />
-        <ListView
-            android:id="@+id/search_forecast"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/search_editText"
-            android:layout_centerInParent="true"
-            android:background="#55a9ff28">
-
-        </ListView>
-
-    </RelativeLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/floor_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="50sp" />
-
-        <TextView
-            android:id="@+id/building_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="23号館"
-            android:textSize="50sp" />
-    </LinearLayout>
-
+    tools:context=".MainActivity">
 
     <ImageView
-        android:id="@+id/droid_Image"
+        android:id="@+id/indoor_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:scaleType="centerCrop" />
 
-    <!--<TextView-->
-        <!--android:id="@+id/room0"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:clickable="true"-->
-        <!--android:textAlignment="center"-->
-        <!--android:text="23-104\nコミュニケーション\nスタジオ"-->
-        <!--android:background="@drawable/marukado"-->
-        <!--/>-->
+        android:scaleType="fitCenter" />
+    <ImageView
+        android:id="@+id/outdoor_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
 
     <LinearLayout
         android:id="@+id/info_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/marukado"
         android:layout_marginLeft="200dp"
+        android:background="@drawable/marukado"
         android:orientation="horizontal">
 
         <Button
@@ -88,16 +35,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/goto_button"
-            android:textAlignment="center"
-            android:text="ここにいく" />
+            android:text="ここにいく"
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/info_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/info_button"
-            android:textAlignment="center"
-            android:text="Info" />
+            android:text="Info"
+            android:textAlignment="center" />
 
     </LinearLayout>
 
@@ -144,6 +91,7 @@
             android:textSize="50dp" />
 
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/info_sideBar"
         android:layout_width="wrap_content"
@@ -151,41 +99,106 @@
         android:layout_gravity="right"
         android:background="#ff9437"
         android:orientation="vertical">
+
         <ImageView
             android:id="@+id/roomImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="top"
             android:scaleType="fitCenter"
-            android:src="@drawable/droid"
-            android:layout_gravity="top"/>
+            android:src="@drawable/droid" />
+
         <TextView
             android:id="@+id/info_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="仮置き"/>
+            android:text="仮置き" />
+
         <TextView
             android:id="@+id/sub_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="仮置き"/>
+            android:text="仮置き" />
+
         <TextView
             android:id="@+id/info_wifi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/info_lan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="仮置き"/>
+            android:text="仮置き" />
+
         <TextView
             android:id="@+id/info_consent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="仮置き"/>
+            android:text="仮置き" />
+
         <TextView
             android:id="@+id/info_eat_drink"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="仮置き"/>
+            android:text="仮置き" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/floor_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="50sp" />
+
+        <TextView
+            android:id="@+id/building_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="23号館"
+            android:textSize="50sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/search_editText"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/marukado" />
+
+        <Button
+            android:id="@+id/b_search_button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/search_button" />
+
+        <ListView
+            android:id="@+id/search_forecast"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/search_editText"
+            android:layout_centerInParent="true"
+            android:background="#55a9ff28"></ListView>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/location"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/location" />
 </FrameLayout>

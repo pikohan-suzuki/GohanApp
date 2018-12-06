@@ -7,11 +7,10 @@
     android:gravity="left">
 
     <Button
-        android:id="@+id/search_button"
-        android:layout_width="60sp"
-        android:layout_height="60sp"
-        android:background="@drawable/round_button"
-        android:text="🔎"
-        android:transitionName="search"/>
+        android:id="@+id/return_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="←"
+        android:textSize="45dp" />
 
 </LinearLayout>
