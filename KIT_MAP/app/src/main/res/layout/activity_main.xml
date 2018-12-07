@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-
+        android:background="@drawable/border"
         android:scaleType="fitCenter" />
     <ImageView
         android:id="@+id/outdoor_image"
