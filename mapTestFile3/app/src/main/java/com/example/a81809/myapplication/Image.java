@@ -20,10 +20,6 @@ public class Image {
         layout.addView(mapImage);
     }
 
-    public void scale() {
-
-    }
-
     public void setImage(int building_number,int floor,DatabaseRead database) {
         if(building_number==0) {
             mapImage.setImageResource(R.drawable.school_map);
@@ -56,10 +52,27 @@ public class Image {
             factor =(float)MainActivity.screenSize.y/this.height;
         this.width = (int) (width * factor);
         this.height = (int) (height * factor);
-        mapImage.setLayoutParams(new FrameLayout.LayoutParams(width, height));
+        mapImage.setLayoutParams(new FrameLayout.LayoutParams(this.width, this.height));
         this.x = (MainActivity.screenSize.x - this.width) / 2;
         this.y = (MainActivity.screenSize.y - this.height) / 2;
-        mapImage.setX(x);
-        mapImage.setY(y);
+        mapImage.setX(this.x);
+        mapImage.setY(this.y);
     }
+
+    public void onScroll(float moveX,float moveY){
+        this.x = this.x-moveX;
+        this.y = this.y - moveY;
+        mapImage.setX(this.x);
+        mapImage.setY(this.y);
+    }
+    public void onScale(float focusX,float focusY,float factor){
+        this.x=(focusX-this.x)-(focusX-this.x)*factor;
+        this.y=(focusY-this.y)-(focusY-this.y)*factor;
+        this.width=(int)(this.width*factor);
+        this.height=(int)(this.height*factor);
+        mapImage.setX(this.x);
+        mapImage.setY(this.y);
+        mapImage.setLayoutParams(new FrameLayout.LayoutParams(this.width,this.height));
+    }
+
 }

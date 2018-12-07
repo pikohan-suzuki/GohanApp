@@ -36,11 +36,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         od.mkdirs();
 
 //        is  = mContext.getAssets().open(mDBName);
-<<<<<<< HEAD
         is =mContext.getAssets().open(mDBName);
-=======
+
         is =mContext.getAssets().open("database.db");
->>>>>>> database_access
         os  = new FileOutputStream(of);
         buf = new byte[1024];
         for ( ; ; ) {
