@@ -16,7 +16,7 @@ public class Image {
     public Image(Context context, FrameLayout layout, DatabaseRead database) {
         this.context = context;
         mapImage = new ImageView(this.context);
-        setImage(0, 0, database);
+        setImage(23, 1, database);
         layout.addView(mapImage);
     }
 
