@@ -24,42 +24,45 @@ public class MainActivity extends AppCompatActivity {
     private Image image;
     private FrameLayout parent_layout;
     private DatabaseRead database;
+    private GestureDetector mGestureDetector;
+    private ScaleGestureDetector mScaleGestureDetector;
+
     public static Point screenSize;
     public static int building_number;
     public static int floor;
-    private GestureDetector mGestureDetector;
-    private ScaleGestureDetector mScaleGestureDetector;
+    private Point focuxRange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        database = new DatabaseRead(getApplication(),"database.db");
+        database = new DatabaseRead(getApplication(), "database.db");
         parent_layout = findViewById(R.id.parent_layout);
-        building_number=0;
-        floor=0;
+        building_number = 0;
+        floor = 0;
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
         //スクロールイベント
-        mGestureDetector = new GestureDetector(this,mGestureListener);
+        mGestureDetector = new GestureDetector(this, mGestureListener);
         //スケールイベント
-        mScaleGestureDetector = new ScaleGestureDetector(this,mScaleGestureListener);
+        mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
 
     }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        if(screenSize==null){
-            screenSize=getViewSize(parent_layout);
-            image = new Image(getApplication(),parent_layout,database);
+        if (screenSize == null) {
+            screenSize = getViewSize(parent_layout);
+            image = new Image(getApplication(), parent_layout, database);
         }
 //        image.scale();
     }
 
-    private Point getViewSize(View v){
-        Point point =new Point(0,0);
-        point.set(v.getWidth(),v.getHeight());
+    private Point getViewSize(View v) {
+        Point point = new Point(0, 0);
+        point.set(v.getWidth(), v.getHeight());
         return point;
     }
 
@@ -76,25 +79,30 @@ public class MainActivity extends AppCompatActivity {
             new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-                    image.onScroll(v,v1);
+                    image.onScroll(v, v1);
                     return false;
                 }
+
                 @Override
                 public boolean onDown(MotionEvent motionEvent) {
                     return false;
                 }
+
                 @Override
                 public void onShowPress(MotionEvent motionEvent) {
 
                 }
+
                 @Override
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     return false;
                 }
+
                 @Override
                 public void onLongPress(MotionEvent motionEvent) {
 
                 }
+
                 @Override
                 public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
                     return false;
@@ -105,19 +113,19 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-                    float focusX = scaleGestureDetector.getFocusX();
-                    float focusY = scaleGestureDetector.getFocusY();
                     float factor = scaleGestureDetector.getScaleFactor();
-                    image.onScale(focusX,focusY,factor);
+                    if (focuxRange.x==0&&focuxRange.y==0)
+                        focuxRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
+                    image.onScale(focuxRange.x, focuxRange.y, factor);
                     return false;
                 }
                 @Override
                 public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+                    focuxRange = new Point(0,0);
                     return true;
                 }
                 @Override
                 public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
-
                 }
             };
 }
