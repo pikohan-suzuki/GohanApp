@@ -27,4 +27,8 @@ public class Facility {
     private void setImage(){
 
     }
+
+    public void onScroll(float moveX,float moveY){
+
+    }
 }
