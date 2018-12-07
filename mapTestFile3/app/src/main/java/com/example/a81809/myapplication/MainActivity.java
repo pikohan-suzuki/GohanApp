@@ -2,63 +2,122 @@ package com.example.a81809.myapplication;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.gesture.Gesture;
+import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private Image image;
+    private FrameLayout parent_layout;
+    private DatabaseRead database;
+    public static Point screenSize;
+    public static int building_number;
+    public static int floor;
+    private GestureDetector mGestureDetector;
+    private ScaleGestureDetector mScaleGestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-            InputStream fp = getApplication().getAssets().open("asdf.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
+        database = new DatabaseRead(getApplication(),"database.db");
+        parent_layout = findViewById(R.id.parent_layout);
+        building_number=0;
+        floor=0;
+
+        //タッチイベント
+        parent_layout.setOnTouchListener(mTouchEventListener);
+        //スクロールイベント
+        mGestureDetector = new GestureDetector(this,mGestureListener);
+        //スケールイベント
+        mScaleGestureDetector = new ScaleGestureDetector(this,mScaleGestureListener);
+
+    }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if(screenSize==null){
+            screenSize=getViewSize(parent_layout);
+            image = new Image(getApplication(),parent_layout,database);
         }
-        DatabaseOpenHelper helper = new DatabaseOpenHelper(getApplicationContext(),"test.db", null, 1);
-        SQLiteDatabase db = helper.getReadableDatabase();
-        Toast toast = Toast.makeText(this,searchData(db),Toast.LENGTH_SHORT);
+//        image.scale();
     }
 
-    public String searchData(SQLiteDatabase db) {
-        // Cursorを確実にcloseするために、try{}～finally{}にする
-        Cursor cursor = null;
-        try {
-            //SQL文
-            String sql = "SELECT * FROM test";
+    private Point getViewSize(View v){
+        Point point =new Point(0,0);
+        point.set(v.getWidth(),v.getHeight());
+        return point;
+    }
 
-            //SQL文の実行
-//            cursor = db.query("test", new String[]{"id", "name"}, null, null, null, null, null, null);
-            cursor = db.rawQuery(sql,new String[]{});
-            // 検索結果をcursorから読み込んで返す
-            return readCursor(cursor);
-        } catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            // Cursorを忘れずにcloseする
-            if (cursor != null) {
-                cursor.close();
-            }
+    private View.OnTouchListener mTouchEventListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mScaleGestureDetector.onTouchEvent(motionEvent);
+            mGestureDetector.onTouchEvent(motionEvent);
+            return true;
         }
-    }
-    private String readCursor(Cursor cursor ){
-        //カーソル開始位置を先頭にする
-        cursor.moveToFirst();
-        String str="";
-        for (int i = 1; i <= cursor.getCount(); i++) {
-            //SQL文の結果から、必要な値を取り出す
-            str += cursor.getString(0);
-            cursor.moveToNext();
-        }
-        return str;
-    }
+    };
+
+    private GestureDetector.OnGestureListener mGestureListener =
+            new GestureDetector.OnGestureListener() {
+                @Override
+                public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+                    image.onScroll(v,v1);
+                    return false;
+                }
+                @Override
+                public boolean onDown(MotionEvent motionEvent) {
+                    return false;
+                }
+                @Override
+                public void onShowPress(MotionEvent motionEvent) {
+
+                }
+                @Override
+                public boolean onSingleTapUp(MotionEvent motionEvent) {
+                    return false;
+                }
+                @Override
+                public void onLongPress(MotionEvent motionEvent) {
+
+                }
+                @Override
+                public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+                    return false;
+                }
+            };
+
+    private ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener =
+            new ScaleGestureDetector.OnScaleGestureListener() {
+                @Override
+                public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+                    float focusX = scaleGestureDetector.getFocusX();
+                    float focusY = scaleGestureDetector.getFocusY();
+                    float factor = scaleGestureDetector.getScaleFactor();
+                    image.onScale(focusX,focusY,factor);
+                    return false;
+                }
+                @Override
+                public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+                    return true;
+                }
+                @Override
+                public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+
+                }
+            };
 }
