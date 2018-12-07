@@ -1,27 +1,17 @@
 package com.example.a81809.myapplication;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.gesture.Gesture;
 import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ScrollView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private Image image;
+    private Room[] rooms;
     private FrameLayout parent_layout;
     private DatabaseRead database;
     private GestureDetector mGestureDetector;
@@ -30,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     public static Point screenSize;
     public static int building_number;
     public static int floor;
-    private Point focuxRange;
+    private Point focusRange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
         parent_layout = findViewById(R.id.parent_layout);
         building_number = 0;
         floor = 0;
+        String[] room_numbers = database.getRoomNumbers(23,1);
+        rooms = new Room[room_numbers.length];
+        for(int i=0;i<room_numbers.length;i++){
+            rooms[i] = new Room(getApplication(),parent_layout,database,23,1,Integer.parseInt(room_numbers[i]));
+        }
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -114,14 +109,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
                     float factor = scaleGestureDetector.getScaleFactor();
-                    if (focuxRange.x==0&&focuxRange.y==0)
-                        focuxRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
-                    image.onScale(focuxRange.x, focuxRange.y, factor);
+                    if (focusRange.x==0&& focusRange.y==0)
+                        focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
+                    image.onScale(focusRange.x, focusRange.y, factor);
                     return false;
                 }
                 @Override
                 public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-                    focuxRange = new Point(0,0);
+                    focusRange = new Point(0,0);
                     return true;
                 }
                 @Override
