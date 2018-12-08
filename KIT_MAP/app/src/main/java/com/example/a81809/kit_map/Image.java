@@ -95,7 +95,7 @@ public class Image {
         }
     }
 
-    public Point getImageRange() {
+    public Point getImageSize() {
         return new Point(this.width, this.height);
     }
     public Point getImageLocation(){
