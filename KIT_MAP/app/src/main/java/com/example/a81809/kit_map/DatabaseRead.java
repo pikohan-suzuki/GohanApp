@@ -57,11 +57,11 @@ public class DatabaseRead {
         str[1]=list.get(0);
         return str;
     }
-    public int getImageResource(int building_number,int floor){
+    public String  getImageResource(int building_number,int floor){
         String sql = "SELECT image FROM floor WHERE building_number= ? AND floor = ?";
         String[] where = {String.valueOf(building_number),String.valueOf(floor)};
         ArrayList<String> list = searchData(sql,where);
-        return Integer.parseInt(list.get(0));
+        return list.get(0);
     }
 
     public  int getFacilityType(int building_number,int floor,int id){
