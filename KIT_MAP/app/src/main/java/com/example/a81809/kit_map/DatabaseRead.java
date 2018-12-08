@@ -65,20 +65,20 @@ public class DatabaseRead {
     }
 
     public  int getFacilityType(int building_number,int floor,int id){
-        String sql = "SELECT type FROM facility WHERE building_number= ? AND floor = ? AND id = ?";
+        String sql = "SELECT type FROM facility WHERE building_number= ? AND floor = ? AND facility_number = ?";
         String[] where = {String.valueOf(building_number),String.valueOf(floor),String.valueOf(id)};
         ArrayList<String > list = searchData(sql,where);
         return Integer.parseInt(list.get(0));
     }
-    public int[] getFacilityRange(int building_number,int floor,int id) {
-        int[] range = new int[2];
-        String sql = "SELECT x FROM facility WHERE building_number= ? AND floor = ? AND id = ?";
+    public float[] getFacilityRange(int building_number,int floor,int id) {
+        float[] range = new float[2];
+        String sql = "SELECT x FROM facility WHERE building_number= ? AND floor = ? AND facility_number = ?";
         String[] where = {String.valueOf(building_number), String.valueOf(floor), String.valueOf(id)};
         ArrayList<String> list = searchData(sql, where);
-        range[0] = Integer.parseInt(list.get(0));
-        sql = "SELECT height FROM floor WHERE building_number= ? AND floor = ? AND id = ?";
+        range[0] = Float.parseFloat(list.get(0));
+        sql = "SELECT y FROM facility WHERE building_number= ? AND floor = ? AND facility_number = ?";
         list = searchData(sql, where);
-        range[1] = Integer.parseInt(list.get(0));
+        range[1] = Float.parseFloat(list.get(0));
         return range;
     }
     public int[] getRoomNumbers(int building_number,int floor){
@@ -105,5 +105,14 @@ public class DatabaseRead {
         list = searchData(sql,where);
         info[2]=list.get(0);
         return info;
+    }
+    public int[] getFacilityNumber(int building_number,int floor){
+        String sql ="SELECT facility_number FROM facility WHERE building_number = ? AND floor = ? ";
+        String[] where ={String.valueOf(building_number),String.valueOf(floor)};
+        ArrayList<String> list = searchData(sql, where);
+        int[] result = new int[list.size()];
+        for (int i=0;i<list.size();i++)
+            result[i]= Integer.parseInt(list.get(i));
+        return result;
     }
 }
