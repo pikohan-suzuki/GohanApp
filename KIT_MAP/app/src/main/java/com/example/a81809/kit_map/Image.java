@@ -2,6 +2,7 @@ package com.example.a81809.kit_map;
 
 import android.content.Context;
 
+import android.graphics.Point;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -68,30 +69,36 @@ public class Image {
 
     public void onScale(float focusX, float focusY, float factor) {
 
-        float xProportionOfImage = (focusX-this.x)/this.width;
-        float yProportionOfImage = (focusY-this.y)/this.height;
+        float xProportionOfImage = (focusX - this.x) / this.width;
+        float yProportionOfImage = (focusY - this.y) / this.height;
         float xspan;
         float yspan;
-        if (factor > 1){
-            xspan = width/50*factor;
-            yspan=height/50*factor;
-        } else if(factor <1){
-            xspan=-width/(50*factor);
-            yspan=-height/(50*factor);
-        }else{
-            xspan=0;
-            yspan=0;
+        if (factor > 1) {
+            xspan = width / 50 * factor;
+            yspan = height / 50 * factor;
+        } else if (factor < 1) {
+            xspan = -width / (50 * factor);
+            yspan = -height / (50 * factor);
+        } else {
+            xspan = 0;
+            yspan = 0;
         }
-        if (this.width + xspan < MainActivity.screenSize.x*2 && this.height + yspan < MainActivity.screenSize.y*2
-                &&(this.width+xspan >= MainActivity.screenSize.x *0.9|| this.height+yspan >=MainActivity.screenSize.y*0.9)) {
+        if (this.width + xspan < MainActivity.screenSize.x * 2 && this.height + yspan < MainActivity.screenSize.y * 2
+                && (this.width + xspan >= MainActivity.screenSize.x * 0.9 || this.height + yspan >= MainActivity.screenSize.y * 0.9)) {
             this.width = (int) (this.width + xspan);
             this.height = (int) (this.height + yspan);
-            this.x = focusX-this.width*xProportionOfImage;
-            this.y =focusY-this.height*yProportionOfImage;
+            this.x = focusX - this.width * xProportionOfImage;
+            this.y = focusY - this.height * yProportionOfImage;
             mapImage.setX(this.x);
             mapImage.setY(this.y);
             mapImage.setLayoutParams(new FrameLayout.LayoutParams(this.width, this.height));
         }
     }
 
+    public Point getImageRange() {
+        return new Point(this.width, this.height);
+    }
+    public Point getImageLocation(){
+        return new Point((int)this.x,(int)this.y);
+    }
 }
