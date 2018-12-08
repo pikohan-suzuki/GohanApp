@@ -14,10 +14,10 @@ public class Image {
     private float x;
     private float y;
 
-    public Image(Context context, FrameLayout layout, DatabaseRead database) {
+    public Image(Context context, FrameLayout layout, DatabaseRead database,int building_number,int floor) {
         this.context = context;
         mapImage = new ImageView(this.context);
-        setImage(23, 1, database);
+        setImage(building_number, floor, database);
         layout.addView(mapImage);
     }
 
@@ -84,7 +84,7 @@ public class Image {
             yspan = 0;
         }
         if (this.width + xspan < MainActivity.screenSize.x * 2 && this.height + yspan < MainActivity.screenSize.y * 2
-                && (this.width + xspan >= MainActivity.screenSize.x * 0.9 || this.height + yspan >= MainActivity.screenSize.y * 0.9)) {
+                && (this.width + xspan >= MainActivity.screenSize.x * 0.7 || this.height + yspan >= MainActivity.screenSize.y * 0.7)) {
             this.width = (int) (this.width + xspan);
             this.height = (int) (this.height + yspan);
             this.x = focusX - this.width * xProportionOfImage;
@@ -100,5 +100,13 @@ public class Image {
     }
     public Point getImageLocation(){
         return new Point((int)this.x,(int)this.y);
+    }
+    public void showActionBar(){
+        this.y=this.y-MainActivity.actionBarSize.y;
+        mapImage.setY(this.y);
+    }
+    public void hideActionBar(){
+        this.y=this.y+MainActivity.actionBarSize.y;
+        mapImage.setY(this.y);
     }
 }

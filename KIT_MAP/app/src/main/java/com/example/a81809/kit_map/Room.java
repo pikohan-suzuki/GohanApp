@@ -71,4 +71,12 @@ public class Room {
         roomTextView.setX(x);
         roomTextView.setY(y);
     }
+    public void showActionBar(){
+        this.y=this.y-MainActivity.actionBarSize.y;
+        roomTextView.setY(this.y);
+    }
+    public void hideActionBar(){
+        this.y=this.y+MainActivity.actionBarSize.y;
+        roomTextView.setY(this.y);
+    }
 }
