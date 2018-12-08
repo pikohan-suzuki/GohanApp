@@ -2,8 +2,10 @@ package com.example.a81809.kit_map;
 
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private ScaleGestureDetector mScaleGestureDetector;
 
     public static Point screenSize;
+    public static Point actionBarSize;
     public static int building_number;
     public static int floor;
     private Point focusRange;
@@ -35,9 +38,15 @@ public class MainActivity extends AppCompatActivity {
 
         database = new DatabaseRead(getApplication(), "database.db");
         parent_layout = findViewById(R.id.parent_layout);
-        building_number = 0;
-        floor = 0;
+        building_number = 23;
+        floor = 1;
         touchFlg = true;
+
+        screenSize = new Point(0, 0);
+        Display display = this.getWindowManager().getDefaultDisplay();
+        display.getSize(screenSize);
+
+        changeFloor();
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -51,19 +60,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
 
-        if (screenSize == null) {
-            screenSize = getViewSize(parent_layout);
-            image = new Image(getApplication(), parent_layout, database);
-            int[] room_numbers = database.getRoomNumbers(23, 1);
-            rooms = new Room[room_numbers.length];
-            for (int i = 0; i < room_numbers.length; i++)
-                rooms[i] = new Room(getApplication(), parent_layout, database, 23, 1,
-                        room_numbers[i], image.getImageSize(), image.getImageLocation());
-            int[] facility_numbers = database.getFacilityNumber(23, 1);
-            faclities = new Facility[facility_numbers.length];
-            for (int i = 0; i < facility_numbers.length; i++)
-                faclities[i] = new Facility(getApplication(), parent_layout, database, 23, 1,
-                        facility_numbers[i], image.getImageSize(), image.getImageLocation());
+        if (actionBarSize == null) {
+            Point viewSize = getViewSize(parent_layout);
+            actionBarSize = new Point(screenSize.x - viewSize.x, screenSize.y - viewSize.y);
+
+
+//            image = new Image(getApplication(), parent_layout, database);
+//            int[] room_numbers = database.getRoomNumbers(23, 1);
+//            rooms = new Room[room_numbers.length];
+//            for (int i = 0; i < room_numbers.length; i++)
+//                rooms[i] = new Room(getApplication(), parent_layout, database, 23, 1,
+//                        room_numbers[i], image.getImageSize(), image.getImageLocation());
+//            int[] facility_numbers = database.getFacilityNumber(23, 1);
+//            faclities = new Facility[facility_numbers.length];
+//            for (int i = 0; i < facility_numbers.length; i++)
+//                faclities[i] = new Facility(getApplication(), parent_layout, database, 23, 1,
+//                        facility_numbers[i], image.getImageSize(), image.getImageLocation());
         }
     }
 
@@ -79,16 +91,42 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.b23_1:
-
+                if (building_number != 23 || floor != 1) {
+                    building_number = 23;
+                    floor = 1;
+                    changeFloor();
+                }
                 return true;
             case R.id.b23_2:
-
+                if (building_number != 23 || floor != 1) {
+                    building_number = 23;
+                    floor = 2;
+                    changeFloor();
+                }
                 return true;
             case R.id.b23_3:
-
+                if (building_number != 23 || floor != 1) {
+                    building_number = 23;
+                    floor = 3;
+                    changeFloor();
+                }
                 return true;
         }
         return false;
+    }
+
+    private void changeFloor() {
+        image = new Image(getApplication(), parent_layout, database, building_number, floor);
+        int[] room_numbers = database.getRoomNumbers(building_number, floor);
+        rooms = new Room[room_numbers.length];
+        for (int i = 0; i < room_numbers.length; i++)
+            rooms[i] = new Room(getApplication(), parent_layout, database, building_number, floor,
+                    room_numbers[i], image.getImageSize(), image.getImageLocation());
+        int[] facility_numbers = database.getFacilityNumber(building_number, floor);
+        faclities = new Facility[facility_numbers.length];
+        for (int i = 0; i < facility_numbers.length; i++)
+            faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
+                    facility_numbers[i], image.getImageSize(), image.getImageLocation());
     }
 
     private Point getViewSize(View v) {
@@ -111,9 +149,10 @@ public class MainActivity extends AppCompatActivity {
             new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-                    touchFlg = false;
-                    getSupportActionBar().hide();
-
+                    if (touchFlg) {
+                        touchFlg = false;
+                        hideActionBar();
+                    }
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
@@ -136,10 +175,10 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     if (touchFlg) {
                         touchFlg = false;
-                        getSupportActionBar().hide();
+                        hideActionBar();
                     } else {
                         touchFlg = true;
-                        getSupportActionBar().show();
+                        showActionBar();
                     }
                     return false;
                 }
@@ -159,9 +198,10 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-                    touchFlg = false;
-                    getSupportActionBar().hide();
-
+                    if (touchFlg) {
+                        touchFlg = false;
+                        hideActionBar();
+                    }
                     float factor = scaleGestureDetector.getScaleFactor();
                     if (focusRange.x == 0 && focusRange.y == 0)
                         focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
@@ -184,7 +224,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 
-    private void hideActionBar(){
-        
+    private void hideActionBar() {
+        getSupportActionBar().hide();
+//        image.hideActionBar();
+//        for (Facility facility:faclities) facility.hideActionBar();
+//        for (Room room : rooms) room.hideActionBar();
+
+    }
+
+    private void showActionBar() {
+        getSupportActionBar().show();
+//        image.showActionBar();
+//        for (Facility faclity : faclities) faclity.showActionBar();
+//        for (Room room : rooms) room.showActionBar();
     }
 }
