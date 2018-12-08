@@ -25,8 +25,9 @@ public class Image {
         if (building_number == 0) {
             mapImage.setImageResource(R.drawable.school_map);
         } else {
-            int imageNum = database.getImageResource(building_number, floor);
-            mapImage.setImageResource(imageNum);
+            String imageName = database.getImageResource(building_number, floor);
+            int id = context.getResources().getIdentifier(imageName, "drawable",context.getPackageName());
+            mapImage.setImageResource(id);
         }
         mapImage.setBackgroundResource(R.drawable.border);
 
@@ -108,5 +109,8 @@ public class Image {
     public void hideActionBar(){
         this.y=this.y+MainActivity.actionBarSize.y;
         mapImage.setY(this.y);
+    }
+    public void removeView(FrameLayout layout){
+        layout.removeView(mapImage);
     }
 }

@@ -64,4 +64,7 @@ public class Facility {
         this.y=this.y+MainActivity.actionBarSize.y;
         image.setY(this.y);
     }
+    public void removeView(FrameLayout layout){
+        layout.removeView(image);
+    }
 }

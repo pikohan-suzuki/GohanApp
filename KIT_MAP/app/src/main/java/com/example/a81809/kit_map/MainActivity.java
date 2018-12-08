@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         building_number = 23;
         floor = 1;
         touchFlg = true;
-
         screenSize = new Point(0, 0);
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
@@ -57,12 +56,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-
-        if (actionBarSize == null) {
-            Point viewSize = getViewSize(parent_layout);
-            actionBarSize = new Point(screenSize.x - viewSize.x, screenSize.y - viewSize.y);
+//    @Override
+//    public void onWindowFocusChanged(boolean hasFocus) {
+//
+//        if (actionBarSize == null) {
+//            Point viewSize = getViewSize(parent_layout);
+//            actionBarSize = new Point(screenSize.x - viewSize.x, screenSize.y - viewSize.y);
 
 
 //            image = new Image(getApplication(), parent_layout, database);
@@ -76,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
 //            for (int i = 0; i < facility_numbers.length; i++)
 //                faclities[i] = new Facility(getApplication(), parent_layout, database, 23, 1,
 //                        facility_numbers[i], image.getImageSize(), image.getImageLocation());
-        }
-    }
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,20 +93,23 @@ public class MainActivity extends AppCompatActivity {
                 if (building_number != 23 || floor != 1) {
                     building_number = 23;
                     floor = 1;
+                    removeViews();
                     changeFloor();
                 }
                 return true;
             case R.id.b23_2:
-                if (building_number != 23 || floor != 1) {
+                if (building_number != 23 || floor != 2 ){
                     building_number = 23;
                     floor = 2;
+                    removeViews();
                     changeFloor();
                 }
                 return true;
             case R.id.b23_3:
-                if (building_number != 23 || floor != 1) {
+                if (building_number != 23 || floor != 3) {
                     building_number = 23;
                     floor = 3;
+                    removeViews();
                     changeFloor();
                 }
                 return true;
@@ -128,7 +130,11 @@ public class MainActivity extends AppCompatActivity {
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
     }
-
+    private void removeViews(){
+        image.removeView(parent_layout);
+        for(Room room : rooms) room.removeView(parent_layout);
+        for(Facility facility:faclities) facility.removeView(parent_layout);
+    }
     private Point getViewSize(View v) {
         Point point = new Point(0, 0);
         point.set(v.getWidth(), v.getHeight());
