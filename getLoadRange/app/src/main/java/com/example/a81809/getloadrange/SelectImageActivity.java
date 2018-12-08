@@ -10,59 +10,54 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
 
 public class SelectImageActivity extends AppCompatActivity {
-
+    private Spinner buildingSpinner;
+    private Spinner floorSpinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_image);
 
-        ListView listView = findViewById(R.id.listView);
-        Button returnButton =findViewById(R.id.return_button);
+        buildingSpinner = findViewById(R.id.building_spinner);
+        floorSpinner = findViewById(R.id.floor_spinner);
+        String buildingList[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "21", "23", "24", "100"};
+        String floorList[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"};
+        final ArrayAdapter<String> buildingAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, buildingList);
+        final ArrayAdapter<String> floorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, floorList);
+        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        buildingSpinner.setAdapter(buildingAdapter);
+        floorSpinner.setAdapter(floorAdapter);
 
-        Field[] fields = R.drawable.class.getFields();
-        final int list[] = new int[100];
-        String nameList[] = new String[100];
-        int i = 0;
-        for (Field field : fields) {
-            try {
-                String name = field.getName();
-                int id = (Integer) field.get(name);
-                list[i] = id;
-                nameList[i]=name;
-                i++;
-            } catch (Exception e) {
-                Log.d("debug", "Exception happened!");
-            }
-        }
+        Button return_button = findViewById(R.id.return_button);
+        Button select_button = findViewById(R.id.select_button);
 
-        returnButton.setOnClickListener(new View.OnClickListener() {
+        return_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("address",0);
-                setResult(Activity.RESULT_OK,intent);
+                intent.putExtra("building_name", 999);
+                intent.putExtra("floor",999);
+                setResult(Activity.RESULT_OK, intent);
                 finish();
             }
         });
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,nameList);
-        listView.setAdapter(arrayAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        select_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("address",list[position]);
-                setResult(Activity.RESULT_OK,intent);
+                intent.putExtra("building_name", Integer.parseInt((String) buildingSpinner.getSelectedItem()));
+                intent.putExtra("floor",Integer.parseInt(String.valueOf(floorSpinner.getSelectedItem())));
+                setResult(Activity.RESULT_OK, intent);
                 finish();
             }
         });
 
     }
-
 }
