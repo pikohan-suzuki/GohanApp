@@ -22,225 +22,257 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.sql.Time;
+
 public class MainActivity extends AppCompatActivity {
 
-        ImageView mapImageView;
-//        TextView now;
-//        MyView myView;
-        int loadnumber;
-        boolean firsttap;
+    ImageView mapImageView;
+    FrameLayout parent_layout;
+    Point viewMaxSize;
+    private DatabaseRead database;
+    private int building_number;
+    private int floor;
 
-        float firstRange[];
-        float secondRange[];
+    String str;
+    private int mode;
 
-        Point viewMaxSize;
+    private int width;
+    private int height;
+    private float x;
+    private float y;
 
-        String str;
+    private long beforeTouch=0;
+
+    float firstRange[];
+    float secondRange[];
+    int loadnumber;
+    boolean firsttap;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mapImageView= findViewById(R.id.mapImageView);
-//        Button fileButton = findViewById(R.id.file);
-//        Button selectImageButton = findViewById(R.id.selectImage);
-//        Button clearButton = findViewById(R.id.clear_button);
-//        Button saveButton = findViewById(R.id.save_button);
-//        now = findViewById(R.id.now);
-//        myView = findViewById(R.id.my_view);
-//        final Spinner buildingSpinner = findViewById(R.id.building_spinner);
-//        final Spinner floorSpinner = findViewById(R.id.floor_spinner);
+        mapImageView = findViewById(R.id.mapImageView);
+        parent_layout=findViewById(R.id.parent_layout);
 
-        String buildingList[] = {"1","2","3","4","5","6","7","8","9","21","23","24","lc","other"};
-        String floorList[] ={"1","2","3","4","5","6","7","8","9","10","11","12","13","14"};
+        database = new DatabaseRead(getApplication(), "database.db");
+
         firstRange = new float[2];
-        secondRange=new float[2];
+        secondRange = new float[2];
 
-        loadnumber =0;
-        firsttap=true;
-        str =" id  x(%)  y(%)  x_flg  length(%)\n";
+        mode = 0;
 
-//        ArrayAdapter<String> buildingAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,buildingList);
-//        ArrayAdapter<String> floorAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,floorList);
-//        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        buildingSpinner.setAdapter(buildingAdapter);
-//        floorSpinner.setAdapter(floorAdapter);
+        loadnumber = 0;
+        firsttap = true;
+        str="======== road mode ========\n";
 
-        mapImageView.setOnTouchListener(new imageTouchListener());
-
-//        saveButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(loadnumber==0){
-//                    str+= buildingSpinner.getSelectedItem() +","+floorSpinner.getSelectedItem()+"\n";
-//                }
-//                str += loadnumber +","+firstRange[0]/mapImageView.getWidth()+","+firstRange[1]/mapImageView.getHeight() + ",";
-//                if(firstRange[0]!=secondRange[0]) {
-//                    str += "1";
-//                    str += "," + (secondRange[0] - firstRange[0]) / mapImageView.getWidth() + "\n";
-//                }else {
-//                    str += "0";
-//                    str += "," + (secondRange[1] - firstRange[1]) / mapImageView.getHeight() + "\n";
-//                }
-//                loadnumber++;
-//            }
-//        });
-
-        //結果閲覧
-//        fileButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this,ResultActivity.class);
-//                intent.putExtra("str",str);
-//                startActivity(intent);
-//            }
-//        });
-
-
-        //画像選択
-//        selectImageButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this,SelectImageActivity.class);
-//                int requestCode =1001;
-//                startActivityForResult(intent,requestCode);
-//            }
-//        });
+       parent_layout.setOnTouchListener(mTouchEventListener);
 
     }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if(mapImageView.getWidth() !=0) {
-            FrameLayout r = (FrameLayout) findViewById(R.id.parent_layout);
-            viewMaxSize = getViewSize(r);
-            changeImageSize(mapImageView);
+        if (mapImageView.getWidth() != 0) {
+            viewMaxSize = getViewSize(parent_layout);
         }
     }
-    public static Point getViewSize(View View){
+
+    public static Point getViewSize(View View) {
         Point point = new Point(0, 0);
         point.set(View.getWidth(), View.getHeight());
         return point;
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+        MenuItem menuMode = menu.findItem(R.id.mode);
+        if (mode == 0) {
+            menuMode.setTitle("ROAD");
+        } else if (mode == 1) {
+            menuMode.setTitle("FACILITY");
+        } else {
+            menuMode.setTitle("ROOM");
+        }
         return true;
     }
-    public void changeImageSize(View v){
-        float facter =1;
-        if(viewMaxSize.x/getViewSize(v).x >= viewMaxSize.y/getViewSize(v).y)
-            facter=getViewSize(mapImageView).y/viewMaxSize.y;
+
+    public void changeImageSize(View v) {
+        float facter = 1;
+        if (viewMaxSize.x / getViewSize(v).x >= viewMaxSize.y / getViewSize(v).y)
+            facter = getViewSize(mapImageView).y / viewMaxSize.y;
         else
-            facter=getViewSize(v).x/viewMaxSize.x;
+            facter = getViewSize(v).x / viewMaxSize.x;
         FrameLayout.LayoutParams frameLayoutParams;
-        frameLayoutParams = new FrameLayout.LayoutParams((int)(getViewSize(v).x*facter) ,(int)(getViewSize(v).y*facter));
+        frameLayoutParams = new FrameLayout.LayoutParams((int) (getViewSize(v).x * facter), (int) (getViewSize(v).y * facter));
 //        frameLayoutParams = new FrameLayout.LayoutParams(500 ,500);
         mapImageView.setLayoutParams(frameLayoutParams);
     }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch(item.getItemId()){
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
 
             case R.id.file:
-                Intent intent1 = new Intent(MainActivity.this,ResultActivity.class);
-                intent1.putExtra("str",str);
+                Intent intent1 = new Intent(MainActivity.this, ResultActivity.class);
+                intent1.putExtra("str", str);
                 startActivity(intent1);
                 return true;
             case R.id.selectImage:
-                Intent intent2 = new Intent(MainActivity.this,SelectImageActivity.class);
-                int requestCode =1001;
-                startActivityForResult(intent2,requestCode);
+                Intent intent2 = new Intent(MainActivity.this, SelectImageActivity.class);
+                int requestCode = 1001;
+                startActivityForResult(intent2, requestCode);
                 return true;
             case R.id.clear:
                 return true;
-//            case R.id.save:
-//                return true;
+            case R.id.road_mode:
+                mode = 0;
+                str+="======== road mode ========\nid,start_x(%),start_y(%),is_x(bool),length(%)\n";
+                invalidateOptionsMenu();
+                return true;
+            case R.id.facility_mode:
+                mode = 1;
+                str+="======== facility mode ========\nx(%),y(%)\n";
+                invalidateOptionsMenu();
+                return true;
+            case R.id.room_mode:
+                mode = 2;
+                str+="======== room mode ========\nx(%),y(%)\n";
+                invalidateOptionsMenu();
+                return true;
         }
         return false;
     }
-    public void onActivityResult( int requestCode, int resultCode, Intent intent )
-    {
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         // startActivityForResult()の際に指定した識別コードとの比較
-        if( requestCode == 1001 ){
+        if (requestCode == 1001) {
 
             // 返却結果ステータスとの比較
-            if( resultCode == Activity.RESULT_OK ){
+            if (resultCode == Activity.RESULT_OK) {
                 // 返却されてきたintentから値を取り出す
-                int imageAddress = intent.getIntExtra("address",0);
-                if(imageAddress!=0){
-                    setImage(imageAddress);
+                building_number = intent.getIntExtra("building_name",0);
+                floor = intent.getIntExtra("floor",0);
+                if (building_number != 999) {
+                    setImage(building_number, floor);
                 }
             }
         }
     }
 
-    public void setImage(int address){
-        mapImageView.setImageResource(address);
-        Log.d("debug",";;;;;;;;;"+mapImageView.getWidth()+"+"+mapImageView.getHeight()+"+"+mapImageView.getX()+"+"+mapImageView.getY());
-        firsttap=true;
-//        now.setText("1");
-        try {
-            wait(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void setImage(int building_number, int floor) {
+        String[] imageSize = database.getFloorImageSize(building_number, floor);
+        String name = database.getImageResource(building_number,floor);
+        int id = getResources().getIdentifier(name, "drawable", getPackageName());
+        mapImageView.setImageResource(id);
+        width = Integer.parseInt(imageSize[0]);
+        height = Integer.parseInt(imageSize[1]);
+        float factor;
+        if ((float) viewMaxSize.x / width < (float) viewMaxSize.y / height) {
+            factor = (float) viewMaxSize.x / width;
+        } else {
+            factor = (float) viewMaxSize.y / height;
         }
-        changeImageSize(mapImageView);
+        width = (int) (width * factor);
+        height = (int) (height * factor);
+        x = (viewMaxSize.x - width) / 2;
+        y = (viewMaxSize.y - height) / 2;
+        mapImageView.setLayoutParams(new FrameLayout.LayoutParams(width, height));
+        mapImageView.setX(x);
+        mapImageView.setY(y);
+        str+=String.valueOf(building_number)+","+String.valueOf(floor)+"\n";
     }
-
-    public class imageTouchListener implements View.OnTouchListener {
+    private View.OnTouchListener mTouchEventListener = new View.OnTouchListener() {
         @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            Log.d("debug","touched: x="+event.getX()+" y:="+event.getY() );
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    if(firsttap){
-                        firstRange[0]=event.getX()-mapImageView.getX();
-                        firstRange[1]=event.getY()-mapImageView.getY();
-//                        now.setText("2");
-                        firsttap=false;
-                    }else{
-                        secondRange[0]=event.getX()-mapImageView.getX();
-                        secondRange[1]=event.getY()-mapImageView.getY();
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if(motionEvent.getEventTime()-beforeTouch >100) {
+                beforeTouch = motionEvent.getEventTime();
 
-                        float x= secondRange[0]-firstRange[0];
-                        float y = secondRange[1]-firstRange[1];
-                        //x方向への移動
-                        if(Math.abs(y)/Math.abs(x)<=1){
-                            if(firstRange[0]<secondRange[0]){
-                                secondRange[1]=firstRange[1];
-                            }else{
-                                float tmp[] = firstRange;
-                                firstRange=secondRange;
-                                secondRange=tmp;
-                                secondRange[1]=firstRange[1];
-                            }
-                        }
-                        //y方向への移動
-                        else{
-                            if(firstRange[1]<secondRange[1]){
-                                secondRange[0]=firstRange[0];
-                            }else{
-                                float tmp[] = firstRange;
-                                firstRange=secondRange;
-                                secondRange=tmp;
-                                secondRange[0]=firstRange[0];
-                            }
-                        }
-//                        myView.setLine(firstRange[0],firstRange[1],secondRange[0],secondRange[1],mapImageView.getX(),mapImageView.getY());
-//                        now.setText("1");
-                        firsttap=true;
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-
-                    break;
-                case MotionEvent.ACTION_CANCEL:
-                    break;
+                float xper;
+                float yper;
+                switch (mode) {
+                    case 0:
+                        return true;
+                    case 1:
+                        xper = (motionEvent.getX() - x) / width;
+                        yper = (motionEvent.getY() - y) / height;
+                        str += xper + "," + yper + "\n";
+                        return true;
+                    case 2:
+                        xper = (motionEvent.getX() - x) / width;
+                        yper = (motionEvent.getY() - y) / height;
+                        str += xper + "," + yper + "\n";
+                        return true;
+                }
             }
-            return false;
+            return true;
         }
-    }
+    };
+
+//    public class imageTouchListener implements View.OnTouchListener {
+//        @Override
+//        public boolean onTouch(View v, MotionEvent event) {
+//            switch (event.getAction()) {
+//                case MotionEvent.ACTION_DOWN:
+//                    switch (mode) {
+//                        case 0:
+//                            if (firsttap) {
+//                                firstRange[0] = event.getX() - mapImageView.getX();
+//                                firstRange[1] = event.getY() - mapImageView.getY();
+////                        now.setText("2");
+//                                firsttap = false;
+//                            } else {
+//                                secondRange[0] = event.getX() - mapImageView.getX();
+//                                secondRange[1] = event.getY() - mapImageView.getY();
+//
+//                                float x = secondRange[0] - firstRange[0];
+//                                float y = secondRange[1] - firstRange[1];
+//                                //x方向への移動
+//                                if (Math.abs(y) / Math.abs(x) <= 1) {
+//                                    if (firstRange[0] < secondRange[0]) {
+//                                        secondRange[1] = firstRange[1];
+//                                    } else {
+//                                        float tmp[] = firstRange;
+//                                        firstRange = secondRange;
+//                                        secondRange = tmp;
+//                                        secondRange[1] = firstRange[1];
+//                                    }
+//                                }
+//                                //y方向への移動
+//                                else {
+//                                    if (firstRange[1] < secondRange[1]) {
+//                                        secondRange[0] = firstRange[0];
+//                                    } else {
+//                                        float tmp[] = firstRange;
+//                                        firstRange = secondRange;
+//                                        secondRange = tmp;
+//                                        secondRange[0] = firstRange[0];
+//                                    }
+//                                }
+////                        myView.setLine(firstRange[0],firstRange[1],secondRange[0],secondRange[1],mapImageView.getX(),mapImageView.getY());
+////                        now.setText("1");
+//                                firsttap = true;
+//
+//                            }
+//                            break;
+//                        case 1:
+//                            break;
+//                        case 2:
+//
+//                    }
+//                    break;
+//                case MotionEvent.ACTION_UP:
+//
+//                    break;
+//                case MotionEvent.ACTION_CANCEL:
+//                    break;
+//            }
+//            return false;
+//        }
+//    }
 }

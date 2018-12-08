@@ -30,11 +30,14 @@ public class Room {
         this.yper = Float.parseFloat(info[2]);
         roomTextView = new TextView(context);
         layout.addView(roomTextView);
-        String str[] = name.split(",");
-        if (str.length == 1)
-            roomTextView.setText(building_number + "-" + room_num + "\n" + str[0]);
-        else
-            roomTextView.setText(building_number + "-" + room_num + "\n" + str[0] + "\n" + str[1]);
+        if(name!=null) {
+            String str[] = name.split(",");
+            if (str.length == 1)
+                roomTextView.setText(building_number + "-" + room_num + "\n" + str[0]);
+            else
+                roomTextView.setText(building_number + "-" + room_num + "\n" + str[0] + "\n" + str[1]);
+        }else
+            roomTextView.setText(building_number+"-"+room_num);
         roomTextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         roomTextView.setBackgroundResource(R.drawable.marukado);
         roomTextView.setGravity(1);
@@ -70,5 +73,16 @@ public class Room {
     public void setRoomLocation(float x, float y) {
         roomTextView.setX(x);
         roomTextView.setY(y);
+    }
+    public void showActionBar(){
+        this.y=this.y-MainActivity.actionBarSize.y;
+        roomTextView.setY(this.y);
+    }
+    public void hideActionBar(){
+        this.y=this.y+MainActivity.actionBarSize.y;
+        roomTextView.setY(this.y);
+    }
+    public void removeView(FrameLayout layout){
+        layout.removeView(roomTextView);
     }
 }
