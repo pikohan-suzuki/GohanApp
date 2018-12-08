@@ -1,4 +1,5 @@
-package com.example.a81809.kit_map;
+package com.example.a81809.getloadrange;
+
 
 import android.content.Context;
 import android.database.Cursor;

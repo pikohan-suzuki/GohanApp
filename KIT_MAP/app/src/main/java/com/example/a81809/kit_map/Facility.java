@@ -56,4 +56,15 @@ public class Facility {
         image.setX(x);
         image.setY(y);
     }
+    public void showActionBar(){
+        this.y=this.y-MainActivity.actionBarSize.y;
+        image.setY(this.y);
+    }
+    public void hideActionBar(){
+        this.y=this.y+MainActivity.actionBarSize.y;
+        image.setY(this.y);
+    }
+    public void removeView(FrameLayout layout){
+        layout.removeView(image);
+    }
 }

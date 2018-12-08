@@ -3,6 +3,22 @@
     xmlns:yourapp="http://schemas.android.com/tools">
 
     <item
+        android:id="@+id/mode"
+        android:title="ROAD"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/road_mode"
+        android:title="[Road]mode"
+        yourapp:showAsAction="never"/>
+    <item
+        android:id="@+id/facility_mode"
+        android:title="[Facility]mode"
+        yourapp:showAsAction="never"/>
+    <item
+        android:id="@+id/room_mode"
+        android:title="[Room]mode"
+        yourapp:showAsAction="never"/>
+    <item
         android:id="@+id/file"
         android:title="出力ファイル"
         yourapp:showAsAction="never"/>
