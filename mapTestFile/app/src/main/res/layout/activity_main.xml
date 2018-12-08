@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?><!--<android.support.v4.widget.DrawerLayout -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#d9fff6"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/indoor_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/border"
+        android:scaleType="fitCenter" />
+    <ImageView
+        android:id="@+id/outdoor_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
+
+    <LinearLayout
+        android:id="@+id/info_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="200dp"
+        android:background="@drawable/marukado"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/goTo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/goto_button"
+            android:text="ここにいく"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/info_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/info_button"
+            android:text="Info"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="120dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/up_button"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/round_button"
+            android:text="▲"
+            android:textSize="50dp" />
+
+        <Button
+            android:id="@+id/down_button"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/round_button"
+            android:text="▼"
+            android:textSize="50dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:gravity="right|center">
+
+        <Button
+            android:id="@+id/center_button"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_margin="30dp"
+            android:background="@drawable/round_button"
+            android:text="+"
+            android:textSize="50dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/info_sideBar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="#ff9437"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/roomImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:scaleType="fitCenter"
+            android:src="@drawable/droid" />
+
+        <TextView
+            android:id="@+id/info_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="仮置き" />
+
+        <TextView
+            android:id="@+id/sub_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="仮置き" />
+
+        <TextView
+            android:id="@+id/info_wifi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/info_lan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="仮置き" />
+
+        <TextView
+            android:id="@+id/info_consent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="仮置き" />
+
+        <TextView
+            android:id="@+id/info_eat_drink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="仮置き" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/floor_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="50sp" />
+
+        <TextView
+            android:id="@+id/building_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="23号館"
+            android:textSize="50sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/search_editText"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/marukado" />
+
+        <Button
+            android:id="@+id/b_search_button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/search_button" />
+
+        <ListView
+            android:id="@+id/search_forecast"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/search_editText"
+            android:layout_centerInParent="true"
+            android:background="#55a9ff28"></ListView>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/location"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/location" />
+</FrameLayout>

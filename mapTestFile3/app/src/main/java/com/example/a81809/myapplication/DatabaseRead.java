@@ -80,4 +80,24 @@ public class DatabaseRead {
         range[1] = Integer.parseInt(list.get(0));
         return range;
     }
+    public String[] getRoomNumbers(int building_number,int floor){
+        String sql ="SELECT room_number FROM room WHERE building_number = ? AND floor = ? ";
+        String[] where ={String.valueOf(building_number),String.valueOf(floor)};
+        ArrayList<String> list = searchData(sql, where);
+        return (String[]) list.toArray();
+    }
+    public String[] getRoomInfo(int building_number,int floor,int room_id){
+        String[] info = new String[3];
+        String sql = "SELECT name FROM room WHERE building_number = ? AND floor = ? AND room_id =?";
+        String[] where ={String.valueOf(building_number),String.valueOf(floor),String.valueOf(room_id)};
+        ArrayList<String> list = searchData(sql,where);
+        info[0] = list.get(0);
+        sql = "SELECT x FROM room WHERE building_number = ? AND floor = ? AND room_id =?";
+        list = searchData(sql,where);
+        info[1]=list.get(0);
+        sql = "SELECT y FROM room WHERE building_number = ? AND floor = ? AND room_id =?";
+        list = searchData(sql,where);
+        info[2]=list.get(0);
+        return info;
+    }
 }

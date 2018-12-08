@@ -16,40 +16,40 @@ public class Image {
     public Image(Context context, FrameLayout layout, DatabaseRead database) {
         this.context = context;
         mapImage = new ImageView(this.context);
-        setImage(0,0,database);
+        setImage(23, 1, database);
         layout.addView(mapImage);
     }
 
-    public void setImage(int building_number,int floor,DatabaseRead database) {
-        if(building_number==0) {
+    public void setImage(int building_number, int floor, DatabaseRead database) {
+        if (building_number == 0) {
             mapImage.setImageResource(R.drawable.school_map);
-        }else{
-            int imageNum = database.getImageResource(building_number,floor);
+        } else {
+            int imageNum = database.getImageResource(building_number, floor);
             mapImage.setImageResource(imageNum);
         }
-            mapImage.setBackgroundResource(R.drawable.border);
+        mapImage.setBackgroundResource(R.drawable.border);
 
-        setImageInit(building_number,floor,database);
+        setImageInit(building_number, floor, database);
     }
 
-    private void setImageInit(int building_number, int floor,DatabaseRead database) {
-        if(building_number==0){
+    private void setImageInit(int building_number, int floor, DatabaseRead database) {
+        if (building_number == 0) {
             this.width = 1203;
             this.height = 1017;
-        }else {
+        } else {
             String[] record = database.getFloorImageSize(building_number, floor);
             this.width = Integer.parseInt(record[0]);
             this.height = Integer.parseInt(record[1]);
         }
-            setFillCenter();
+        setFillCenter();
     }
 
     private void setFillCenter() {
         double factor;
         if (MainActivity.screenSize.x / width < MainActivity.screenSize.y / height)
-            factor = (float)MainActivity.screenSize.x / this.width;
-         else
-            factor =(float)MainActivity.screenSize.y/this.height;
+            factor = (float) MainActivity.screenSize.x / this.width;
+        else
+            factor = (float) MainActivity.screenSize.y / this.height;
         this.width = (int) (width * factor);
         this.height = (int) (height * factor);
         mapImage.setLayoutParams(new FrameLayout.LayoutParams(this.width, this.height));
@@ -59,20 +59,39 @@ public class Image {
         mapImage.setY(this.y);
     }
 
-    public void onScroll(float moveX,float moveY){
-        this.x = this.x-moveX;
+    public void onScroll(float moveX, float moveY) {
+        this.x = this.x - moveX;
         this.y = this.y - moveY;
         mapImage.setX(this.x);
         mapImage.setY(this.y);
     }
-    public void onScale(float focusX,float focusY,float factor){
-        this.x=(focusX-this.x)-(focusX-this.x)*factor;
-        this.y=(focusY-this.y)-(focusY-this.y)*factor;
-        this.width=(int)(this.width*factor);
-        this.height=(int)(this.height*factor);
-        mapImage.setX(this.x);
-        mapImage.setY(this.y);
-        mapImage.setLayoutParams(new FrameLayout.LayoutParams(this.width,this.height));
+
+    public void onScale(float focusX, float focusY, float factor) {
+
+        float xProportionOfImage = (focusX-this.x)/this.width;
+        float yProportionOfImage = (focusY-this.y)/this.height;
+        float xspan;
+        float yspan;
+        if (factor > 1){
+            xspan = width/50*factor;
+            yspan=height/50*factor;
+        } else if(factor <1){
+            xspan=-width/(50*factor);
+            yspan=-height/(50*factor);
+        }else{
+            xspan=0;
+            yspan=0;
+        }
+        if (this.width + xspan < MainActivity.screenSize.x*2 && this.height + yspan < MainActivity.screenSize.y*2
+                &&(this.width+xspan >= MainActivity.screenSize.x *0.9|| this.height+yspan >=MainActivity.screenSize.y*0.9)) {
+            this.width = (int) (this.width + xspan);
+            this.height = (int) (this.height + yspan);
+            this.x = focusX-this.width*xProportionOfImage;
+            this.y =focusY-this.height*yProportionOfImage;
+            mapImage.setX(this.x);
+            mapImage.setY(this.y);
+            mapImage.setLayoutParams(new FrameLayout.LayoutParams(this.width, this.height));
+        }
     }
 
 }
