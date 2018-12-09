@@ -1,6 +1,10 @@
 package com.example.a81809.kit_map;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
 import android.support.v4.view.MenuItemCompat;
@@ -14,6 +18,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -22,17 +29,19 @@ public class MainActivity extends AppCompatActivity {
     private Image image;
     private Room[] rooms;
     private Facility[] faclities;
+    private UIManager uiManager;
     private FrameLayout parent_layout;
-    private DatabaseRead database;
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
+    public  DatabaseRead database;
 
     public static Point screenSize;
     public static Point actionBarSize;
     public static int building_number;
     public static int floor;
     private Point focusRange;
-    private boolean touchFlg;
+    private boolean touchFlg = true;
+    private boolean isMapMode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +50,17 @@ public class MainActivity extends AppCompatActivity {
 
         database = new DatabaseRead(getApplication(), "database.db");
         parent_layout = findViewById(R.id.parent_layout);
-        building_number = 23;
-        floor = 1;
-        touchFlg = true;
+        building_number = 0;
+        floor = 0;
         screenSize = new Point(0, 0);
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
 
         changeFloor();
+        uiManager= new UIManager(getApplication(),parent_layout);
+        removeUI();
+        UIManager.upButton.setOnClickListener(upButtonClickListener);
+        UIManager.downButton.setOnClickListener(downButtonClickListener);
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -63,25 +75,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-//        MenuItem menuItem = menu.findItem(R.id.search_view);
-//        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
-//        searchView.setOnQueryTextListener(onQueryTextListener);
         return true;
     }
-
-//    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
-//        @Override
-//        public boolean onQueryTextSubmit(String searchWord) {
-//            // SubmitボタンorEnterKeyを押されたら呼び出されるメソッド
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean onQueryTextChange(String newText) {
-//            // 入力される度に呼び出される
-//            return false;
-//        }
-//    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -149,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
             new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-                    if (touchFlg) {
-                        touchFlg = false;
-                        hideActionBar();
-                    }
+//                    if (touchFlg) {
+//                        touchFlg = false;
+//                        hideActionBar();
+//                    }
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
@@ -173,12 +168,65 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
-                    if (touchFlg) {
-                        touchFlg = false;
-                        hideActionBar();
+                    Bitmap bitmap = getViewCapture(parent_layout);
+                    int color = bitmap.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
+                    if (building_number == 0) {
+                        switch (color) {
+                            case -12199: //8
+                                building_number = 8;
+                                floor = 1;
+                                removeViews();
+                                changeFloor();
+                                if(touchFlg) setUI();
+                                break;
+                            case -1055568: //23
+                                building_number = 23;
+                                floor = 1;
+                                removeViews();
+                                changeFloor();
+                                if(touchFlg) setUI();
+                                break;
+                            case -12457: //5
+                                building_number = 5;
+                                floor = 1;
+                                removeViews();
+                                changeFloor();
+                                if(touchFlg) setUI();
+                                break;
+                            case -12713: //3
+                                building_number = 3;
+                                floor = 1;
+                                removeViews();
+                                changeFloor();
+                                if(touchFlg) setUI();
+                                break;
+                            default:
+                                if (touchFlg) {
+                                    touchFlg = false;
+                                    hideActionBar();
+                                } else {
+                                    touchFlg = true;
+                                    showActionBar();
+                                }
+                                break;
+                        }
+                    } else if (color == -2687049) {
+                        building_number = 0;
+                        floor = 0;
+                        removeViews();
+                        changeFloor();
+                        if(touchFlg)
+                            removeUI();
                     } else {
-                        touchFlg = true;
-                        showActionBar();
+                        if (touchFlg) {
+                            touchFlg = false;
+                            hideActionBar();
+                            removeUI();
+                        } else {
+                            touchFlg = true;
+                            showActionBar();
+                            setUI();
+                        }
                     }
                     return false;
                 }
@@ -198,10 +246,10 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-                    if (touchFlg) {
-                        touchFlg = false;
-                        hideActionBar();
-                    }
+//                    if (touchFlg) {
+//                        touchFlg = false;
+//                        hideActionBar();
+//                    }
                     float factor = scaleGestureDetector.getScaleFactor();
                     if (focusRange.x == 0 && focusRange.y == 0)
                         focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
@@ -238,4 +286,46 @@ public class MainActivity extends AppCompatActivity {
 //        for (Facility faclity : faclities) faclity.showActionBar();
 //        for (Room room : rooms) room.showActionBar();
     }
+
+    //スクリーンショットの撮影
+    private Bitmap getViewCapture(View view) {
+        view.setDrawingCacheEnabled(true);
+        Bitmap cache = view.getDrawingCache();
+        if (cache != null) {
+            Bitmap screenShot = Bitmap.createBitmap(cache);
+            view.setDrawingCacheEnabled(false);
+            return screenShot;
+        } else {
+            return null;
+        }
+    }
+
+    private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int numberOfFloor =database.getNumberOfFloor(building_number);
+            if(floor < numberOfFloor){
+                floor++;
+                removeViews();
+                changeFloor();
+            }
+        }
+    };
+    private View.OnClickListener downButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(floor!=1){
+                floor--;
+                removeViews();
+                changeFloor();
+            }
+        }
+    };
+    private void setUI(){
+       uiManager.setUI(parent_layout);
+    }
+    private void removeUI(){
+        uiManager.removeUI(parent_layout);
+    }
+
 }
