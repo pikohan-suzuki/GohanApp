@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView mapImageView;
     FrameLayout parent_layout;
     Point viewMaxSize;
+    MyView myView;
     private DatabaseRead database;
     private int building_number;
     private int floor;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private float x;
     private float y;
 
-    private long beforeTouch=0;
+    private long beforeTouch = 0;
 
     float firstRange[];
     float secondRange[];
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mapImageView = findViewById(R.id.mapImageView);
-        parent_layout=findViewById(R.id.parent_layout);
+        parent_layout = findViewById(R.id.parent_layout);
 
         database = new DatabaseRead(getApplication(), "database.db");
 
@@ -63,12 +64,13 @@ public class MainActivity extends AppCompatActivity {
         secondRange = new float[2];
 
         mode = 0;
+        myView = new MyView(getApplicationContext());
 
         loadnumber = 0;
         firsttap = true;
-        str="======== road mode ========\n";
+        str = "======== road mode ========\n";
 
-       parent_layout.setOnTouchListener(mTouchEventListener);
+        parent_layout.setOnTouchListener(mTouchEventListener);
 
     }
 
@@ -109,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
             facter = getViewSize(v).x / viewMaxSize.x;
         FrameLayout.LayoutParams frameLayoutParams;
         frameLayoutParams = new FrameLayout.LayoutParams((int) (getViewSize(v).x * facter), (int) (getViewSize(v).y * facter));
-//        frameLayoutParams = new FrameLayout.LayoutParams(500 ,500);
         mapImageView.setLayoutParams(frameLayoutParams);
     }
 
@@ -132,17 +133,17 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.road_mode:
                 mode = 0;
-                str+="======== road mode ========\nid,start_x(%),start_y(%),is_x(bool),length(%)\n";
+                str += "======== road mode ========\nid,start_x(%),start_y(%),is_x(bool),length(%)\n";
                 invalidateOptionsMenu();
                 return true;
             case R.id.facility_mode:
                 mode = 1;
-                str+="======== facility mode ========\nx(%),y(%)\n";
+                str += "======== facility mode ========\nx(%),y(%)\n";
                 invalidateOptionsMenu();
                 return true;
             case R.id.room_mode:
                 mode = 2;
-                str+="======== room mode ========\nx(%),y(%)\n";
+                str += "======== room mode ========\nx(%),y(%)\n";
                 invalidateOptionsMenu();
                 return true;
         }
@@ -156,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
             // 返却結果ステータスとの比較
             if (resultCode == Activity.RESULT_OK) {
                 // 返却されてきたintentから値を取り出す
-                building_number = intent.getIntExtra("building_name",0);
-                floor = intent.getIntExtra("floor",0);
+                building_number = intent.getIntExtra("building_name", 0);
+                floor = intent.getIntExtra("floor", 0);
                 if (building_number != 999) {
                     setImage(building_number, floor);
                 }
@@ -167,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setImage(int building_number, int floor) {
         String[] imageSize = database.getFloorImageSize(building_number, floor);
-        String name = database.getImageResource(building_number,floor);
+        String name = database.getImageResource(building_number, floor);
         int id = getResources().getIdentifier(name, "drawable", getPackageName());
         mapImageView.setImageResource(id);
         width = Integer.parseInt(imageSize[0]);
@@ -185,18 +186,61 @@ public class MainActivity extends AppCompatActivity {
         mapImageView.setLayoutParams(new FrameLayout.LayoutParams(width, height));
         mapImageView.setX(x);
         mapImageView.setY(y);
-        str+=String.valueOf(building_number)+","+String.valueOf(floor)+"\n";
+        str += String.valueOf(building_number) + "," + String.valueOf(floor) + "\n";
     }
+
     private View.OnTouchListener mTouchEventListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if(motionEvent.getEventTime()-beforeTouch >300) {
+            if (motionEvent.getEventTime() - beforeTouch > 300) {
                 beforeTouch = motionEvent.getEventTime();
 
                 float xper;
                 float yper;
                 switch (mode) {
                     case 0:
+                        if (firsttap) {
+//                            firstRange[0] = motionEvent.getX() - mapImageView.getX();
+//                            firstRange[1] = motionEvent.getY() - mapImageView.getY();
+                            firstRange[0] = motionEvent.getX();
+                            firstRange[1] = motionEvent.getY();
+//                        now.setText("2");
+                            firsttap = false;
+                        } else {
+                            secondRange[0] = motionEvent.getX();
+                            secondRange[1] = motionEvent.getY();
+//                            secondRange[0] = motionEvent.getX() - mapImageView.getX();
+//                            secondRange[1] = motionEvent.getY() - mapImageView.getY();
+//
+//                            float x = secondRange[0] - firstRange[0];
+//                            float y = secondRange[1] - firstRange[1];
+//                            //x方向への移動
+//                            if (Math.abs(y) / Math.abs(x) <= 1) {
+//                                if (firstRange[0] < secondRange[0]) {
+//                                    secondRange[1] = firstRange[1];
+//                                } else {
+//                                    float tmp[] = firstRange;
+//                                    firstRange = secondRange;
+//                                    secondRange = tmp;
+//                                    secondRange[1] = firstRange[1];
+//                                }
+//                            }
+//                            //y方向への移動
+//                            else {
+//                                if (firstRange[1] < secondRange[1]) {
+//                                    secondRange[0] = firstRange[0];
+//                                } else {
+//                                    float tmp[] = firstRange;
+//                                    firstRange = secondRange;
+//                                    secondRange = tmp;
+//                                    secondRange[0] = firstRange[0];
+//                                }
+//                            }
+                            myView.drawLine(firstRange[0], firstRange[1], secondRange[0], secondRange[1]);
+//                        now.setText("1");
+                            firsttap = true;
+
+                        }
                         return true;
                     case 1:
                         xper = (motionEvent.getX() - x) / width;
