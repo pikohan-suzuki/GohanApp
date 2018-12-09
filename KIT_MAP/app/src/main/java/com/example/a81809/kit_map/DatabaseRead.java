@@ -115,4 +115,11 @@ public class DatabaseRead {
             result[i]= Integer.parseInt(list.get(i));
         return result;
     }
+    public int getNumberOfFloor(int building_number){
+        String sql ="SELECT COUNT(*) FROM floor WHERE building_number = ?";
+        String[] where ={String.valueOf(building_number)};
+        ArrayList<String> list = searchData(sql, where);
+        int result = Integer.parseInt(list.get(0));
+        return result;
+    }
 }
