@@ -3,6 +3,7 @@ package com.example.a81809.kit_map;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Build;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
@@ -14,6 +15,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.SearchView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private Image image;
@@ -56,34 +59,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//
-//        if (actionBarSize == null) {
-//            Point viewSize = getViewSize(parent_layout);
-//            actionBarSize = new Point(screenSize.x - viewSize.x, screenSize.y - viewSize.y);
-
-
-//            image = new Image(getApplication(), parent_layout, database);
-//            int[] room_numbers = database.getRoomNumbers(23, 1);
-//            rooms = new Room[room_numbers.length];
-//            for (int i = 0; i < room_numbers.length; i++)
-//                rooms[i] = new Room(getApplication(), parent_layout, database, 23, 1,
-//                        room_numbers[i], image.getImageSize(), image.getImageLocation());
-//            int[] facility_numbers = database.getFacilityNumber(23, 1);
-//            faclities = new Facility[facility_numbers.length];
-//            for (int i = 0; i < facility_numbers.length; i++)
-//                faclities[i] = new Facility(getApplication(), parent_layout, database, 23, 1,
-//                        facility_numbers[i], image.getImageSize(), image.getImageLocation());
-//        }
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+//        MenuItem menuItem = menu.findItem(R.id.search_view);
+//        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
+//        searchView.setOnQueryTextListener(onQueryTextListener);
         return true;
     }
+
+//    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
+//        @Override
+//        public boolean onQueryTextSubmit(String searchWord) {
+//            // SubmitボタンorEnterKeyを押されたら呼び出されるメソッド
+//            return true;
+//        }
+//
+//        @Override
+//        public boolean onQueryTextChange(String newText) {
+//            // 入力される度に呼び出される
+//            return false;
+//        }
+//    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -98,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.b23_2:
-                if (building_number != 23 || floor != 2 ){
+                if (building_number != 23 || floor != 2) {
                     building_number = 23;
                     floor = 2;
                     removeViews();
@@ -130,15 +128,11 @@ public class MainActivity extends AppCompatActivity {
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
     }
-    private void removeViews(){
+
+    private void removeViews() {
         image.removeView(parent_layout);
-        for(Room room : rooms) room.removeView(parent_layout);
-        for(Facility facility:faclities) facility.removeView(parent_layout);
-    }
-    private Point getViewSize(View v) {
-        Point point = new Point(0, 0);
-        point.set(v.getWidth(), v.getHeight());
-        return point;
+        for (Room room : rooms) room.removeView(parent_layout);
+        for (Facility facility : faclities) facility.removeView(parent_layout);
     }
 
     private View.OnTouchListener mTouchEventListener = new View.OnTouchListener() {

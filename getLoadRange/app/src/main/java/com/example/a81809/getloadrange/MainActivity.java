@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
     private View.OnTouchListener mTouchEventListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if(motionEvent.getEventTime()-beforeTouch >100) {
+            if(motionEvent.getEventTime()-beforeTouch >300) {
                 beforeTouch = motionEvent.getEventTime();
 
                 float xper;
