@@ -14,7 +14,7 @@ public class Image {
     private float x;
     private float y;
 
-    public Image(Context context, FrameLayout layout, DatabaseRead database,int building_number,int floor) {
+    public Image(Context context, FrameLayout layout, DatabaseRead database, int building_number, int floor) {
         this.context = context;
         mapImage = new ImageView(this.context);
         setImage(building_number, floor, database);
@@ -26,23 +26,18 @@ public class Image {
             mapImage.setImageResource(R.drawable.school_map);
         } else {
             String imageName = database.getImageResource(building_number, floor);
-            int id = context.getResources().getIdentifier(imageName, "drawable",context.getPackageName());
+            int id = context.getResources().getIdentifier(imageName, "drawable", context.getPackageName());
             mapImage.setImageResource(id);
         }
-        mapImage.setBackgroundResource(R.drawable.border);
+//        mapImage.setBackgroundResource(R.drawable.border);
 
         setImageInit(building_number, floor, database);
     }
 
     private void setImageInit(int building_number, int floor, DatabaseRead database) {
-        if (building_number == 0) {
-            this.width = 1203;
-            this.height = 1017;
-        } else {
-            String[] record = database.getFloorImageSize(building_number, floor);
-            this.width = Integer.parseInt(record[0]);
-            this.height = Integer.parseInt(record[1]);
-        }
+        String[] record = database.getFloorImageSize(building_number, floor);
+        this.width = Integer.parseInt(record[0]);
+        this.height = Integer.parseInt(record[1]);
         setFillCenter();
     }
 
@@ -99,18 +94,22 @@ public class Image {
     public Point getImageSize() {
         return new Point(this.width, this.height);
     }
-    public Point getImageLocation(){
-        return new Point((int)this.x,(int)this.y);
+
+    public Point getImageLocation() {
+        return new Point((int) this.x, (int) this.y);
     }
-    public void showActionBar(){
-        this.y=this.y-MainActivity.actionBarSize.y;
+
+    public void showActionBar() {
+        this.y = this.y - MainActivity.actionBarSize.y;
         mapImage.setY(this.y);
     }
-    public void hideActionBar(){
-        this.y=this.y+MainActivity.actionBarSize.y;
+
+    public void hideActionBar() {
+        this.y = this.y + MainActivity.actionBarSize.y;
         mapImage.setY(this.y);
     }
-    public void removeView(FrameLayout layout){
+
+    public void removeView(FrameLayout layout) {
         layout.removeView(mapImage);
     }
 }
