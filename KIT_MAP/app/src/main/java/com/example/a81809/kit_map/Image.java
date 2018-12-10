@@ -39,7 +39,7 @@ public class Image {
         String[] record = database.getFloorImageSize(building_number, floor);
         this.width = Integer.parseInt(record[0]);
         this.height = Integer.parseInt(record[1]);
-        this.range = database.getFloorRangeSize(building_number,floor);
+        this.range = database.getFloorRangeSize(building_number);
         setFillCenter();
     }
 

@@ -11,9 +11,11 @@ public class MyLocation {
         this.context =context;
         image=new ImageView(this.context);
         image.setImageResource(R.drawable.location);
+        image.setLayoutParams(new FrameLayout.LayoutParams(50,50));
     }
-    public void setLocationIcon(FrameLayout layout){
-        layout.addView(image);
+    public void setLocationIcon(FrameLayout layout,boolean locationShowing){
+        if(!locationShowing) layout.addView(image);
+
     }
     public void removeLocationIcon(FrameLayout layout){
         layout.removeView(image);

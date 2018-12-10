@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private Point focusRange;
     private boolean touchFlg = true;
     private boolean isMapMode = true;
+    private boolean locationShowing = false;
 
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -109,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
         myLocation = new MyLocation(getApplication());
-        setLocationIcon();
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -363,11 +363,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void setLocationIcon(){
         float[] range = image.getimageRange();
-        if(location.getLongitude() > range[0] && location.getLongitude() < range[0]+range[2]
-                && location.getLatitude() < range[1] && location.getLatitude() > range[1]+range[3]){
-            myLocation.setLocationIcon(parent_layout);
-        }else{
-            myLocation.removeLocationIcon(parent_layout);
+        if(location!=null) {
+            if (location.getLongitude() > range[0] && location.getLongitude() < range[0] + range[2]
+                    && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
+                myLocation.setLocationIcon(parent_layout,locationShowing);
+                if(!locationShowing)    locationShowing=!locationShowing;
+                Toast toast = Toast.makeText(this,"Added",Toast.LENGTH_SHORT);
+                toast.show();
+            } else if(locationShowing) {
+                myLocation.removeLocationIcon(parent_layout);
+                locationShowing=!locationShowing;
+                Toast toast = Toast.makeText(this,"removed",Toast.LENGTH_SHORT);
+                toast.show();
+            }
         }
     }
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
@@ -409,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < facility_numbers.length; i++)
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
-        setLocationIcon();
+       setLocationIcon();
     }
 
     private void removeViews() {
