@@ -23,11 +23,11 @@ public class MyView extends View {
     private ArrayList<Float> endY;
 
 
-    public MyView(Context context,AttributeSet attr) {
-        super(context,attr);
+    public MyView(Context context, AttributeSet attr) {
+        super(context, attr);
         paint = new Paint();
         paint.setColor(Color.argb(255, 0, 0, 200));
-        paint.setStrokeWidth(10);
+        paint.setStrokeWidth(5);
         resetRoads();
 //        setWillNotDraw(false);
     }
@@ -36,11 +36,11 @@ public class MyView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
 //        canvas.drawColor(Color.argb(0, 255, 255, 255));
-    if(startX!=null) {
-        for (int i = 0; i < startX.size(); i++) {
-            canvas.drawLine(startX.get(i), startY.get(i), endX.get(i), endY.get(i), paint);
+        if (startX != null) {
+            for (int i = 0; i < startX.size(); i++) {
+                canvas.drawLine(startX.get(i), startY.get(i), endX.get(i), endY.get(i), paint);
+            }
         }
-    }
 //        canvas.drawLine(X1,Y1,X2,Y2,paint);
 
 
@@ -54,10 +54,12 @@ public class MyView extends View {
         endY.add(y2);
         invalidate();
     }
-    public void resetRoads(){
+
+    public void resetRoads() {
         startX = new ArrayList<Float>();
         startY = new ArrayList<Float>();
         endX = new ArrayList<Float>();
         endY = new ArrayList<Float>();
+        invalidate();
     }
 }
