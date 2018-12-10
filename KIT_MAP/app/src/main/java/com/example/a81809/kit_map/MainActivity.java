@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private Room[] rooms;
     private Facility[] faclities;
     private UIManager uiManager;
+    private MyLocation myLocation;
     private FrameLayout parent_layout;
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
@@ -103,9 +104,12 @@ public class MainActivity extends AppCompatActivity {
 
         changeFloor();
         uiManager= new UIManager(getApplication(),parent_layout);
-        removeUI();
+//        removeUI();
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
+
+        myLocation = new MyLocation(getApplication());
+        setLocationIcon();
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -357,6 +361,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setLocationIcon(){
+        database.get
+    }
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
