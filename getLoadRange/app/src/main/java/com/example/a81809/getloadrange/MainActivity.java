@@ -64,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         secondRange = new float[2];
 
         mode = 0;
-        myView = new MyView(getApplicationContext());
+        myView = findViewById(R.id.my_view);
+//        setContentView(myView);
 
         loadnumber = 0;
         firsttap = true;
@@ -237,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
 //                                }
 //                            }
                             myView.drawLine(firstRange[0], firstRange[1], secondRange[0], secondRange[1]);
-//                        now.setText("1");
+                            //                        now.setText("1");
                             firsttap = true;
 
                         }
