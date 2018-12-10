@@ -38,7 +38,7 @@ public class UIManager {
 //        upButton.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
 //        upButton.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         upButton.setLayoutParams(marginParams);
-        layout.addView(upButton);
+//        layout.addView(upButton);
 
         downButton = new Button(context);
         downButton.setText("▼");
@@ -47,9 +47,9 @@ public class UIManager {
 //        downButton.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
 //        downButton.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         downButton.setLayoutParams(marginParams);
-        layout.addView(downButton);
-
-        parent_layout.addView(layout);
+//        layout.addView(downButton);
+//
+//        parent_layout.addView(layout);
     }
 
     public void hideButton(WindowManager mWindowManager) {
