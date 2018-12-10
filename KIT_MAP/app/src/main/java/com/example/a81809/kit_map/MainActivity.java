@@ -362,7 +362,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setLocationIcon(){
-        database.get
+        float[] range = image.getimageRange();
+        if(location.getLongitude() > range[0] && location.getLongitude() < range[0]+range[2]
+                && location.getLatitude() < range[1] && location.getLatitude() > range[1]+range[3]){
+            myLocation.setLocationIcon(parent_layout);
+        }else{
+            myLocation.removeLocationIcon(parent_layout);
+        }
     }
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
         @Override
@@ -403,6 +409,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < facility_numbers.length; i++)
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
+        setLocationIcon();
     }
 
     private void removeViews() {
@@ -429,11 +436,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLocationUI() {
-        // getLastLocation()からの情報がある場合のみ
-        Toast toast = Toast.makeText(MainActivity.this,"Location Changed!",Toast.LENGTH_SHORT);
-        toast.show();
-
-
+        setLocationIcon();
     }
 
     private void createLocationRequest() {
