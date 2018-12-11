@@ -15,7 +15,8 @@ public class Room {
     private float x;
     private float y;
     private int room_num;
-    private final int textSize = 24;
+    private final int textSize = 10;
+
     private int width;
     private int height;
     private String name;
@@ -40,6 +41,7 @@ public class Room {
             roomTextView.setText(building_number+"-"+room_num);
         roomTextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         roomTextView.setBackgroundResource(R.drawable.marukado);
+        roomTextView.setTextSize(textSize);
         roomTextView.setGravity(1);
 
         ViewTreeObserver vto = roomTextView.getViewTreeObserver();
