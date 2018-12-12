@@ -258,7 +258,9 @@ public class MainActivity extends AppCompatActivity {
                             float endX = (secondRange[0]-mapImageView.getX())/mapImageView.getWidth();
                             float endY=(secondRange[1]-mapImageView.getY())/mapImageView.getHeight();
 
+
                             float length = (secondRange[0]-firstRange[0])/mapImageView.getWidth();
+
                             boolean is_xDirection=true;
                             if(startX == endX){
                                 is_xDirection=!is_xDirection;
