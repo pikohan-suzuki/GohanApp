@@ -15,6 +15,11 @@ import java.util.Arrays;
 public class Road extends View {
     private Paint paint;
 
+    private ArrayList<Float> startXper;
+    private ArrayList<Float> startYper;
+    private ArrayList<Float> length;
+    private ArrayList<Boolean> is_xDir;
+
     private ArrayList<Float> startX;
     private ArrayList<Float> startY;
     private ArrayList<Float> endX;
@@ -34,29 +39,39 @@ public class Road extends View {
     protected void onDraw(Canvas canvas) {
         if (startX != null) {
             for (int i = 0; i < startX.size(); i++) {
-                Log.d("debug","llllllllllll"+startX.get(i)+"startY:"+startY.get(i)+"endX:"+endX.get(i) +"endY:"+endY.get(i));
+                Log.d("debug", "llllllllllll" + startX.get(i) + "startY:" + startY.get(i) + "endX:" + endX.get(i) + "endY:" + endY.get(i));
                 canvas.drawLine(startX.get(i), startY.get(i), endX.get(i), endY.get(i), paint);
             }
         }
     }
 
-    public void drawLine(float[] startX, float[] startY, float[] length, boolean[] is_xDir, int imageWidth, int imageHeight,int imageX,int imageY) {
+    public void setInfo(float[] startX, float[] startY, float[] length, boolean[] is_xDir, Point mapImageSize, Point mapImageLocation) {
         resetRoads();
-        for(int i=0;i<startX.length;i++){
-            this.startX.add(imageX+startX[i]*imageWidth);
-            this.startY.add(imageY+startY[i]*imageHeight);
-            if(is_xDir[i]){
-                this.endX.add(imageX+(startX[i]+length[i])*imageWidth);
-                this.endY.add(imageY+startY[i]*imageHeight);
-            }else{
-                this.endX.add(imageX+startX[i]*imageWidth);
-                this.endY.add(imageY+(startY[i]+length[i])*imageHeight);
+        for (int i = 0; i < startX.length; i++) {
+            this.startXper.add(startX[i]);
+            this.startYper.add(startY[i]);
+            this.length.add(length[i]);
+            this.is_xDir.add(is_xDir[i]);
+
+            this.startX.add(mapImageLocation.x + startXper.get(i) * mapImageSize.x);
+            this.startY.add(mapImageLocation.y + startYper.get(i) * mapImageSize.y);
+            if (is_xDir[i]) {
+                this.endX.add(mapImageLocation.x + (startXper.get(i) + this.length.get(i)) * mapImageSize.x);
+                this.endY.add(mapImageLocation.y + startYper.get(i) * mapImageSize.y);
+            } else {
+                this.endX.add(mapImageLocation.x + startXper.get(i) * mapImageSize.x);
+                this.endY.add(mapImageLocation.y + (startYper.get(i) + this.length.get(i)) * mapImageSize.y);
             }
         }
         invalidate();
     }
 
     public void resetRoads() {
+        startXper = new ArrayList<Float>();
+        startYper = new ArrayList<Float>();
+        length = new ArrayList<Float>();
+        is_xDir = new ArrayList<Boolean>();
+
         startX = new ArrayList<Float>();
         startY = new ArrayList<Float>();
         endX = new ArrayList<Float>();
@@ -64,13 +79,28 @@ public class Road extends View {
         invalidate();
     }
 
-    public void onScroll(Point mapImageSize, Point mapImageLocation, float moveX, float moveY){
-        resetRoads();
-        for(int i=0;i<this.startX.size();i++){
-            startX.set(i,startX.get(i)-moveX);
-            startY.set(i,startY.get(i)-moveY);
-            endX.set(i,endX.get(i)-moveX);
-            endY.set(i,endY.get(i)-moveY);
+    public void onScroll(Point mapImageSize, Point mapImageLocation, float moveX, float moveY) {
+        for (int i = 0; i < this.startX.size(); i++) {
+            startX.set(i, startX.get(i) - moveX);
+            startY.set(i, startY.get(i) - moveY);
+            endX.set(i, endX.get(i) - moveX);
+            endY.set(i, endY.get(i) - moveY);
         }
+        invalidate();
+    }
+
+    public void onScale(Point mapImageSize, Point mapImageLocation) {
+        for (int i = 0; i < startX.size(); i++) {
+            this.startX.set(i,mapImageLocation.x + startXper.get(i) * mapImageSize.x);
+            this.startY.set(i,mapImageLocation.y + startYper.get(i) * mapImageSize.y);
+            if (is_xDir.get(i)) {
+                this.endX.set(i,mapImageLocation.x + (startXper.get(i) + this.length.get(i)) * mapImageSize.x);
+                this.endY.set(i,mapImageLocation.y + startYper.get(i) * mapImageSize.y);
+            } else {
+                this.endX.set(i,mapImageLocation.x + startXper.get(i) * mapImageSize.x);
+                this.endY.set(i,mapImageLocation.y + (startYper.get(i) + this.length.get(i)) * mapImageSize.y);
+            }
+        }
+        invalidate();
     }
 }
