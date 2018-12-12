@@ -2,20 +2,15 @@ package com.example.a81809.kit_map;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.location.Location;
-import android.os.Build;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,11 +22,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -58,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private Room[] rooms;
     private Facility[] faclities;
     private UIManager uiManager;
+    private Road road;
     private MyLocation myLocation;
     private FrameLayout parent_layout;
     private GestureDetector mGestureDetector;
@@ -103,9 +95,10 @@ public class MainActivity extends AppCompatActivity {
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
 
+        road =findViewById(R.id.my_view);
+
         changeFloor();
         uiManager= new UIManager(getApplication(),parent_layout);
-//        removeUI();
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
@@ -214,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
+                    road.onScroll(image.getImageSize(),image.getImageLocation(),distanceX,distanceY);
                     return false;
                 }
 
@@ -417,7 +411,10 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < facility_numbers.length; i++)
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
-       setLocationIcon();
+
+        road.drawLine(database.getRoad_x(building_number,floor),database.getRoad_y(building_number,floor),
+                database.getRoadLength(building_number,floor),database.getRoad_xDir(building_number,floor),image.getImageSize().x,image.getImageSize().y,image.getImageLocation().x,image.getImageLocation().y);
+        setLocationIcon();
     }
 
     private void removeViews() {
