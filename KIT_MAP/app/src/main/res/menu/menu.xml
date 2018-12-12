@@ -7,15 +7,7 @@
         android:title="マップmode"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/b23_1"
-        android:title="23-1"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/b23_2"
-        android:title="23-2"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/b23_3"
-        android:title="23-3"
+        android:id="@+id/search"
+        android:title="検索"
         app:showAsAction="never"/>
 </menu>
