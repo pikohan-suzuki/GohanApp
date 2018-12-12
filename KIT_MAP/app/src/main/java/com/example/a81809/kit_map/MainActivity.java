@@ -95,9 +95,10 @@ public class MainActivity extends AppCompatActivity {
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
 
-        road =findViewById(R.id.my_view);
+        road = findViewById(R.id.my_view);
 
         changeFloor();
+
         uiManager= new UIManager(getApplication(),parent_layout);
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
@@ -110,9 +111,6 @@ public class MainActivity extends AppCompatActivity {
         mGestureDetector = new GestureDetector(this, mGestureListener);
         //スケールイベント
         mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
-
-
-
 
 
         fusedLocationClient =
@@ -181,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
         }
+
         return false;
     }
 
@@ -202,12 +201,15 @@ public class MainActivity extends AppCompatActivity {
 //                        touchFlg = false;
 //                        hideActionBar();
 //                    }
+
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
+                    parent_layout.removeView(road);
                     road.onScroll(image.getImageSize(),image.getImageLocation(),distanceX,distanceY);
+                    parent_layout.addView(road);
                     return false;
                 }
 
@@ -301,10 +303,7 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-//                    if (touchFlg) {
-//                        touchFlg = false;
-//                        hideActionBar();
-//                    }
+
                     float factor = scaleGestureDetector.getScaleFactor();
                     if (focusRange.x == 0 && focusRange.y == 0)
                         focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
@@ -313,6 +312,9 @@ public class MainActivity extends AppCompatActivity {
                         faclities[i].onScale(image.getImageSize(), image.getImageLocation());
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScale(image.getImageSize(), image.getImageLocation());
+                    parent_layout.removeView(road);
+                    road.onScale(image.getImageSize(),image.getImageLocation());
+                    parent_layout.addView(road);
                     return false;
                 }
 
@@ -412,8 +414,10 @@ public class MainActivity extends AppCompatActivity {
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
 
-        road.drawLine(database.getRoad_x(building_number,floor),database.getRoad_y(building_number,floor),
-                database.getRoadLength(building_number,floor),database.getRoad_xDir(building_number,floor),image.getImageSize().x,image.getImageSize().y,image.getImageLocation().x,image.getImageLocation().y);
+       parent_layout.removeView(road);
+       road.setInfo(database.getRoad_x(building_number,floor),database.getRoad_y(building_number,floor),
+               database.getRoadLength(building_number,floor),database.getRoad_xDir(building_number,floor),image.getImageSize(),image.getImageLocation());
+       parent_layout.addView(road);
         setLocationIcon();
     }
 
