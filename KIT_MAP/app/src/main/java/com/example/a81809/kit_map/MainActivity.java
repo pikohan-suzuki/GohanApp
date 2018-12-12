@@ -1,6 +1,7 @@
 package com.example.a81809.kit_map;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -23,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -122,8 +124,6 @@ public class MainActivity extends AppCompatActivity {
         createLocationCallback();
         createLocationRequest();
         buildLocationSettingsRequest();
-
-
 //        // 測位開始
 //        Button buttonStart = (Button) findViewById(R.id.button_start);
 //        buttonStart.setOnClickListener(new View.OnClickListener() {
@@ -154,30 +154,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
-            case R.id.b23_1:
-                if (building_number != 23 || floor != 1) {
-                    building_number = 23;
-                    floor = 1;
-                    removeViews();
-                    changeFloor();
-                }
-                return true;
-            case R.id.b23_2:
-                if (building_number != 23 || floor != 2) {
-                    building_number = 23;
-                    floor = 2;
-                    removeViews();
-                    changeFloor();
-                }
-                return true;
-            case R.id.b23_3:
-                if (building_number != 23 || floor != 3) {
-                    building_number = 23;
-                    floor = 3;
-                    removeViews();
-                    changeFloor();
-                }
-                return true;
+            case R.id.search:
+                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
+                startActivity(intent);
+                break;
+
         }
 
         return false;
