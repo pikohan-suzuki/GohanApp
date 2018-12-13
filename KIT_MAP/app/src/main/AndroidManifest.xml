@@ -26,6 +26,10 @@
         <activity android:name=".CheckPermission">
 
         </activity>
+        <activity android:name=".SearchActivity"
+            android:parentActivityName=".MainActivity">>
+
+        </activity>
     </application>
 
 </manifest>
