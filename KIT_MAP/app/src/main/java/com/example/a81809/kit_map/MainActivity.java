@@ -1,7 +1,6 @@
 package com.example.a81809.kit_map;
 
 import android.Manifest;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -12,7 +11,6 @@ import android.location.Location;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.INotificationSideChannel;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +23,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -69,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSearchMode = false;
     private boolean locationShowing = false;
 
+    private String lastUpdateTime;
+
 
     private FusedLocationProviderClient fusedLocationClient;
     private SettingsClient settingsClient;
@@ -82,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private int priority = 0;
 
     private int[][] search_route;
+//    private int[] search_route_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -403,8 +403,51 @@ public class MainActivity extends AppCompatActivity {
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
 
         parent_layout.removeView(road);
-        road.setInfo(database.getRoad_x(building_number, floor), database.getRoad_y(building_number, floor),
-                database.getRoadLength(building_number, floor), database.getRoad_xDir(building_number, floor), image.getImageSize(), image.getImageLocation());
+
+        int [] roadId = database.getRoadId(building_number,floor);
+        float [] roadX =database.getRoad_x(building_number, floor);
+        float [] roadY = database.getRoad_y(building_number, floor);
+        float [] length =database.getRoadLength(building_number, floor);
+        boolean [] isXDir=database.getRoad_xDir(building_number, floor);
+        if(isSearchMode) {
+            ArrayList<Float> x = new ArrayList<Float>();
+            ArrayList<Float> y = new ArrayList<Float>();
+            ArrayList<Float> len = new ArrayList<Float>();
+            ArrayList<Boolean> isX = new ArrayList<Boolean>();
+            ArrayList<Integer> asdf = new ArrayList<Integer>();
+            for(int i=0;i<roadId.length;i++){
+                for(int j=0;j<search_route.length;j++){
+                    if(roadId[i]==search_route[j][2]){
+                        if(building_number==search_route[j][0] && floor==search_route[j][1]){
+                            x.add(roadX[i]);
+                            y.add(roadY[i]);
+                            len.add(length[i]);
+                            isX.add(isXDir[i]);
+                        }
+                    }
+                }
+            }
+//            for(int i=0;i<search_route_id.length;i++) asdf.add(search_route_id[i]);
+//            for(int i=0;i<roadId.length;i++){
+//                if(asdf.contains(roadId[i]) && search_route[i][0]==building_number && search_route[i][1] == floor){
+//                    x.add(roadX[i]);
+//                    y.add(roadY[i]);
+//                    len.add(length[i]);
+//                    isX.add(isXDir[i]);
+//                }
+//            }
+            roadX = new float[x.size()];
+            roadY=new float[x.size()];
+            length=new float[x.size()];
+            isXDir=new boolean[x.size()];
+            for(int i=0;i<x.size();i++){
+                roadX[i]=x.get(i);
+                roadY[i]=y.get(i);
+                length[i]=len.get(i);
+                isXDir[i]=isX.get(i);
+            }
+        }
+        road.setInfo(roadX, roadY, length, isXDir, image.getImageSize(), image.getImageLocation());
         parent_layout.addView(road);
         setLocationIcon();
     }
@@ -421,7 +464,7 @@ public class MainActivity extends AppCompatActivity {
 //        routeId = new ArrayList<Integer>();
 //    }
 
-    private int[] search_route_inFloor(int[][] connectTable, float[] roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destBuildingNumber, int destFloor, int destRoadId) {
+    private int[][] search_route_inFloor(int[][] connectTable, float[] roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destRoadId) {
         float[] distanceToRoad = new float[roadLength.length];
         int[] comeFrom = new int[roadLength.length];
         ArrayList<Integer> unsettledRoad = new ArrayList<Integer>();
@@ -471,12 +514,35 @@ public class MainActivity extends AppCompatActivity {
             resultRoute.add(now);
             now=comeFrom[now-1];
         }
-        int[] result = new int[resultRoute.size()];
-        for(int i=0;i<resultRoute.size();i++)
-            result[i] = resultRoute.get(resultRoute.size()-1-i);
+        int[][] result = new int[resultRoute.size()][3];
+        for(int i=0;i<resultRoute.size();i++) {
+            result[i][0] = startBuildingNumber;
+            result[i][1] = startFloor;
+            result[i][2] = resultRoute.get(resultRoute.size() - 1 - i);
+        }
         return result;
     }
+    private int[][] searchRouteInBuilding(int[][] connectTable, ArrayList<ArrayList<Float>> roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destFloor, int destRoadId){
+        ArrayList<ArrayList<Float>> distanceToRoad = new ArrayList<ArrayList<Float>>();
+        for(ArrayList<Float> list : roadLength){
+            ArrayList<Float> maxList = new ArrayList<Float>();
+            for(float value : list){
+                maxList.add((float) 9999);
+            }
+            distanceToRoad.add(maxList);
+        }
+        
 
+
+        int[] comeFrom = new int[roadLength.length];
+        ArrayList<Integer> unsettledRoad = new ArrayList<Integer>();
+        ArrayList<Integer> calculatingRoad = new ArrayList<Integer>();
+        for (int i = 0; i < distanceToRoad.length; i++) unsettledRoad.add(i + 1);
+        unsettledRoad.remove(unsettledRoad.indexOf(startRoadId));
+        for (int i = 0; i < distanceToRoad.length; i++) distanceToRoad[i] = 9999;
+        distanceToRoad[startRoadId - 1] = 0;
+        int location =startRoadId;
+    }
     // locationのコールバックを受け取る
     private void createLocationCallback() {
         locationCallback = new LocationCallback() {
@@ -577,14 +643,17 @@ public class MainActivity extends AppCompatActivity {
                         if (startFloor == destFloor) {
                             int[][] connectTable = database.getFloorDir(startBuildingNumber, startFloor);
                             float[] roadLength = database.getRoadLength(startBuildingNumber, startFloor);
-                            int[] resultRoute = search_route_inFloor(connectTable, roadLength, startBuildingNumber, startFloor, startRoadId, destBuildingNumber, destFloor, destRoadId);
+                            int[][] resultRoute = search_route_inFloor(connectTable, roadLength, startBuildingNumber, startFloor, startRoadId,destRoadId);
                             search_route=new int[resultRoute.length][3];
-                            for(int i=0;i<search_route.length;i++){
-                                search_route[i][0]=startBuildingNumber;
-                                search_route[i][1]=startFloor;
-                                search_route[i][2]=resultRoute[i];
-                            }
+                            search_route=resultRoute;
                             isSearchMode=true;
+                            removeViews();
+                            changeFloor();
+                        }else{
+                            int[][] connectTable = database.getBuildingDir(startBuildingNumber);
+                            int numberOfFloor = database.getNumberOfFloor(startBuildingNumber);
+                            ArrayList<ArrayList<Float>> roadLength = database.getBuildingRoadLength(startBuildingNumber,numberOfFloor);
+                            int[][] resultRoute = searchRouteInBuilding(connectTable, roadLength, startBuildingNumber, startFloor,startRoadId,destFloor,destRoadId);
                         }
                     }
                 }
