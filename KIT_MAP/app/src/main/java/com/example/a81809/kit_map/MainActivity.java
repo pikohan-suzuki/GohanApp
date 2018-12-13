@@ -156,7 +156,8 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.search:
                 Intent intent = new Intent(MainActivity.this,SearchActivity.class);
-                startActivity(intent);
+                int requestCode =1001;
+                startActivityForResult(intent,requestCode);
                 break;
 
         }
@@ -499,6 +500,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 break;
+            case RESULT_OK:
+                
         }
     }
 
