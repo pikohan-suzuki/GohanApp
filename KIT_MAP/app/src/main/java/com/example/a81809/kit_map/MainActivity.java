@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -80,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
     private int priority = 0;
 
+    private ArrayList<Integer> routeBuilding;
+    private ArrayList<Integer> routeFloor;
+    private ArrayList<Integer> routeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -409,8 +413,11 @@ public class MainActivity extends AppCompatActivity {
         for (Facility facility : faclities) facility.removeView(parent_layout);
     }
 
-
-
+    private void resetRoute(){
+        routeBuilding=new ArrayList<Integer>();
+        routeFloor = new ArrayList<Integer>();
+        routeId=new ArrayList<Integer>();
+    }
     // locationのコールバックを受け取る
     private void createLocationCallback() {
         locationCallback = new LocationCallback() {
@@ -483,9 +490,8 @@ public class MainActivity extends AppCompatActivity {
         locationSettingsRequest = builder.build();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode,
-                                    int resultCode, Intent data) {
+    public void onActivityResult(int requestCode,
+                                    int resultCode,Intent intent) {
         switch (requestCode) {
             // Check for the integer request code originally supplied to startResolutionForResult().
             case REQUEST_CHECK_SETTINGS:
@@ -500,8 +506,26 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 break;
-            case RESULT_OK:
-                
+            default:
+                if(resultCode == Activity.RESULT_OK){
+                    int startBuildingNumber = intent.getIntExtra("startBuildingNumber",0);
+                    int startFloor = intent.getIntExtra("startFloor",0);
+                    int startRoadId = intent.getIntExtra("startRoadId",0);
+                    int destBuildingNumber = intent.getIntExtra("destBuildingNumber",0);
+                    int destFloor = intent.getIntExtra("destFloor",0);
+                    int destRoadId=intent.getIntExtra("destRoadId",0);
+                    if(startBuildingNumber==destBuildingNumber){
+                        if(startFloor==destFloor){
+                            int[][] connectTable = database.getFloorDir(startBuildingNumber,startFloor);
+                        }else{
+
+                        }
+                    }
+
+
+
+                }
+                break;
         }
     }
 

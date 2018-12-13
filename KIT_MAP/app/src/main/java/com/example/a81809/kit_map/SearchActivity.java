@@ -16,7 +16,7 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
 
         Button testButton = findViewById(R.id.testtest);
-
+        testButton.setOnClickListener(buttonClickListener);
 
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
@@ -55,16 +55,8 @@ public class SearchActivity extends AppCompatActivity {
             intent.putExtra("destBuildingNumber",destBuildNumber);
             intent.putExtra("destFloor",destFloor);
             intent.putExtra("destRoadId",destRoadId);
-            setResult(Activity.,intent);
+            setResult(Activity.RESULT_OK,intent);
             finish();
-            if(startBuildingNumber==destBuildNumber){
-                if(startFloor==destFloor){
-                    int[][] connectTable =
-                }else{
-
-                }
-            }
-
         }
     };
 }
