@@ -12,6 +12,7 @@ import android.location.Location;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.INotificationSideChannel;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout parent_layout;
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
-    public  DatabaseRead database;
+    public DatabaseRead database;
 
     public static Point screenSize;
     public static Point actionBarSize;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     public static int floor;
     private Point focusRange;
     private boolean touchFlg = true;
-    private boolean isMapMode = true;
+    private boolean isSearchMode = false;
     private boolean locationShowing = false;
 
 
@@ -76,14 +77,11 @@ public class MainActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
     private Location location;
 
-    private String lastUpdateTime;
     private Boolean requestingLocationUpdates;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
     private int priority = 0;
 
-    private ArrayList<Integer> routeBuilding;
-    private ArrayList<Integer> routeFloor;
-    private ArrayList<Integer> routeId;
+    private int[][] search_route;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         changeFloor();
 
-        uiManager= new UIManager(getApplication(),parent_layout);
+        uiManager = new UIManager(getApplication(), parent_layout);
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
@@ -133,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 //        buttonStart.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-                startLocationUpdates();
+        startLocationUpdates();
 //            }
 //        });
 
@@ -159,9 +157,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.search:
-                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
-                int requestCode =1001;
-                startActivityForResult(intent,requestCode);
+                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                int requestCode = 1001;
+                startActivityForResult(intent, requestCode);
                 break;
 
         }
@@ -194,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     parent_layout.removeView(road);
-                    road.onScroll(image.getImageSize(),image.getImageLocation(),distanceX,distanceY);
+                    road.onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     parent_layout.addView(road);
                     return false;
                 }
@@ -220,28 +218,28 @@ public class MainActivity extends AppCompatActivity {
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             case -1055568: //23
                                 building_number = 23;
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             case -12457: //5
                                 building_number = 5;
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             case -12713: //3
                                 building_number = 3;
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             default:
                                 if (touchFlg) {
@@ -258,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                         floor = 0;
                         removeViews();
                         changeFloor();
-                        if(touchFlg)
+                        if (touchFlg)
                             removeUI();
                     } else {
                         if (touchFlg) {
@@ -299,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScale(image.getImageSize(), image.getImageLocation());
                     parent_layout.removeView(road);
-                    road.onScale(image.getImageSize(),image.getImageLocation());
+                    road.onScale(image.getImageSize(), image.getImageLocation());
                     parent_layout.addView(road);
                     return false;
                 }
@@ -343,28 +341,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setLocationIcon(){
+    private void setLocationIcon() {
         float[] range = image.getimageRange();
-        if(location!=null) {
+        if (location != null) {
             if (location.getLongitude() > range[0] && location.getLongitude() < range[0] + range[2]
                     && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
-                myLocation.setLocationIcon(parent_layout,locationShowing);
-                if(!locationShowing)    locationShowing=!locationShowing;
-                Toast toast = Toast.makeText(this,"Added",Toast.LENGTH_SHORT);
+                myLocation.setLocationIcon(parent_layout, locationShowing);
+                if (!locationShowing) locationShowing = !locationShowing;
+                Toast toast = Toast.makeText(this, "Added", Toast.LENGTH_SHORT);
                 toast.show();
-            } else if(locationShowing) {
+            } else if (locationShowing) {
                 myLocation.removeLocationIcon(parent_layout);
-                locationShowing=!locationShowing;
-                Toast toast = Toast.makeText(this,"removed",Toast.LENGTH_SHORT);
+                locationShowing = !locationShowing;
+                Toast toast = Toast.makeText(this, "removed", Toast.LENGTH_SHORT);
                 toast.show();
             }
         }
     }
+
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            int numberOfFloor =database.getNumberOfFloor(building_number);
-            if(floor < numberOfFloor){
+            int numberOfFloor = database.getNumberOfFloor(building_number);
+            if (floor < numberOfFloor) {
                 floor++;
                 removeViews();
                 changeFloor();
@@ -374,20 +373,23 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener downButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(floor!=1){
+            if (floor != 1) {
                 floor--;
                 removeViews();
                 changeFloor();
             }
         }
     };
-    private void setUI(){
-       uiManager.setUI(parent_layout);
+
+    private void setUI() {
+        uiManager.setUI(parent_layout);
     }
-    private void removeUI(){
+
+    private void removeUI() {
         uiManager.removeUI(parent_layout);
     }
-   private void changeFloor() {
+
+    private void changeFloor() {
         image = new Image(getApplication(), parent_layout, database, building_number, floor);
         int[] room_numbers = database.getRoomNumbers(building_number, floor);
         rooms = new Room[room_numbers.length];
@@ -400,10 +402,10 @@ public class MainActivity extends AppCompatActivity {
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
 
-       parent_layout.removeView(road);
-       road.setInfo(database.getRoad_x(building_number,floor),database.getRoad_y(building_number,floor),
-               database.getRoadLength(building_number,floor),database.getRoad_xDir(building_number,floor),image.getImageSize(),image.getImageLocation());
-       parent_layout.addView(road);
+        parent_layout.removeView(road);
+        road.setInfo(database.getRoad_x(building_number, floor), database.getRoad_y(building_number, floor),
+                database.getRoadLength(building_number, floor), database.getRoad_xDir(building_number, floor), image.getImageSize(), image.getImageLocation());
+        parent_layout.addView(road);
         setLocationIcon();
     }
 
@@ -413,11 +415,68 @@ public class MainActivity extends AppCompatActivity {
         for (Facility facility : faclities) facility.removeView(parent_layout);
     }
 
-    private void resetRoute(){
-        routeBuilding=new ArrayList<Integer>();
-        routeFloor = new ArrayList<Integer>();
-        routeId=new ArrayList<Integer>();
+//    private void resetRoute() {
+//        routeBuilding = new ArrayList<Integer>();
+//        routeFloor = new ArrayList<Integer>();
+//        routeId = new ArrayList<Integer>();
+//    }
+
+    private int[] search_route_inFloor(int[][] connectTable, float[] roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destBuildingNumber, int destFloor, int destRoadId) {
+        float[] distanceToRoad = new float[roadLength.length];
+        int[] comeFrom = new int[roadLength.length];
+        ArrayList<Integer> unsettledRoad = new ArrayList<Integer>();
+        ArrayList<Integer> calculatingRoad = new ArrayList<Integer>();
+        for (int i = 0; i < distanceToRoad.length; i++) unsettledRoad.add(i + 1);
+        unsettledRoad.remove(unsettledRoad.indexOf(startRoadId));
+        for (int i = 0; i < distanceToRoad.length; i++) distanceToRoad[i] = 9999;
+        distanceToRoad[startRoadId - 1] = 0;
+        int location =startRoadId;
+
+        while(unsettledRoad.indexOf(destRoadId)!=-1){
+            for(int i=0;i<connectTable.length;i++){
+                if(connectTable[i][0]==location){
+                    if(unsettledRoad.indexOf(connectTable[i][1])!=-1){
+                        if(distanceToRoad[connectTable[i][1]-1] > distanceToRoad[connectTable[i][0]-1]+roadLength[connectTable[i][1]-1]){
+                            if(distanceToRoad[connectTable[i][1]-1]==9999)
+                                calculatingRoad.add(connectTable[i][1]);
+                            distanceToRoad[connectTable[i][1]-1]=distanceToRoad[connectTable[i][0]-1]+roadLength[connectTable[i][1]-1];
+                            comeFrom[connectTable[i][1]-1]=location;
+                        }
+                    }
+                }else if(connectTable[i][0] >location) break;
+            }
+            Log.d("debug","pppppp"+calculatingRoad);
+            Log.d("debug","oooooo"+unsettledRoad);
+            float min = 9999;
+            int id = 0;
+            for(int calcId: calculatingRoad){
+                if(distanceToRoad[calcId-1] <min){
+                    min = distanceToRoad[calcId-1];
+                    id = calcId;
+                }
+            }
+            if(id!=0) {
+                unsettledRoad.remove(unsettledRoad.indexOf(id));
+                calculatingRoad.remove(calculatingRoad.indexOf(id));
+                location = id;
+            }else{
+                Log.d("debug","the end");
+            }
+        }
+
+        ArrayList<Integer> resultRoute = new ArrayList<Integer>();
+
+        int now = destRoadId;
+        while(now!=0){
+            resultRoute.add(now);
+            now=comeFrom[now-1];
+        }
+        int[] result = new int[resultRoute.size()];
+        for(int i=0;i<resultRoute.size();i++)
+            result[i] = resultRoute.get(resultRoute.size()-1-i);
+        return result;
     }
+
     // locationのコールバックを受け取る
     private void createLocationCallback() {
         locationCallback = new LocationCallback() {
@@ -491,7 +550,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onActivityResult(int requestCode,
-                                    int resultCode,Intent intent) {
+                                 int resultCode, Intent intent) {
         switch (requestCode) {
             // Check for the integer request code originally supplied to startResolutionForResult().
             case REQUEST_CHECK_SETTINGS:
@@ -507,23 +566,27 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             default:
-                if(resultCode == Activity.RESULT_OK){
-                    int startBuildingNumber = intent.getIntExtra("startBuildingNumber",0);
-                    int startFloor = intent.getIntExtra("startFloor",0);
-                    int startRoadId = intent.getIntExtra("startRoadId",0);
-                    int destBuildingNumber = intent.getIntExtra("destBuildingNumber",0);
-                    int destFloor = intent.getIntExtra("destFloor",0);
-                    int destRoadId=intent.getIntExtra("destRoadId",0);
-                    if(startBuildingNumber==destBuildingNumber){
-                        if(startFloor==destFloor){
-                            int[][] connectTable = database.getFloorDir(startBuildingNumber,startFloor);
-                        }else{
-
+                if (resultCode == Activity.RESULT_OK) {
+                    int startBuildingNumber = intent.getIntExtra("startBuildingNumber", 0);
+                    int startFloor = intent.getIntExtra("startFloor", 0);
+                    int startRoadId = intent.getIntExtra("startRoadId", 0);
+                    int destBuildingNumber = intent.getIntExtra("destBuildingNumber", 0);
+                    int destFloor = intent.getIntExtra("destFloor", 0);
+                    int destRoadId = intent.getIntExtra("destRoadId", 0);
+                    if (startBuildingNumber == destBuildingNumber) {
+                        if (startFloor == destFloor) {
+                            int[][] connectTable = database.getFloorDir(startBuildingNumber, startFloor);
+                            float[] roadLength = database.getRoadLength(startBuildingNumber, startFloor);
+                            int[] resultRoute = search_route_inFloor(connectTable, roadLength, startBuildingNumber, startFloor, startRoadId, destBuildingNumber, destFloor, destRoadId);
+                            search_route=new int[resultRoute.length][3];
+                            for(int i=0;i<search_route.length;i++){
+                                search_route[i][0]=startBuildingNumber;
+                                search_route[i][1]=startFloor;
+                                search_route[i][2]=resultRoute[i];
+                            }
+                            isSearchMode=true;
                         }
                     }
-
-
-
                 }
                 break;
         }
