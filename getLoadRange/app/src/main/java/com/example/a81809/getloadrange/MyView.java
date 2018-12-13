@@ -62,4 +62,33 @@ public class MyView extends View {
         endY = new ArrayList<Float>();
         invalidate();
     }
+
+    public float[] getStartX(){
+        float[] result = new float[startX.size()];
+        for(int i=0;i<startX.size();i++){
+            result[i]=startX.get(i);
+        }
+        return result;
+    }
+    public float[] getStartY(){
+        float[] result = new float[startX.size()];
+        for(int i=0;i<startX.size();i++){
+            result[i]=startY.get(i);
+        }
+        return result;
+    }
+    public float[] getEndX(){
+        float[] result = new float[startX.size()];
+        for(int i=0;i<startX.size();i++){
+            result[i]=endX.get(i);
+        }
+        return result;
+    }
+    public float[] getEndY(){
+        float[] result = new float[startX.size()];
+        for(int i=0;i<startX.size();i++){
+            result[i]=endY.get(i);
+        }
+        return result;
+    }
 }
