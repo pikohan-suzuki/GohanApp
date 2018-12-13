@@ -14,22 +14,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="right|bottom">
-
-        <!--<Button-->
-            <!--android:id="@+id/up_button"-->
-            <!--android:layout_width="80dp"-->
-            <!--android:layout_height="80dp"-->
-            <!--android:layout_marginBottom="5dp"-->
-            <!--android:background="@drawable/round_button"-->
-            <!--android:text="▲"-->
-            <!--android:textSize="50sp" />-->
-
-        <!--<Button-->
-            <!--android:id="@+id/down_button"-->
-            <!--android:layout_width="80dp"-->
-            <!--android:layout_height="80dp"-->
-            <!--android:background="@drawable/round_button"-->
-            <!--android:text="▼"-->
-            <!--android:textSize="50sp" />-->
     </LinearLayout>
+    <com.example.a81809.kit_map.Road
+        android:id="@+id/my_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </FrameLayout>

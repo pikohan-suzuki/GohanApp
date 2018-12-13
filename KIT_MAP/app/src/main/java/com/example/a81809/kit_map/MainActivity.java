@@ -1,21 +1,17 @@
 package com.example.a81809.kit_map;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.location.Location;
-import android.os.Build;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,9 +23,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -58,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private Room[] rooms;
     private Facility[] faclities;
     private UIManager uiManager;
+    private Road road;
     private MyLocation myLocation;
     private FrameLayout parent_layout;
     private GestureDetector mGestureDetector;
@@ -103,9 +97,11 @@ public class MainActivity extends AppCompatActivity {
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
 
+        road = findViewById(R.id.my_view);
+
         changeFloor();
+
         uiManager= new UIManager(getApplication(),parent_layout);
-//        removeUI();
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
@@ -119,9 +115,6 @@ public class MainActivity extends AppCompatActivity {
         mScaleGestureDetector = new ScaleGestureDetector(this, mScaleGestureListener);
 
 
-
-
-
         fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(this);
         settingsClient = LocationServices.getSettingsClient(this);
@@ -131,8 +124,6 @@ public class MainActivity extends AppCompatActivity {
         createLocationCallback();
         createLocationRequest();
         buildLocationSettingsRequest();
-
-
 //        // 測位開始
 //        Button buttonStart = (Button) findViewById(R.id.button_start);
 //        buttonStart.setOnClickListener(new View.OnClickListener() {
@@ -163,31 +154,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
-            case R.id.b23_1:
-                if (building_number != 23 || floor != 1) {
-                    building_number = 23;
-                    floor = 1;
-                    removeViews();
-                    changeFloor();
-                }
-                return true;
-            case R.id.b23_2:
-                if (building_number != 23 || floor != 2) {
-                    building_number = 23;
-                    floor = 2;
-                    removeViews();
-                    changeFloor();
-                }
-                return true;
-            case R.id.b23_3:
-                if (building_number != 23 || floor != 3) {
-                    building_number = 23;
-                    floor = 3;
-                    removeViews();
-                    changeFloor();
-                }
-                return true;
+            case R.id.search:
+                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
+                startActivity(intent);
+                break;
+
         }
+
         return false;
     }
 
@@ -209,11 +182,15 @@ public class MainActivity extends AppCompatActivity {
 //                        touchFlg = false;
 //                        hideActionBar();
 //                    }
+
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
+                    parent_layout.removeView(road);
+                    road.onScroll(image.getImageSize(),image.getImageLocation(),distanceX,distanceY);
+                    parent_layout.addView(road);
                     return false;
                 }
 
@@ -307,10 +284,7 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-//                    if (touchFlg) {
-//                        touchFlg = false;
-//                        hideActionBar();
-//                    }
+
                     float factor = scaleGestureDetector.getScaleFactor();
                     if (focusRange.x == 0 && focusRange.y == 0)
                         focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
@@ -319,6 +293,9 @@ public class MainActivity extends AppCompatActivity {
                         faclities[i].onScale(image.getImageSize(), image.getImageLocation());
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScale(image.getImageSize(), image.getImageLocation());
+                    parent_layout.removeView(road);
+                    road.onScale(image.getImageSize(),image.getImageLocation());
+                    parent_layout.addView(road);
                     return false;
                 }
 
@@ -417,7 +394,12 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < facility_numbers.length; i++)
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
-       setLocationIcon();
+
+       parent_layout.removeView(road);
+       road.setInfo(database.getRoad_x(building_number,floor),database.getRoad_y(building_number,floor),
+               database.getRoadLength(building_number,floor),database.getRoad_xDir(building_number,floor),image.getImageSize(),image.getImageLocation());
+       parent_layout.addView(road);
+        setLocationIcon();
     }
 
     private void removeViews() {
