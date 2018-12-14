@@ -231,17 +231,27 @@ public class DatabaseRead {
         for (int i = 0; i < list.size(); i++) result[i][3] = Integer.parseInt(list.get(i));
         return result;
     }
-    public ArrayList<ArrayList<Float>> getBuildingRoadLength(int building_number,int numberOfFloor){
+    public float[][] getBuildingRoadLength(int building_number,int numberOfFloor,int maxNumberOfRoad){
         String sql = "SELECT length FROM road WHERE building_number= ? AND floor = ?";
-        ArrayList<ArrayList<Float>> result = new ArrayList<ArrayList<Float>>();
+        float[][] result = new float[numberOfFloor][maxNumberOfRoad];
         ArrayList<String> list;
         for(int i=0;i<numberOfFloor;i++){
             String[] where = {String.valueOf(building_number),String.valueOf(i+1)};
             list = searchData(sql,where);
-            ArrayList<Float> floatList = new ArrayList<Float>();
-            for(String value : list)  floatList.add(Float.parseFloat(value));
-            result.add(floatList);
+            for(int j=0;j<maxNumberOfRoad;j++){
+                if(j<list.size())
+                    result[i][j] = Float.parseFloat(list.get(j));
+                else
+                    result[i][j] = -1;
+            }
         }
+        return result;
+    }
+    public int getMaxNumberOfRoad(int building_nubmer){
+        String sql ="SELECT MAX(COUNT(*)) FROM road WHERE building_number = ? GROUP BY floor";
+        String[] where ={String.valueOf(building_nubmer)};
+        ArrayList<String> list = searchData(sql, where);
+        int result = Integer.parseInt(list.get(0));
         return result;
     }
 }
