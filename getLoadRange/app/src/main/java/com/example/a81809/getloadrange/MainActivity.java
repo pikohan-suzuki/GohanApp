@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.Time;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -101,8 +102,10 @@ public class MainActivity extends AppCompatActivity {
             menuMode.setTitle("ROAD");
         } else if (mode == 1) {
             menuMode.setTitle("FACILITY");
-        } else {
+        } else if(mode==2){
             menuMode.setTitle("ROOM");
+        }else{
+            menuMode.setTitle("GET ROAD ID");
         }
         return true;
     }
@@ -147,6 +150,11 @@ public class MainActivity extends AppCompatActivity {
                 firsttap = true;
 
                 return true;
+            case R.id.get_roadId_mode:
+                mode =3;
+                invalidateOptionsMenu();
+                myView.resetRoads();
+                firsttap = true;
         }
         return false;
     }
@@ -296,6 +304,35 @@ public class MainActivity extends AppCompatActivity {
                         yper = (motionEvent.getY() - y) / height;
                         str += xper + "," + yper + "\n";
                         return true;
+                    case 3:
+                        if(firsttap) {
+                            firstRange[0] = motionEvent.getX();
+                            firstRange[1] = motionEvent.getY();
+                            firsttap=!firsttap;
+                        }else{
+                            secondRange[0]=motionEvent.getX();
+                            secondRange[1]=motionEvent.getY();
+                            float[] startX = myView.getStartX();
+                            float[] startY=myView.getStartY();
+                            float[] endX=myView.getEndX();
+                            float[] endY=myView.getEndY();
+                            ArrayList<Integer> result = new ArrayList<Integer>();
+                            for(int i=0;i<startX.length;i++){
+                                if(Math.abs(startX[i]-firstRange[0])<30 && Math.abs(startY[i]-firstRange[1])<30 &&
+                                        Math.abs(endX[i]-secondRange[0])<30 && Math.abs(endY[i]-secondRange[1])<30){
+                                    result.add(i+1);
+                                }
+                            }
+                            if(result.size()==0){
+                                Log.d("debug","search road id : Nothing Found");
+                            }else if(result.size()==1){
+                                Log.d("debug","search road id : Found! road id is:  "+result.get(0) );
+                            }else{
+                                Log.d("debug","search road id : Multiple road found..  ");
+                            }
+
+                            firsttap=!firsttap;
+                        }
                 }
             }
             return true;
