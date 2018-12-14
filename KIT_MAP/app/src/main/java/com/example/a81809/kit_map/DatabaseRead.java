@@ -248,10 +248,14 @@ public class DatabaseRead {
         return result;
     }
     public int getMaxNumberOfRoad(int building_nubmer){
-        String sql ="SELECT MAX(COUNT(*)) FROM road WHERE building_number = ? GROUP BY floor";
+        String sql ="SELECT COUNT(*) FROM road WHERE building_number = ? GROUP BY floor";
         String[] where ={String.valueOf(building_nubmer)};
         ArrayList<String> list = searchData(sql, where);
-        int result = Integer.parseInt(list.get(0));
+        int result = 0;
+        for(String value: list){
+            if(result< Integer.parseInt(value))
+                result = Integer.parseInt(value);
+        }
         return result;
     }
 }
