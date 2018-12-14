@@ -45,8 +45,8 @@ public class SearchActivity extends AppCompatActivity {
             startFloor=1;
             startRoadId=1;
             destBuildNumber=23;
-            destFloor=1;
-            destRoadId=20;
+            destFloor=5;
+            destRoadId=18;
 
             Intent intent = new Intent();
             intent.putExtra("startBuildingNumber",startBuildingNumber);
