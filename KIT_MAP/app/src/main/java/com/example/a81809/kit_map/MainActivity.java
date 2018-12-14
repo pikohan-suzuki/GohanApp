@@ -405,12 +405,13 @@ public class MainActivity extends AppCompatActivity {
 
         parent_layout.removeView(road);
 
-        int [] roadId = database.getRoadId(building_number,floor);
-        float [] roadX =database.getRoad_x(building_number, floor);
-        float [] roadY = database.getRoad_y(building_number, floor);
-        float [] length =database.getRoadLength(building_number, floor);
-        boolean [] isXDir=database.getRoad_xDir(building_number, floor);
+
         if(isSearchMode) {
+            int [] roadId = database.getRoadId(building_number,floor);
+            float [] roadX =database.getRoad_x(building_number, floor);
+            float [] roadY = database.getRoad_y(building_number, floor);
+            float [] length =database.getRoadLength(building_number, floor);
+            boolean [] isXDir=database.getRoad_xDir(building_number, floor);
             ArrayList<Float> x = new ArrayList<Float>();
             ArrayList<Float> y = new ArrayList<Float>();
             ArrayList<Float> len = new ArrayList<Float>();
@@ -447,8 +448,8 @@ public class MainActivity extends AppCompatActivity {
                 length[i]=len.get(i);
                 isXDir[i]=isX.get(i);
             }
+            road.setInfo(roadX, roadY, length, isXDir, image.getImageSize(), image.getImageLocation());
         }
-        road.setInfo(roadX, roadY, length, isXDir, image.getImageSize(), image.getImageLocation());
         parent_layout.addView(road);
         setLocationIcon();
     }
@@ -487,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                             comeFrom[connectTable[i][1]-1]=location;
                         }
                     }
-                }else if(connectTable[i][0] >location) break;
+                }
             }
             Log.d("debug","pppppp"+calculatingRoad);
             Log.d("debug","oooooo"+unsettledRoad);
@@ -556,7 +557,7 @@ public class MainActivity extends AppCompatActivity {
                                 distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1]){
                             distanceToRoad[connectTable[i][2]-1][connectTable[i][3]-1]=distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1];
                             comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][0]=location[0];
-                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][0]=location[1];
+                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][1]=location[1];
                             roadStatus[connectTable[i][2]-1][connectTable[i][3]-1]=1;
                         }
                     }
