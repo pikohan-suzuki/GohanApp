@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 firsttap = true;
+
         }
         return false;
     }

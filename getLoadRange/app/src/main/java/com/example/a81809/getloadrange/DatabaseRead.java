@@ -117,7 +117,7 @@ public class DatabaseRead {
         return result;
     }
     public float[] getRoad_x(int building_number, int floor) {
-        String sql = "SELECT x FROM road WHERE building_number = ? AND floor = ?";
+        String sql = "SELECT x FROM road WHERE building_number = ? AND floor = ? ORDER BY road_id";
         String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         float[] result = new float[list.size()];
@@ -126,7 +126,7 @@ public class DatabaseRead {
     }
 
     public float[] getRoad_y(int building_number, int floor) {
-        String sql = "SELECT y FROM road WHERE building_number = ? AND floor = ?";
+        String sql = "SELECT y FROM road WHERE building_number = ? AND floor = ? ORDER BY road_id";
         String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         float[] result = new float[list.size()];
@@ -135,7 +135,7 @@ public class DatabaseRead {
     }
 
     public float[] getRoadLength(int building_number, int floor) {
-        String sql = "SELECT length FROM road WHERE building_number = ? AND floor = ?";
+        String sql = "SELECT length FROM road WHERE building_number = ? AND floor = ? ORDER BY road_id";
         String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         float[] result = new float[list.size()];
@@ -144,7 +144,7 @@ public class DatabaseRead {
     }
 
     public boolean[] getRoad_xDir(int building_number, int floor) {
-        String sql = "SELECT is_xDirection FROM road WHERE building_number = ? AND floor = ?";
+        String sql = "SELECT is_xDirection FROM road WHERE building_number = ? AND floor = ? ORDER BY road_id";
         String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         boolean[] result = new boolean[list.size()];
