@@ -154,6 +154,28 @@ public class MainActivity extends AppCompatActivity {
                 mode =3;
                 invalidateOptionsMenu();
                 myView.resetRoads();
+
+                float [] roadX =database.getRoad_x(building_number, floor);
+                float [] roadY = database.getRoad_y(building_number, floor);
+                float [] length =database.getRoadLength(building_number, floor);
+                boolean [] isXDir=database.getRoad_xDir(building_number, floor);
+                float startX[] = new float[roadX.length];
+                float startY[] = new float[roadX.length];
+                float endX[] = new float[roadX.length];
+                float endY[] = new float[roadX.length];
+                for(int i=0;i<startX.length;i++){
+                    startX[i]=x+roadX[i]*width;
+                    startY[i]=y+roadY[i]*height;
+                    if(isXDir[i]){
+                        endX[i]=x+(roadX[i]+length[i])*width;
+                        endY[i]=y+roadY[i]*height;
+                    }else{
+                        endX[i]=x+roadX[i]*width;
+                        endY[i]=y+(roadY[i]+length[i])*height;
+                    }
+                    myView.drawLine(startX[i],startY[i],endX[i],endY[i]);
+                }
+
                 firsttap = true;
         }
         return false;
