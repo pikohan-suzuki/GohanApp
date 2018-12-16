@@ -133,21 +133,21 @@ public class DatabaseRead {
         return result;
     }
 
-    public float[] getFloorRangeSize(int building_number) {
-        String sql = "SELECT left_longitude FROM building WHERE building_number = ?";
-        String[] where = {String.valueOf(building_number)};
-        float[] result = new float[4];
+    public double[] getFloorRangeSize(int building_number,int floor) {
+        String sql = "SELECT left_longitude FROM floor WHERE building_number = ? AND floor = ?";
+        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        double[] result = new double[4];
         ArrayList<String> list = searchData(sql, where);
-        result[0] = Float.parseFloat(list.get(0));
-        sql = "SELECT top_latitude FROM building WHERE building_number = ?";
+        result[0] = Double.parseDouble(list.get(0))+136;
+        sql = "SELECT top_latitude FROM floor WHERE building_number = ? AND floor = ?";
         list = searchData(sql, where);
-        result[1] = Float.parseFloat(list.get(0));
-        sql = "SELECT longitude FROM building WHERE building_number = ?";
+        result[1] = Double.parseDouble(list.get(0))+36;
+        sql = "SELECT longitude FROM floor WHERE building_number = ? AND floor = ?";
         list = searchData(sql, where);
-        result[2] = Float.parseFloat(list.get(0));
-        sql = "SELECT latitude FROM building WHERE building_number = ?";
+        result[2] = Double.parseDouble(list.get(0));
+        sql = "SELECT latitude FROM floor WHERE building_number = ? AND floor = ?";
         list = searchData(sql, where);
-        result[3] = Float.parseFloat(list.get(0));
+        result[3] =Double.parseDouble(list.get(0));
         return result;
     }
 

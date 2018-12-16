@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     Bitmap bitmap = getViewCapture(parent_layout);
                     int color = bitmap.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
+                    Log.d("debug","color : "+color);
                     if (building_number == 0) {
                         switch (color) {
                             case -12199: //8
@@ -252,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 break;
                         }
-                    } else if (color == -2687049) {
+                    } else if (color == -2293834) {
                         building_number = 0;
                         floor = 0;
                         removeViews();
@@ -343,12 +344,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setLocationIcon() {
-        float[] range = image.getimageRange();
+        double[] range = image.getimageRange();
         if (location != null) {
-            if (location.getLongitude() > range[0] && location.getLongitude() < range[0] + range[2]
+            if (location.getLongitude() > range[0]&& location.getLongitude() < range[0] + range[2]
                     && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
-                myLocation.setLocationIcon(parent_layout, locationShowing);
-                if (!locationShowing) locationShowing = !locationShowing;
+                myLocation.setLocationIcon(parent_layout, locationShowing,location,image.getImageLocation(),image.getImageSize(),range[1],range[0],range[3],range[2]);
+                if (!locationShowing) locationShowing = true;
                 Toast toast = Toast.makeText(this, "Added", Toast.LENGTH_SHORT);
                 toast.show();
             } else if (locationShowing) {
