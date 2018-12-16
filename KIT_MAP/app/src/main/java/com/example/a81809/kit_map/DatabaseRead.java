@@ -258,4 +258,26 @@ public class DatabaseRead {
         }
         return result;
     }
+    public String[][] getSearchRoom(){
+        String sql ="SELECT building_number FROM room ORDER BY building_number,floor,room_number";
+        ArrayList<String> list = searchData(sql, new String[]{});
+        String[][] result = new String[list.size()][3];
+        for(int i=0;i<list.size();i++){
+            result[i][0]=list.get(i);
+        }
+        sql ="SELECT room_number FROM room ORDER BY building_number,floor,room_number";
+        list = searchData(sql, new String[]{});
+        for(int i=0;i<list.size();i++){
+            result[i][1]=list.get(i);
+        }
+        sql ="SELECT name FROM room ORDER BY building_number,floor,room_number";
+        list = searchData(sql, new String[]{});
+        for(int i=0;i<list.size();i++){
+            if(list.get(i)==null)
+                result[i][2]="";
+            else
+                result[i][2]=list.get(i);
+        }
+        return result;
+    }
 }
