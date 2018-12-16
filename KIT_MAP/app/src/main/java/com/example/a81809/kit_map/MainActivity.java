@@ -101,14 +101,14 @@ public class MainActivity extends AppCompatActivity {
         display.getSize(screenSize);
 
         road = findViewById(R.id.my_view);
-
+        myLocation = new MyLocation(getApplication());
         changeFloor();
 
         uiManager = new UIManager(getApplication(), parent_layout);
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
-        myLocation = new MyLocation(getApplication());
+
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -195,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
                     parent_layout.removeView(road);
                     road.onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     parent_layout.addView(road);
+                    locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location,image.getImageLocation(),image.getImageSize());
                     return false;
                 }
 
@@ -301,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
                     parent_layout.removeView(road);
                     road.onScale(image.getImageSize(), image.getImageLocation());
                     parent_layout.addView(road);
+                    locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location,image.getImageLocation(),image.getImageSize());
                     return false;
                 }
 
@@ -343,23 +345,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setLocationIcon() {
-        double[] range = image.getimageRange();
-        if (location != null) {
-            if (location.getLongitude() > range[0]&& location.getLongitude() < range[0] + range[2]
-                    && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
-                myLocation.setLocationIcon(parent_layout, locationShowing,location,image.getImageLocation(),image.getImageSize(),range[1],range[0],range[3],range[2]);
-                if (!locationShowing) locationShowing = true;
-                Toast toast = Toast.makeText(this, "Added", Toast.LENGTH_SHORT);
-                toast.show();
-            } else if (locationShowing) {
-                myLocation.removeLocationIcon(parent_layout);
-                locationShowing = !locationShowing;
-                Toast toast = Toast.makeText(this, "removed", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-    }
+//    private void setLocationIcon() {
+//        double[] range = image.getimageRange();
+//        if (location != null) {
+//            if (location.getLongitude() > range[0]&& location.getLongitude() < range[0] + range[2]
+//                    && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
+//                myLocation.setLocationIcon(parent_layout, locationShowing,location,image.getImageLocation(),image.getImageSize(),range[1],range[0],range[3],range[2]);
+//                if (!locationShowing) locationShowing = true;
+//                Toast toast = Toast.makeText(this, "Added", Toast.LENGTH_SHORT);
+//                toast.show();
+//            } else if (locationShowing) {
+//                myLocation.removeLocationIcon(parent_layout);
+//                locationShowing = !locationShowing;
+//                Toast toast = Toast.makeText(this, "removed", Toast.LENGTH_SHORT);
+//                toast.show();
+//            }
+//        }
+//    }
 
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
         @Override
@@ -452,7 +454,11 @@ public class MainActivity extends AppCompatActivity {
             road.setInfo(roadX, roadY, length, isXDir, image.getImageSize(), image.getImageLocation());
         }
         parent_layout.addView(road);
-        setLocationIcon();
+        double[] range = database.getFloorRangeSize(building_number,floor);
+        myLocation.changeFloor(range);
+        myLocation.removeLocationIcon(parent_layout);
+        locationShowing=false;
+        locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location, image.getImageLocation(),image.getImageSize());
     }
 
     private void removeViews() {
@@ -613,7 +619,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLocationUI() {
-        setLocationIcon();
+        locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location,image.getImageLocation(),image.getImageSize());
     }
 
     private void createLocationRequest() {
