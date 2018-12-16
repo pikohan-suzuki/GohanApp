@@ -44,7 +44,7 @@ public class Room {
         roomTextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         roomTextView.setBackgroundResource(R.drawable.marukado);
         roomTextView.setTextSize(textSize);
-//        roomTextView.setTextColor(Color.rgb(255,255,255));
+        roomTextView.setTextColor(Color.rgb(0,0,0));
         roomTextView.setTypeface(Typeface.DEFAULT_BOLD);
         roomTextView.setGravity(1);
 
