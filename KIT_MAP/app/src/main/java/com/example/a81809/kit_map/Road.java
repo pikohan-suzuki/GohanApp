@@ -25,12 +25,12 @@ public class Road extends View {
     private ArrayList<Float> endX;
     private ArrayList<Float> endY;
 
-
+    private final int strokeWidth =15;
     public Road(Context context, AttributeSet attr) {
         super(context, attr);
         paint = new Paint();
         paint.setColor(Color.argb(255, 0, 0, 200));
-        paint.setStrokeWidth(5);
+        paint.setStrokeWidth(strokeWidth);
         resetRoads();
     }
 
@@ -40,7 +40,10 @@ public class Road extends View {
         if (startX != null) {
             for (int i = 0; i < startX.size(); i++) {
                 Log.d("debug", "llllllllllll" + startX.get(i) + "startY:" + startY.get(i) + "endX:" + endX.get(i) + "endY:" + endY.get(i));
-                canvas.drawLine(startX.get(i), startY.get(i), endX.get(i), endY.get(i), paint);
+                if(startX.get(i).equals(endX.get(i)))
+                    canvas.drawLine(startX.get(i), startY.get(i)-strokeWidth/2, endX.get(i), endY.get(i)+strokeWidth/2, paint);
+                else
+                    canvas.drawLine(startX.get(i)-strokeWidth/2, startY.get(i), endX.get(i)+strokeWidth/2, endY.get(i), paint);
             }
         }
     }

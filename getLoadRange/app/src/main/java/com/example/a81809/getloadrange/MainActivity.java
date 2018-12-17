@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.Time;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -101,8 +102,10 @@ public class MainActivity extends AppCompatActivity {
             menuMode.setTitle("ROAD");
         } else if (mode == 1) {
             menuMode.setTitle("FACILITY");
-        } else {
+        } else if(mode==2){
             menuMode.setTitle("ROOM");
+        }else{
+            menuMode.setTitle("GET ROAD ID");
         }
         return true;
     }
@@ -147,6 +150,34 @@ public class MainActivity extends AppCompatActivity {
                 firsttap = true;
 
                 return true;
+            case R.id.get_roadId_mode:
+                mode =3;
+                invalidateOptionsMenu();
+                myView.resetRoads();
+
+                float [] roadX =database.getRoad_x(building_number, floor);
+                float [] roadY = database.getRoad_y(building_number, floor);
+                float [] length =database.getRoadLength(building_number, floor);
+                boolean [] isXDir=database.getRoad_xDir(building_number, floor);
+                float startX[] = new float[roadX.length];
+                float startY[] = new float[roadX.length];
+                float endX[] = new float[roadX.length];
+                float endY[] = new float[roadX.length];
+                for(int i=0;i<startX.length;i++){
+                    startX[i]=x+roadX[i]*width;
+                    startY[i]=y+roadY[i]*height;
+                    if(isXDir[i]){
+                        endX[i]=x+(roadX[i]+length[i])*width;
+                        endY[i]=y+roadY[i]*height;
+                    }else{
+                        endX[i]=x+roadX[i]*width;
+                        endY[i]=y+(roadY[i]+length[i])*height;
+                    }
+                    myView.drawLine(startX[i],startY[i],endX[i],endY[i]);
+                }
+
+                firsttap = true;
+
         }
         return false;
     }
@@ -296,6 +327,37 @@ public class MainActivity extends AppCompatActivity {
                         yper = (motionEvent.getY() - y) / height;
                         str += xper + "," + yper + "\n";
                         return true;
+                    case 3:
+                        if(firsttap) {
+                            firstRange[0] = motionEvent.getX();
+                            firstRange[1] = motionEvent.getY();
+                            firsttap=!firsttap;
+                        }else{
+                            secondRange[0]=motionEvent.getX();
+                            secondRange[1]=motionEvent.getY();
+                            float[] startX = myView.getStartX();
+                            float[] startY=myView.getStartY();
+                            float[] endX=myView.getEndX();
+                            float[] endY=myView.getEndY();
+                            ArrayList<Integer> result = new ArrayList<Integer>();
+                            for(int i=0;i<startX.length;i++){
+                                if(Math.abs(startX[i]-firstRange[0])<30 && Math.abs(startY[i]-firstRange[1])<30 &&
+                                        Math.abs(endX[i]-secondRange[0])<30 && Math.abs(endY[i]-secondRange[1])<30){
+                                    result.add(i+1);
+                                }
+                            }
+                            Toast toast;
+                            if(result.size()==0){
+                                toast=Toast.makeText(MainActivity.this,"search road id : Nothing Found",Toast.LENGTH_LONG);
+                            }else if(result.size()==1){
+                                toast=Toast.makeText(MainActivity.this,"search road id : Found! road id is:  "+result.get(0),Toast.LENGTH_LONG);
+                            }else{
+                                toast=Toast.makeText(MainActivity.this,"search road id : Multiple road found..  ",Toast.LENGTH_LONG);
+                            }
+                            toast.show();
+
+                            firsttap=!firsttap;
+                        }
                 }
             }
             return true;

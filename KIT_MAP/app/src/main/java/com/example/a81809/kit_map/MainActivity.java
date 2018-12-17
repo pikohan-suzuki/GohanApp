@@ -1,7 +1,7 @@
 package com.example.a81809.kit_map;
 
 import android.Manifest;
-import android.app.ActionBar;
+import android.support.v7.widget.SearchView;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -24,7 +24,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -42,8 +41,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout parent_layout;
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
-    public  DatabaseRead database;
+    public DatabaseRead database;
 
     public static Point screenSize;
     public static Point actionBarSize;
@@ -64,9 +63,12 @@ public class MainActivity extends AppCompatActivity {
     public static int floor;
     private Point focusRange;
     private boolean touchFlg = true;
-    private boolean isMapMode = true;
+    private boolean isSearchMode = false;
     private boolean locationShowing = false;
 
+    private String lastUpdateTime;
+
+    private SearchView mSearchView;
 
     private FusedLocationProviderClient fusedLocationClient;
     private SettingsClient settingsClient;
@@ -75,11 +77,12 @@ public class MainActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
     private Location location;
 
-    private String lastUpdateTime;
     private Boolean requestingLocationUpdates;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
     private int priority = 0;
 
+    private int[][] search_route;
+//    private int[] search_route_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,14 +101,14 @@ public class MainActivity extends AppCompatActivity {
         display.getSize(screenSize);
 
         road = findViewById(R.id.my_view);
-
+        myLocation = new MyLocation(getApplication());
         changeFloor();
 
-        uiManager= new UIManager(getApplication(),parent_layout);
+        uiManager = new UIManager(getApplication(), parent_layout);
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
-        myLocation = new MyLocation(getApplication());
+
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
 //        buttonStart.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-                startLocationUpdates();
+        startLocationUpdates();
 //            }
 //        });
 
@@ -147,16 +150,33 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+
+        mSearchView = (SearchView) menu.findItem(R.id.searchView).getActionView();
+        mSearchView.setOnQueryTextListener(queryTextListener);
         return true;
     }
+    private SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String s) {
+            Toast toast = Toast.makeText(MainActivity.this,"success",Toast.LENGTH_SHORT);
+            toast.show();
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String s) {
+            return false;
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
             case R.id.search:
-                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                int requestCode = 1001;
+                startActivityForResult(intent, requestCode);
                 break;
 
         }
@@ -189,8 +209,9 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     parent_layout.removeView(road);
-                    road.onScroll(image.getImageSize(),image.getImageLocation(),distanceX,distanceY);
+                    road.onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
                     parent_layout.addView(road);
+                    locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location,image.getImageLocation(),image.getImageSize());
                     return false;
                 }
 
@@ -208,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     Bitmap bitmap = getViewCapture(parent_layout);
                     int color = bitmap.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
+                    Log.d("debug","color : "+color);
                     if (building_number == 0) {
                         switch (color) {
                             case -12199: //8
@@ -215,28 +237,28 @@ public class MainActivity extends AppCompatActivity {
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             case -1055568: //23
                                 building_number = 23;
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             case -12457: //5
                                 building_number = 5;
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             case -12713: //3
                                 building_number = 3;
                                 floor = 1;
                                 removeViews();
                                 changeFloor();
-                                if(touchFlg) setUI();
+                                if (touchFlg) setUI();
                                 break;
                             default:
                                 if (touchFlg) {
@@ -248,12 +270,12 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 break;
                         }
-                    } else if (color == -2687049) {
+                    } else if (color == -2293834) {
                         building_number = 0;
                         floor = 0;
                         removeViews();
                         changeFloor();
-                        if(touchFlg)
+                        if (touchFlg)
                             removeUI();
                     } else {
                         if (touchFlg) {
@@ -294,8 +316,9 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < rooms.length; i++)
                         rooms[i].onScale(image.getImageSize(), image.getImageLocation());
                     parent_layout.removeView(road);
-                    road.onScale(image.getImageSize(),image.getImageLocation());
+                    road.onScale(image.getImageSize(), image.getImageLocation());
                     parent_layout.addView(road);
+                    locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location,image.getImageLocation(),image.getImageSize());
                     return false;
                 }
 
@@ -338,28 +361,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setLocationIcon(){
-        float[] range = image.getimageRange();
-        if(location!=null) {
-            if (location.getLongitude() > range[0] && location.getLongitude() < range[0] + range[2]
-                    && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
-                myLocation.setLocationIcon(parent_layout,locationShowing);
-                if(!locationShowing)    locationShowing=!locationShowing;
-                Toast toast = Toast.makeText(this,"Added",Toast.LENGTH_SHORT);
-                toast.show();
-            } else if(locationShowing) {
-                myLocation.removeLocationIcon(parent_layout);
-                locationShowing=!locationShowing;
-                Toast toast = Toast.makeText(this,"removed",Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-    }
+//    private void setLocationIcon() {
+//        double[] range = image.getimageRange();
+//        if (location != null) {
+//            if (location.getLongitude() > range[0]&& location.getLongitude() < range[0] + range[2]
+//                    && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
+//                myLocation.setLocationIcon(parent_layout, locationShowing,location,image.getImageLocation(),image.getImageSize(),range[1],range[0],range[3],range[2]);
+//                if (!locationShowing) locationShowing = true;
+//                Toast toast = Toast.makeText(this, "Added", Toast.LENGTH_SHORT);
+//                toast.show();
+//            } else if (locationShowing) {
+//                myLocation.removeLocationIcon(parent_layout);
+//                locationShowing = !locationShowing;
+//                Toast toast = Toast.makeText(this, "removed", Toast.LENGTH_SHORT);
+//                toast.show();
+//            }
+//        }
+//    }
+
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            int numberOfFloor =database.getNumberOfFloor(building_number);
-            if(floor < numberOfFloor){
+            int numberOfFloor = database.getNumberOfFloor(building_number);
+            if (floor < numberOfFloor) {
                 floor++;
                 removeViews();
                 changeFloor();
@@ -369,20 +393,24 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener downButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(floor!=1){
+            if (floor != 1) {
                 floor--;
                 removeViews();
                 changeFloor();
             }
         }
     };
-    private void setUI(){
-       uiManager.setUI(parent_layout);
+
+    private void setUI() {
+        uiManager.setUI(parent_layout);
     }
-    private void removeUI(){
+
+    private void removeUI() {
         uiManager.removeUI(parent_layout);
     }
-   private void changeFloor() {
+
+    private void changeFloor() {
+        destroyViews();
         image = new Image(getApplication(), parent_layout, database, building_number, floor);
         int[] room_numbers = database.getRoomNumbers(building_number, floor);
         rooms = new Room[room_numbers.length];
@@ -395,11 +423,59 @@ public class MainActivity extends AppCompatActivity {
             faclities[i] = new Facility(getApplication(), parent_layout, database, building_number, floor,
                     facility_numbers[i], image.getImageSize(), image.getImageLocation());
 
-       parent_layout.removeView(road);
-       road.setInfo(database.getRoad_x(building_number,floor),database.getRoad_y(building_number,floor),
-               database.getRoadLength(building_number,floor),database.getRoad_xDir(building_number,floor),image.getImageSize(),image.getImageLocation());
-       parent_layout.addView(road);
-        setLocationIcon();
+        parent_layout.removeView(road);
+
+
+        if(isSearchMode) {
+            int [] roadId = database.getRoadId(building_number,floor);
+            float [] roadX =database.getRoad_x(building_number, floor);
+            float [] roadY = database.getRoad_y(building_number, floor);
+            float [] length =database.getRoadLength(building_number, floor);
+            boolean [] isXDir=database.getRoad_xDir(building_number, floor);
+            ArrayList<Float> x = new ArrayList<Float>();
+            ArrayList<Float> y = new ArrayList<Float>();
+            ArrayList<Float> len = new ArrayList<Float>();
+            ArrayList<Boolean> isX = new ArrayList<Boolean>();
+            ArrayList<Integer> asdf = new ArrayList<Integer>();
+            for(int i=0;i<roadId.length;i++){
+                for(int j=0;j<search_route.length;j++){
+                    if(roadId[i]==search_route[j][2]){
+                        if(building_number==search_route[j][0] && floor==search_route[j][1]){
+                            x.add(roadX[i]);
+                            y.add(roadY[i]);
+                            len.add(length[i]);
+                            isX.add(isXDir[i]);
+                        }
+                    }
+                }
+            }
+//            for(int i=0;i<search_route_id.length;i++) asdf.add(search_route_id[i]);
+//            for(int i=0;i<roadId.length;i++){
+//                if(asdf.contains(roadId[i]) && search_route[i][0]==building_number && search_route[i][1] == floor){
+//                    x.add(roadX[i]);
+//                    y.add(roadY[i]);
+//                    len.add(length[i]);
+//                    isX.add(isXDir[i]);
+//                }
+//            }
+            roadX = new float[x.size()];
+            roadY=new float[x.size()];
+            length=new float[x.size()];
+            isXDir=new boolean[x.size()];
+            for(int i=0;i<x.size();i++){
+                roadX[i]=x.get(i);
+                roadY[i]=y.get(i);
+                length[i]=len.get(i);
+                isXDir[i]=isX.get(i);
+            }
+            road.setInfo(roadX, roadY, length, isXDir, image.getImageSize(), image.getImageLocation());
+        }
+        parent_layout.addView(road);
+        double[] range = database.getFloorRangeSize(building_number,floor);
+        myLocation.changeFloor(range);
+        myLocation.removeLocationIcon(parent_layout);
+        locationShowing=false;
+        locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location, image.getImageLocation(),image.getImageSize());
     }
 
     private void removeViews() {
@@ -408,8 +484,161 @@ public class MainActivity extends AppCompatActivity {
         for (Facility facility : faclities) facility.removeView(parent_layout);
     }
 
+    private void destroyViews() {
+        if (image != null)
+            image.removeImageResource();
+        if (rooms != null)
+            for (Room room : rooms) {
+                if (room != null) {
+                    room.removeRoomResource();
+                }
+            }
+        if(faclities!=null){
+            for(Facility facility:faclities){
+                if(facility!=null){
+                    facility.removeFacilityResource();
+                }
+            }
+        }
 
+    }
 
+//    private void resetRoute() {
+//        routeBuilding = new ArrayList<Integer>();
+//        routeFloor = new ArrayList<Integer>();
+//        routeId = new ArrayList<Integer>();
+//    }
+
+    private int[][] search_route_inFloor(int[][] connectTable, float[] roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destRoadId) {
+        float[] distanceToRoad = new float[roadLength.length];
+        int[] comeFrom = new int[roadLength.length];
+        ArrayList<Integer> unsettledRoad = new ArrayList<Integer>();
+        ArrayList<Integer> calculatingRoad = new ArrayList<Integer>();
+        for (int i = 0; i < distanceToRoad.length; i++) unsettledRoad.add(i + 1);
+        unsettledRoad.remove(unsettledRoad.indexOf(startRoadId));
+        for (int i = 0; i < distanceToRoad.length; i++) distanceToRoad[i] = 9999;
+        distanceToRoad[startRoadId - 1] = 0;
+        int location =startRoadId;
+
+        while(unsettledRoad.indexOf(destRoadId)!=-1){
+            for(int i=0;i<connectTable.length;i++){
+                if(connectTable[i][0]==location){
+                    if(unsettledRoad.indexOf(connectTable[i][1])!=-1){
+                        if(distanceToRoad[connectTable[i][1]-1] > distanceToRoad[connectTable[i][0]-1]+roadLength[connectTable[i][1]-1]){
+                            if(distanceToRoad[connectTable[i][1]-1]==9999)
+                                calculatingRoad.add(connectTable[i][1]);
+                            distanceToRoad[connectTable[i][1]-1]=distanceToRoad[connectTable[i][0]-1]+roadLength[connectTable[i][1]-1];
+                            comeFrom[connectTable[i][1]-1]=location;
+                        }
+                    }
+                }
+            }
+            Log.d("debug","pppppp"+calculatingRoad);
+            Log.d("debug","oooooo"+unsettledRoad);
+            float min = 9999;
+            int id = 0;
+            for(int calcId: calculatingRoad){
+                if(distanceToRoad[calcId-1] <min){
+                    min = distanceToRoad[calcId-1];
+                    id = calcId;
+                }
+            }
+            if(id!=0) {
+                unsettledRoad.remove(unsettledRoad.indexOf(id));
+                calculatingRoad.remove(calculatingRoad.indexOf(id));
+                location = id;
+            }else{
+                Log.d("debug","the end");
+            }
+        }
+
+        ArrayList<Integer> resultRoute = new ArrayList<Integer>();
+
+        int now = destRoadId;
+        while(now!=0){
+            resultRoute.add(now);
+            now=comeFrom[now-1];
+        }
+        int[][] result = new int[resultRoute.size()][3];
+        for(int i=0;i<resultRoute.size();i++) {
+            result[i][0] = startBuildingNumber;
+            result[i][1] = startFloor;
+            result[i][2] = resultRoute.get(resultRoute.size() - 1 - i);
+        }
+
+        return result;
+    }
+    private int[][] searchRouteInBuilding(int[][] connectTable, float[][] roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destFloor, int destRoadId){
+        float[][] distanceToRoad = new float[roadLength.length][roadLength[0].length];
+        for(int i=0;i<distanceToRoad.length;i++){
+            for(int j=0;j<distanceToRoad[i].length;j++){
+                if(roadLength[i][j]!=-1)
+                    distanceToRoad[i][j]=9999;
+                else
+                    distanceToRoad[i][j]=-1;
+            }
+        }
+        distanceToRoad[startFloor-1][startRoadId-1]=0;
+        int[][][]  comeFrom = new int[roadLength.length][roadLength[0].length][2];
+        int[][] roadStatus = new int[roadLength.length][roadLength[0].length];  //0:out of target 1:calculating 2:confirmed -1:empty
+        for(int i=0;i<distanceToRoad.length;i++){
+            for(int j=0;j<distanceToRoad[0].length;j++){
+                if(roadLength[i][j]!=-1)
+                    roadStatus[i][j]=0;
+                else
+                    roadStatus[i][j]=-1;
+            }
+        }
+        roadStatus[startFloor-1][startRoadId]=2;
+        int[] location ={startFloor,startRoadId};
+
+        while(roadStatus[destFloor-1][destRoadId-1]!=2){
+            for(int i=0;i<connectTable.length;i++){
+                if(location[0]==connectTable[i][0] && location[1] == connectTable[i][1]){
+                    if(roadStatus[connectTable[i][2]-1][connectTable[i][3]-1] != 2){
+                        if(distanceToRoad[connectTable[i][2]-1][connectTable[i][3]-1]>
+                                distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1]){
+                            distanceToRoad[connectTable[i][2]-1][connectTable[i][3]-1]=distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1];
+                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][0]=location[0];
+                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][1]=location[1];
+                            roadStatus[connectTable[i][2]-1][connectTable[i][3]-1]=1;
+                        }
+                    }
+                }
+            }
+            int[] next={0,0};
+            float min=9999;
+            for(int i=0;i<distanceToRoad.length;i++){
+                for(int j=0;j<distanceToRoad[i].length;j++){
+                    if(roadStatus[i][j]==1 && min > distanceToRoad[i][j]){
+                        min=distanceToRoad[i][j];
+                        next[0]=i+1;
+                        next[1]=j+1;
+                    }
+                }
+            }
+            roadStatus[next[0]-1][next[1]-1]=2;
+            location[0]=next[0];
+            location[1]=next[1];
+        }
+        ArrayList<ArrayList<Integer>> resultRoute = new ArrayList<ArrayList<Integer>>();
+        int[] now={destFloor,destRoadId};
+        while(now[0]!=0){
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            list.add(now[0]);
+            list.add(now[1]);
+            resultRoute.add(list);
+            int next[] = {comeFrom[now[0]-1][now[1]-1][0],comeFrom[now[0]-1][now[1]-1][1]};
+            now=next;
+        }
+        int[][] result = new int[resultRoute.size()][3];
+        for(int i=0;i<resultRoute.size();i++){
+            result[i][0]=startBuildingNumber;
+            result[i][1]=resultRoute.get(i).get(0);
+            result[i][2]=resultRoute.get(i).get(1);
+        }
+        return result;
+    }
     // locationのコールバックを受け取る
     private void createLocationCallback() {
         locationCallback = new LocationCallback() {
@@ -426,7 +655,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLocationUI() {
-        setLocationIcon();
+        locationShowing=myLocation.setLocationIcon(parent_layout,locationShowing,location,image.getImageLocation(),image.getImageSize());
     }
 
     private void createLocationRequest() {
@@ -482,9 +711,8 @@ public class MainActivity extends AppCompatActivity {
         locationSettingsRequest = builder.build();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode,
-                                    int resultCode, Intent data) {
+    public void onActivityResult(int requestCode,
+                                 int resultCode, Intent intent) {
         switch (requestCode) {
             // Check for the integer request code originally supplied to startResolutionForResult().
             case REQUEST_CHECK_SETTINGS:
@@ -497,6 +725,39 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("debug", "User chose not to make required location settings changes.");
                         requestingLocationUpdates = false;
                         break;
+                }
+                break;
+            default:
+                if (resultCode == Activity.RESULT_OK) {
+                    int startBuildingNumber = intent.getIntExtra("startBuildingNumber", 0);
+                    int startFloor = intent.getIntExtra("startFloor", 0);
+                    int startRoadId = intent.getIntExtra("startRoadId", 0);
+                    int destBuildingNumber = intent.getIntExtra("destBuildingNumber", 0);
+                    int destFloor = intent.getIntExtra("destFloor", 0);
+                    int destRoadId = intent.getIntExtra("destRoadId", 0);
+                    if (startBuildingNumber == destBuildingNumber) {
+                        if (startFloor == destFloor) {
+                            int[][] connectTable = database.getFloorDir(startBuildingNumber, startFloor);
+                            float[] roadLength = database.getRoadLength(startBuildingNumber, startFloor);
+                            int[][] resultRoute = search_route_inFloor(connectTable, roadLength, startBuildingNumber, startFloor, startRoadId,destRoadId);
+                            search_route=new int[resultRoute.length][3];
+                            search_route=resultRoute;
+                            isSearchMode=true;
+                            removeViews();
+                            changeFloor();
+                        }else{
+                            int[][] connectTable = database.getBuildingDir(startBuildingNumber);
+                            int numberOfFloor = database.getNumberOfFloor(startBuildingNumber);
+                            int maxNumberOfRoad = database.getMaxNumberOfRoad(startBuildingNumber);
+                            float[][] roadLength = database.getBuildingRoadLength(startBuildingNumber,numberOfFloor,maxNumberOfRoad);
+                            int[][] resultRoute = searchRouteInBuilding(connectTable, roadLength, startBuildingNumber, startFloor,startRoadId,destFloor,destRoadId);
+                            search_route=new int[resultRoute.length][3];
+                            search_route=resultRoute;
+                            isSearchMode=true;
+                            removeViews();
+                            changeFloor();
+                        }
+                    }
                 }
                 break;
         }

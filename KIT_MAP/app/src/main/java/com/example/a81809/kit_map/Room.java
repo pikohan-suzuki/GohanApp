@@ -1,7 +1,9 @@
 package com.example.a81809.kit_map;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -15,7 +17,7 @@ public class Room {
     private float x;
     private float y;
     private int room_num;
-    private final int textSize = 10;
+    private final int textSize = (int)(MainActivity.screenSize.x*0.006);
 
     private int width;
     private int height;
@@ -42,6 +44,8 @@ public class Room {
         roomTextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         roomTextView.setBackgroundResource(R.drawable.marukado);
         roomTextView.setTextSize(textSize);
+        roomTextView.setTextColor(Color.rgb(0,0,0));
+        roomTextView.setTypeface(Typeface.DEFAULT_BOLD);
         roomTextView.setGravity(1);
 
         ViewTreeObserver vto = roomTextView.getViewTreeObserver();
@@ -86,5 +90,18 @@ public class Room {
     }
     public void removeView(FrameLayout layout){
         layout.removeView(roomTextView);
+    }
+
+    public void removeRoomResource(){
+        roomTextView=null;
+        context=null;
+        xper=0;
+        yper=0;
+        x=0;
+        y=0;
+        room_num=0;
+        width=0;
+        height=0;
+        name=null;
     }
 }
