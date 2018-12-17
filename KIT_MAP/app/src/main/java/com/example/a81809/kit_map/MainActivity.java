@@ -1,6 +1,7 @@
 package com.example.a81809.kit_map;
 
 import android.Manifest;
+import android.support.v7.widget.SearchView;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -40,8 +41,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
-import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String lastUpdateTime;
 
+    private SearchView mSearchView;
 
     private FusedLocationProviderClient fusedLocationClient;
     private SettingsClient settingsClient;
@@ -150,8 +150,24 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+
+        mSearchView = (SearchView) menu.findItem(R.id.searchView).getActionView();
+        mSearchView.setOnQueryTextListener(queryTextListener);
         return true;
     }
+    private SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String s) {
+            Toast toast = Toast.makeText(MainActivity.this,"success",Toast.LENGTH_SHORT);
+            toast.show();
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String s) {
+            return false;
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
