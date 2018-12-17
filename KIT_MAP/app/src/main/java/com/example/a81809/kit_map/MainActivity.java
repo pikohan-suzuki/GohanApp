@@ -410,6 +410,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void changeFloor() {
+        destroyViews();
         image = new Image(getApplication(), parent_layout, database, building_number, floor);
         int[] room_numbers = database.getRoomNumbers(building_number, floor);
         rooms = new Room[room_numbers.length];
@@ -481,6 +482,25 @@ public class MainActivity extends AppCompatActivity {
         image.removeView(parent_layout);
         for (Room room : rooms) room.removeView(parent_layout);
         for (Facility facility : faclities) facility.removeView(parent_layout);
+    }
+
+    private void destroyViews() {
+        if (image != null)
+            image.removeImageResource();
+        if (rooms != null)
+            for (Room room : rooms) {
+                if (room != null) {
+                    room.removeRoomResource();
+                }
+            }
+        if(faclities!=null){
+            for(Facility facility:faclities){
+                if(facility!=null){
+                    facility.removeFacilityResource();
+                }
+            }
+        }
+
     }
 
 //    private void resetRoute() {

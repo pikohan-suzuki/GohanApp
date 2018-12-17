@@ -17,7 +17,7 @@ public class Room {
     private float x;
     private float y;
     private int room_num;
-    private final int textSize = 10;
+    private final int textSize = (int)(MainActivity.screenSize.x*0.006);
 
     private int width;
     private int height;
@@ -90,5 +90,18 @@ public class Room {
     }
     public void removeView(FrameLayout layout){
         layout.removeView(roomTextView);
+    }
+
+    public void removeRoomResource(){
+        roomTextView=null;
+        context=null;
+        xper=0;
+        yper=0;
+        x=0;
+        y=0;
+        room_num=0;
+        width=0;
+        height=0;
+        name=null;
     }
 }

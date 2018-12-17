@@ -113,4 +113,13 @@ public class Image {
     public void removeView(FrameLayout layout) {
         layout.removeView(mapImage);
     }
+    public void removeImageResource(){
+        mapImage.setImageDrawable(null);
+        context=null;
+        width=0;
+        height=0;
+        range=null;
+        x=0;
+        y=0;
+    }
 }

@@ -71,4 +71,16 @@ public class Facility {
     public void removeView(FrameLayout layout){
         layout.removeView(image);
     }
+    public void removeFacilityResource(){
+        image.setImageDrawable(null);
+        context=null;
+        type=0;
+        xper=0;
+        yper=0;
+        x=0;
+        y=0;
+        widthProportion=0;
+        heightProportion=0;
+        defaultImageSize=0;
+    }
 }

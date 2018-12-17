@@ -346,13 +346,15 @@ public class MainActivity extends AppCompatActivity {
                                     result.add(i+1);
                                 }
                             }
+                            Toast toast;
                             if(result.size()==0){
-                                Log.d("debug","search road id : Nothing Found");
+                                toast=Toast.makeText(MainActivity.this,"search road id : Nothing Found",Toast.LENGTH_LONG);
                             }else if(result.size()==1){
-                                Log.d("debug","search road id : Found! road id is:  "+result.get(0) );
+                                toast=Toast.makeText(MainActivity.this,"search road id : Found! road id is:  "+result.get(0),Toast.LENGTH_LONG);
                             }else{
-                                Log.d("debug","search road id : Multiple road found..  ");
+                                toast=Toast.makeText(MainActivity.this,"search road id : Multiple road found..  ",Toast.LENGTH_LONG);
                             }
+                            toast.show();
 
                             firsttap=!firsttap;
                         }
