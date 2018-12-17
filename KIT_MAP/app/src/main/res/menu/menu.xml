@@ -3,6 +3,12 @@
     xmlns:yourapp="http://schemas.android.com/tools">
 
     <item
+        android:id="@+id/searchView"
+        android:title="search"
+
+        app:showAsAction="always"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+    <item
         android:id="@+id/mode"
         android:title="マップmode"
         app:showAsAction="always"/>

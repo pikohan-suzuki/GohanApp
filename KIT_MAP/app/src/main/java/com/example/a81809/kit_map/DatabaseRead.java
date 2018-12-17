@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class DatabaseRead {
@@ -132,61 +133,161 @@ public class DatabaseRead {
         return result;
     }
 
-    public float[] getFloorRangeSize(int building_number) {
-        String sql = "SELECT left_longitude FROM building WHERE building_number = ?";
-        String[] where = {String.valueOf(building_number)};
-        float[] result = new float[4];
+    public double[] getFloorRangeSize(int building_number,int floor) {
+        String sql = "SELECT left_longitude FROM floor WHERE building_number = ? AND floor = ?";
+        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        double[] result = new double[4];
         ArrayList<String> list = searchData(sql, where);
-        result[0] = Float.parseFloat(list.get(0));
-        sql = "SELECT top_latitude FROM building WHERE building_number = ?";
+        result[0] = Double.parseDouble(list.get(0))+136;
+        sql = "SELECT top_latitude FROM floor WHERE building_number = ? AND floor = ?";
         list = searchData(sql, where);
-        result[1] = Float.parseFloat(list.get(0));
-        sql = "SELECT longitude FROM building WHERE building_number = ?";
+        result[1] = Double.parseDouble(list.get(0))+36;
+        sql = "SELECT longitude FROM floor WHERE building_number = ? AND floor = ?";
         list = searchData(sql, where);
-        result[2] = Float.parseFloat(list.get(0));
-        sql = "SELECT latitude FROM building WHERE building_number = ?";
+        result[2] = Double.parseDouble(list.get(0));
+        sql = "SELECT latitude FROM floor WHERE building_number = ? AND floor = ?";
         list = searchData(sql, where);
-        result[3] = Float.parseFloat(list.get(0));
+        result[3] =Double.parseDouble(list.get(0));
         return result;
     }
 
-    public float[] getRoad_x(int building_number,int floor){
+    public float[] getRoad_x(int building_number, int floor) {
         String sql = "SELECT x FROM road WHERE building_number = ? AND floor = ?";
-        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         float[] result = new float[list.size()];
-        for (int i=0;i<list.size();i++) result[i] = Float.parseFloat(list.get(i));
+        for (int i = 0; i < list.size(); i++) result[i] = Float.parseFloat(list.get(i));
         return result;
     }
-    public float[] getRoad_y(int building_number,int floor){
+
+    public float[] getRoad_y(int building_number, int floor) {
         String sql = "SELECT y FROM road WHERE building_number = ? AND floor = ?";
-        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         float[] result = new float[list.size()];
-        for (int i=0;i<list.size();i++) result[i] = Float.parseFloat(list.get(i));
+        for (int i = 0; i < list.size(); i++) result[i] = Float.parseFloat(list.get(i));
         return result;
     }
-    public float[] getRoadLength(int building_number,int floor){
+
+    public float[] getRoadLength(int building_number, int floor) {
         String sql = "SELECT length FROM road WHERE building_number = ? AND floor = ?";
-        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         float[] result = new float[list.size()];
-        for (int i=0;i<list.size();i++) result[i] = Float.parseFloat(list.get(i));
+        for (int i = 0; i < list.size(); i++) result[i] = Float.parseFloat(list.get(i));
         return result;
     }
-    public boolean[] getRoad_xDir(int building_number,int floor){
+
+    public boolean[] getRoad_xDir(int building_number, int floor) {
         String sql = "SELECT is_xDirection FROM road WHERE building_number = ? AND floor = ?";
-        String[] where = {String.valueOf(building_number),String.valueOf(floor)};
+        String[] where = {String.valueOf(building_number), String.valueOf(floor)};
         ArrayList<String> list = searchData(sql, where);
         boolean[] result = new boolean[list.size()];
-        for (int i=0;i<list.size();i++) {
-            if(list.get(i).equals("0"))
-                result[i]=false;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).equals("0"))
+                result[i] = false;
             else
-                result[i]=true;
+                result[i] = true;
         }
 
         return result;
     }
 
+    public int[][] getFloorDir(int building_number, int floor) {
+        String sql = "SELECT from_road_id FROM road_connect WHERE from_building_number= ? AND to_building_number= ? AND from_floor = ? AND to_floor= ?";
+        String[] where = {String.valueOf(building_number),String.valueOf(building_number), String.valueOf(floor),String.valueOf(floor)};
+        ArrayList<String> list = searchData(sql, where);
+        int result[][] = new int[list.size()][2];
+        for (int i = 0; i < list.size(); i++) result[i][0] = Integer.parseInt(list.get(i));
+        sql = "SELECT to_road_id FROM road_connect WHERE from_building_number= ? AND to_building_number= ? AND from_floor = ? AND to_floor= ?" ;
+        list = searchData(sql, where);
+        for (int i = 0; i < list.size(); i++) result[i][1] = Integer.parseInt(list.get(i));
+        return result;
+    }
+    public int[] getRoadId(int building_number,int floor){
+        String sql = "SELECT road_id FROM road WHERE building_number = ? AND floor= ?";
+        String[] where = {String.valueOf(building_number), String.valueOf(floor)};
+        ArrayList<String> list = searchData(sql, where);
+        int[] result = new int[list.size()];
+        for(int i=0;i<list.size();i++){
+            result[i] = Integer.parseInt(list.get(i));
+        }
+        return result;
+    }
+    public int[][] getBuildingDir(int building_number){
+        String sql = "SELECT from_floor FROM road_connect WHERE from_building_number= ? AND to_building_number= ?";
+        String[] where = {String.valueOf(building_number),String.valueOf(building_number)};
+        ArrayList<String> list = searchData(sql, where);
+        int result[][] = new int[list.size()][4];
+        for (int i = 0; i < list.size(); i++) result[i][0] = Integer.parseInt(list.get(i));
+        sql = "SELECT from_road_id FROM road_connect WHERE from_building_number= ? AND to_building_number= ?";
+        list = searchData(sql, where);
+        for (int i = 0; i < list.size(); i++) result[i][1] = Integer.parseInt(list.get(i));
+        sql = "SELECT to_floor FROM road_connect WHERE from_building_number= ? AND to_building_number= ?";
+        list = searchData(sql, where);
+        for (int i = 0; i < list.size(); i++) result[i][2] = Integer.parseInt(list.get(i));
+        sql = "SELECT to_road_id FROM road_connect WHERE from_building_number= ? AND to_building_number= ?";
+        list = searchData(sql, where);
+        for (int i = 0; i < list.size(); i++) result[i][3] = Integer.parseInt(list.get(i));
+        return result;
+    }
+    public float[][] getBuildingRoadLength(int building_number,int numberOfFloor,int maxNumberOfRoad){
+        String sql = "SELECT length FROM road WHERE building_number= ? AND floor = ?";
+        float[][] result = new float[numberOfFloor][maxNumberOfRoad];
+        ArrayList<String> list;
+        for(int i=0;i<numberOfFloor;i++){
+            String[] where = {String.valueOf(building_number),String.valueOf(i+1)};
+            list = searchData(sql,where);
+            for(int j=0;j<maxNumberOfRoad;j++){
+                if(j<list.size())
+                    result[i][j] = Float.parseFloat(list.get(j));
+                else
+                    result[i][j] = -1;
+            }
+        }
+        return result;
+    }
+    public int getMaxNumberOfRoad(int building_number){
+        String sql ="SELECT COUNT(*) FROM road WHERE building_number = ? GROUP BY floor";
+        String[] where ={String.valueOf(building_number)};
+        ArrayList<String> list = searchData(sql, where);
+        int result = 0;
+        for(String value: list){
+            if(result< Integer.parseInt(value))
+                result = Integer.parseInt(value);
+        }
+        return result;
+    }
+    public String[][] getSearchRoom(){
+        String sql ="SELECT building_number FROM room ORDER BY building_number,floor,room_number";
+        ArrayList<String> list = searchData(sql, new String[]{});
+        String[][] result = new String[list.size()][3];
+        for(int i=0;i<list.size();i++){
+            result[i][0]=list.get(i);
+        }
+        sql ="SELECT room_number FROM room ORDER BY building_number,floor,room_number";
+        list = searchData(sql, new String[]{});
+        for(int i=0;i<list.size();i++){
+            result[i][1]=list.get(i);
+        }
+        sql ="SELECT name FROM room ORDER BY building_number,floor,room_number";
+        list = searchData(sql, new String[]{});
+        for(int i=0;i<list.size();i++){
+            if(list.get(i)==null)
+                result[i][2]="";
+            else
+                result[i][2]=list.get(i);
+        }
+        return result;
+    }
+    public int[] getRoadIdFromRoom(String building_number,String room_number){
+        String sql ="SELECT road_id FROM room_to_road WHERE building_number = ? AND room_number = ?";
+        String[] where ={building_number,room_number};
+        ArrayList<String> list = searchData(sql, where);
+        int[] result = new int[3];
+        result[0]=Integer.parseInt(building_number);
+        result[1]=Integer.parseInt(room_number.substring(0,1));
+        result[2]=Integer.parseInt(list.get(0));
+        return result;
+    }
 }

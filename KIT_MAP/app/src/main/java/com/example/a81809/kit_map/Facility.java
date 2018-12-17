@@ -15,11 +15,15 @@ public class Facility {
     private float y;
     private float widthProportion;
     private float heightProportion;
-    private final int defaultImageSize =144;
+    private int defaultImageSize=100;
+    private final int[] width ={485,320};
+    private final int[] height={531,830};
     public  Facility(Context context,FrameLayout layout ,DatabaseRead database, int building_number, int floor, int id,
                      Point mapImageSize,Point mapImageLocation){
+        this.defaultImageSize = (int)(MainActivity.screenSize.y*0.085);
         this.context=context;
         this.image = new ImageView(this.context);
+        this.image.setScaleType(ImageView.ScaleType.FIT_CENTER);
         this.type = database.getFacilityType(building_number,floor,id);
         float[] range = database.getFacilityRange(building_number,floor,id);
         this.xper = range[0];
@@ -66,5 +70,17 @@ public class Facility {
     }
     public void removeView(FrameLayout layout){
         layout.removeView(image);
+    }
+    public void removeFacilityResource(){
+        image.setImageDrawable(null);
+        context=null;
+        type=0;
+        xper=0;
+        yper=0;
+        x=0;
+        y=0;
+        widthProportion=0;
+        heightProportion=0;
+        defaultImageSize=0;
     }
 }

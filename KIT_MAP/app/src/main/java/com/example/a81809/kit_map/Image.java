@@ -11,7 +11,7 @@ public class Image {
     private Context context;
     private int width;
     private int height;
-    private float[] range;
+    private double[] range;
     private float x;
     private float y;
 
@@ -39,7 +39,7 @@ public class Image {
         String[] record = database.getFloorImageSize(building_number, floor);
         this.width = Integer.parseInt(record[0]);
         this.height = Integer.parseInt(record[1]);
-        this.range = database.getFloorRangeSize(building_number);
+        this.range = database.getFloorRangeSize(building_number,floor);
         setFillCenter();
     }
 
@@ -99,7 +99,7 @@ public class Image {
     public Point getImageLocation() {
         return new Point((int) this.x, (int) this.y);
     }
-    public float[] getimageRange() {return this.range;}
+    public double[] getimageRange() {return this.range;}
     public void showActionBar() {
         this.y = this.y - MainActivity.actionBarSize.y;
         mapImage.setY(this.y);
@@ -112,5 +112,14 @@ public class Image {
 
     public void removeView(FrameLayout layout) {
         layout.removeView(mapImage);
+    }
+    public void removeImageResource(){
+        mapImage.setImageDrawable(null);
+        context=null;
+        width=0;
+        height=0;
+        range=null;
+        x=0;
+        y=0;
     }
 }
