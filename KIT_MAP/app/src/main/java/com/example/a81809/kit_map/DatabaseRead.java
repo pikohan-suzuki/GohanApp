@@ -247,9 +247,9 @@ public class DatabaseRead {
         }
         return result;
     }
-    public int getMaxNumberOfRoad(int building_nubmer){
+    public int getMaxNumberOfRoad(int building_number){
         String sql ="SELECT COUNT(*) FROM road WHERE building_number = ? GROUP BY floor";
-        String[] where ={String.valueOf(building_nubmer)};
+        String[] where ={String.valueOf(building_number)};
         ArrayList<String> list = searchData(sql, where);
         int result = 0;
         for(String value: list){
@@ -278,6 +278,16 @@ public class DatabaseRead {
             else
                 result[i][2]=list.get(i);
         }
+        return result;
+    }
+    public int[] getRoadIdFromRoom(String building_number,String room_number){
+        String sql ="SELECT road_id FROM room_to_road WHERE building_number = ? AND room_number = ?";
+        String[] where ={building_number,room_number};
+        ArrayList<String> list = searchData(sql, where);
+        int[] result = new int[3];
+        result[0]=Integer.parseInt(building_number);
+        result[1]=Integer.parseInt(room_number.substring(0,1));
+        result[2]=Integer.parseInt(list.get(0));
         return result;
     }
 }
