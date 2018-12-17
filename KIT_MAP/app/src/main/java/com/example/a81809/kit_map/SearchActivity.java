@@ -152,7 +152,9 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 locaEditText.setText(locaSearchResult.get(position));
-                locaInfo = locaSearchResult.get(position).split("-| ");
+                String[] str =locaSearchResult.get(0).split("-| ");
+                locaInfo[0]=str[0];
+                locaInfo[1]=str[1];
                 parent_layout.removeView(locaListView);
             }
         });
@@ -160,7 +162,9 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 destEditText.setText(destSearchResult.get(position));
-                destInfo = destSearchResult.get(position).split("-| ");
+                String[] str =destSearchResult.get(0).split("-| ");
+                destInfo[0]=str[0];
+                destInfo[1]=str[1];
                 parent_layout.removeView(destListView);
             }
         });
