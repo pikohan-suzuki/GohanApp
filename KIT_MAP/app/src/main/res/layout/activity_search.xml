@@ -11,6 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
@@ -18,12 +19,13 @@
             android:text="出発地"/>
         <EditText
             android:id="@+id/loca_editText"
-            android:layout_width="200dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
@@ -31,7 +33,7 @@
             android:text="目的地"/>
         <EditText
             android:id="@+id/dest_editText"
-            android:layout_width="200dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content" />
     </LinearLayout>
     <Button
@@ -39,5 +41,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="testestest"/>
+        <Button
+            android:id="@+id/search_route_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="検索"/>
     </LinearLayout>
 </FrameLayout>
