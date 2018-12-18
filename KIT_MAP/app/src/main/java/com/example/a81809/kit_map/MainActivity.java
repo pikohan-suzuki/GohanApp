@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
     private int priority = 0;
 
     private int[][] search_route;
-//    private int[] search_route_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,10 +197,6 @@ public class MainActivity extends AppCompatActivity {
             new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-//                    if (touchFlg) {
-//                        touchFlg = false;
-//                        hideActionBar();
-//                    }
 
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
@@ -361,23 +356,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private void setLocationIcon() {
-//        double[] range = image.getimageRange();
-//        if (location != null) {
-//            if (location.getLongitude() > range[0]&& location.getLongitude() < range[0] + range[2]
-//                    && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
-//                myLocation.setLocationIcon(parent_layout, locationShowing,location,image.getImageLocation(),image.getImageSize(),range[1],range[0],range[3],range[2]);
-//                if (!locationShowing) locationShowing = true;
-//                Toast toast = Toast.makeText(this, "Added", Toast.LENGTH_SHORT);
-//                toast.show();
-//            } else if (locationShowing) {
-//                myLocation.removeLocationIcon(parent_layout);
-//                locationShowing = !locationShowing;
-//                Toast toast = Toast.makeText(this, "removed", Toast.LENGTH_SHORT);
-//                toast.show();
-//            }
-//        }
-//    }
 
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
         @Override
@@ -449,15 +427,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-//            for(int i=0;i<search_route_id.length;i++) asdf.add(search_route_id[i]);
-//            for(int i=0;i<roadId.length;i++){
-//                if(asdf.contains(roadId[i]) && search_route[i][0]==building_number && search_route[i][1] == floor){
-//                    x.add(roadX[i]);
-//                    y.add(roadY[i]);
-//                    len.add(length[i]);
-//                    isX.add(isXDir[i]);
-//                }
-//            }
+
             roadX = new float[x.size()];
             roadY=new float[x.size()];
             length=new float[x.size()];
@@ -503,11 +473,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    private void resetRoute() {
-//        routeBuilding = new ArrayList<Integer>();
-//        routeFloor = new ArrayList<Integer>();
-//        routeId = new ArrayList<Integer>();
-//    }
+
 
     private int[][] search_route_inFloor(int[][] connectTable, float[] roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destRoadId) {
         float[] distanceToRoad = new float[roadLength.length];
