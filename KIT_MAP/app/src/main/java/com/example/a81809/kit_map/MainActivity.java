@@ -1,6 +1,7 @@
 package com.example.a81809.kit_map;
 
 import android.Manifest;
+import android.graphics.Color;
 import android.support.v7.widget.SearchView;
 import android.app.Activity;
 import android.content.Intent;
@@ -23,7 +24,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -83,6 +87,10 @@ public class MainActivity extends AppCompatActivity {
 
     private int[][] search_route;
 
+    private String[][] search_rooms;
+    private ArrayList<String> roomSearchResult;
+    private ArrayAdapter searchRoomAdapter;
+    private ListView serachRoomListView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +115,8 @@ public class MainActivity extends AppCompatActivity {
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
-
+        search_rooms=database.getSearchRoom();
+        serachRoomListView=new ListView(this);
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -164,8 +173,36 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onQueryTextChange(String s) {
+
+            roomSearchResult = new ArrayList<String>();
+            int numberOfForecast = 0;
+            for (int i = 0; i < search_rooms.length; i++) {
+                if(s.length()!=0) {
+                    if (search_rooms[i][0].contains(s) || search_rooms[i][1].contains(s) || search_rooms[i][2].contains(s) ||
+                            (search_rooms[i][0] + "-" + search_rooms[i][1] + " " + search_rooms[i][2]).contains(s)) {
+                        if(search_rooms[i][2].contains("号館"))
+                            roomSearchResult.add(search_rooms[i][2]);
+                        else
+                            roomSearchResult.add(search_rooms[i][0] + "-" + search_rooms[i][1] + " " + search_rooms[i][2]);
+                        numberOfForecast++;
+                    }
+                }
+            }
+            searchRoomAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, roomSearchResult);
+            serachRoomListView.setAdapter(searchRoomAdapter);
+            serachRoomListView.setBackgroundColor(Color.argb(255,240,240,250));
+            if (numberOfForecast < 6)
+                serachRoomListView.setLayoutParams(new FrameLayout.LayoutParams(screenSize.x/3, ViewGroup.LayoutParams.WRAP_CONTENT));
+            else
+                serachRoomListView.setLayoutParams(new FrameLayout.LayoutParams(screenSize.x/3, screenSize.y/4));
+            serachRoomListView.setX(screenSize.x/2-screenSize.x/6);
+            serachRoomListView.setY(parent_layout.getY());
+
+            if (parent_layout.indexOfChild(serachRoomListView) == -1)
+                parent_layout.addView(serachRoomListView);
             return false;
         }
+
     };
 
     @Override
