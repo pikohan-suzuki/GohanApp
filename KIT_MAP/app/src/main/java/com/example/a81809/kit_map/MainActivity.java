@@ -375,9 +375,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showActionBar() {
         getSupportActionBar().show();
-//        image.showActionBar();
-//        for (Facility faclity : faclities) faclity.showActionBar();
-//        for (Room room : rooms) room.showActionBar();
+
     }
 
     //スクリーンショットの撮影
