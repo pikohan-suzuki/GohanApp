@@ -367,9 +367,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void hideActionBar() {
         getSupportActionBar().hide();
-//        image.hideActionBar();
-//        for (Facility facility:faclities) facility.hideActionBar();
-//        for (Room room : rooms) room.hideActionBar();
+
 
     }
 
