@@ -143,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
         startLocationUpdates();
 //            }
 //        });
-
 //        // 測位終了
 //        Button buttonStop = (Button) findViewById(R.id.button_stop);
 //        buttonStop.setOnClickListener(new View.OnClickListener() {
