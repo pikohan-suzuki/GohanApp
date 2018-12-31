@@ -123,7 +123,7 @@ public class Room {
 //            roomTextView.bringToFront();
 //            parentLayout.requestLayout();
             MainActivity.roomInfoLayout.setX(roomTextView.getX() + (roomTextView.getWidth() - MainActivity.roomInfoLayout.getWidth()) / 2);
-            MainActivity.roomInfoLayout.setY(roomTextView.getY() - roomTextView.getHeight());
+            MainActivity.roomInfoLayout.setY(roomTextView.getY() - MainActivity.roomInfoLayout.getHeight()-5);
         }
     };
 }
