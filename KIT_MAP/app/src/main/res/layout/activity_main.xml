@@ -19,12 +19,14 @@
             android:id="@+id/room_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/room_info"
             android:text="info"
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/go_to_room"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/go_to_room"
             android:text="ここにいく"
             android:layout_weight="1"/>
     </LinearLayout>
@@ -38,6 +40,18 @@
         android:id="@+id/my_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
+    <LinearLayout
+        android:id="@+id/room_info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/room_image"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/room_description"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
 </FrameLayout>
