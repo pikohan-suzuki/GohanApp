@@ -27,7 +27,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -91,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> roomSearchResult;
     private ArrayAdapter searchRoomAdapter;
     private ListView serachRoomListView;
+
+    public static LinearLayout roomInfoLayout;
+    public static TextView roomInfoTextView;
+    public static TextView goToRoomTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
         screenSize = new Point(0, 0);
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
+        roomInfoLayout = findViewById(R.id.room_menu);
+        roomInfoTextView = findViewById(R.id.room_info);
+        goToRoomTextView = findViewById(R.id.go_to_room);
 
         road = findViewById(R.id.my_view);
         myLocation = new MyLocation(getApplication());
@@ -233,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
             new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-
+                    parent_layout.removeView(roomInfoLayout);
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
@@ -261,63 +270,67 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap bitmap = getViewCapture(parent_layout);
                     int color = bitmap.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
                     Log.d("debug","color : "+color);
-                    if (building_number == 0) {
-                        switch (color) {
-                            case -12199: //8
-                                building_number = 8;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            case -1055568: //23
-                                building_number = 23;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            case -12457: //5
-                                building_number = 5;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            case -12713: //3
-                                building_number = 3;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            default:
-                                if (touchFlg) {
-                                    touchFlg = false;
-                                    hideActionBar();
-                                } else {
-                                    touchFlg = true;
-                                    showActionBar();
-                                }
-                                break;
-                        }
-                    } else if (color == -2293834) {
-                        building_number = 0;
-                        floor = 0;
-                        removeViews();
-                        changeFloor();
-                        if (touchFlg)
-                            removeUI();
-                    } else {
-                        if (touchFlg) {
-                            touchFlg = false;
-                            hideActionBar();
-                            removeUI();
+                    if(parent_layout.indexOfChild(roomInfoLayout)==-1) {
+                        if (building_number == 0) {
+                            switch (color) {
+                                case -12199: //8
+                                    building_number = 8;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -1055568: //23
+                                    building_number = 23;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -12457: //5
+                                    building_number = 5;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -12713: //3
+                                    building_number = 3;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                default:
+                                    if (touchFlg) {
+                                        touchFlg = false;
+                                        hideActionBar();
+                                    } else {
+                                        touchFlg = true;
+                                        showActionBar();
+                                    }
+                                    break;
+                            }
+                        } else if (color == -2293834) {
+                            building_number = 0;
+                            floor = 0;
+                            removeViews();
+                            changeFloor();
+                            if (touchFlg)
+                                removeUI();
                         } else {
-                            touchFlg = true;
-                            showActionBar();
-                            setUI();
+                            if (touchFlg) {
+                                touchFlg = false;
+                                hideActionBar();
+                                removeUI();
+                            } else {
+                                touchFlg = true;
+                                showActionBar();
+                                setUI();
+                            }
                         }
+                    }else {
+                        parent_layout.removeView(roomInfoLayout);
                     }
                     return false;
                 }
@@ -337,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-
+                    parent_layout.removeView(roomInfoLayout);
                     float factor = scaleGestureDetector.getScaleFactor();
                     if (focusRange.x == 0 && focusRange.y == 0)
                         focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
