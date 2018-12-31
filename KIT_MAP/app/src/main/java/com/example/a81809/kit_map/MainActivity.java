@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         roomInfoLayout = findViewById(R.id.room_menu);
         roomInfoTextView = findViewById(R.id.room_info);
         goToRoomTextView = findViewById(R.id.go_to_room);
+        parent_layout.removeView(roomInfoLayout);
 
         road = findViewById(R.id.my_view);
         myLocation = new MyLocation(getApplication());
@@ -421,6 +422,18 @@ public class MainActivity extends AppCompatActivity {
                 removeViews();
                 changeFloor();
             }
+        }
+    };
+    private View.OnClickListener roomInfoClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+        }
+    };
+    private View.OnClickListener goToRoomClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
         }
     };
 
