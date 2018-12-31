@@ -8,7 +8,26 @@
     android:layout_height="match_parent"
     android:background="#dcffb6"
     tools:context=".MainActivity">
-
+    <LinearLayout
+        android:id="@+id/room_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/marukado"
+        android:visibility="invisible">
+        <TextView
+            android:id="@+id/room_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="info"
+            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/go_to_room"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ここにいく"
+            android:layout_weight="1"/>
+    </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,4 +38,6 @@
         android:id="@+id/my_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
 </FrameLayout>
