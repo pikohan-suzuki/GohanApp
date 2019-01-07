@@ -290,4 +290,23 @@ public class DatabaseRead {
         result[2]=Integer.parseInt(list.get(0));
         return result;
     }
+    public String getRoomName(String building_number,String room_number){
+        String sql ="SELECT name FROM room WHERE building_number = ? AND room_number = ?";
+        String[] where ={building_number,room_number};
+        ArrayList<String> list = searchData(sql, where);
+        String result="";
+        result = list.get(0);
+        return result;
+    }
+    public String[] getRoomInfo(int building_number,int room_number){
+        String sql ="SELECT wifi FROM room_info WHERE building_number = ? AND room_number = ?";
+        String[] where ={String.valueOf(building_number),String.valueOf(room_number)};
+        ArrayList<String> list = searchData(sql, where);
+        String[] result = new String[2];
+        result[0] = list.get(0);
+        sql ="SELECT info_plug FROM room_info WHERE building_number = ? AND room_number = ?";
+        list = searchData(sql, where);
+        result[1] = list.get(0);
+        return result;
+    }
 }
