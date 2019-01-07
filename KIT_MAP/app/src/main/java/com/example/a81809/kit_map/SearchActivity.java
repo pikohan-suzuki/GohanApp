@@ -65,6 +65,17 @@ public class SearchActivity extends AppCompatActivity {
 
         locaEditText = findViewById(R.id.loca_editText);
         destEditText = findViewById(R.id.dest_editText);
+
+        Intent intent = getIntent();
+        destInfo[0] = String.valueOf(intent.getIntExtra("building_number",-1));
+        destInfo[1] = String.valueOf(intent.getIntExtra("room_number",-1));
+        if(!destInfo[0].contains("-1")) {
+            String roomName = database.getRoomName(destInfo[0], destInfo[1]);
+            if (roomName.contains("号館"))
+                destEditText.setText(roomName);
+            else
+                destEditText.setText(destInfo[0] + "-" + destInfo[1] + " " + roomName);
+        }
         locaEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
