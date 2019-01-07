@@ -1,6 +1,7 @@
 package com.example.a81809.kit_map;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -115,15 +116,17 @@ public class Room {
     private View.OnClickListener roomClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            MainActivity.roomInfoLayout.setVisibility(View.VISIBLE);
-            parentLayout.removeView(MainActivity.roomInfoLayout);
+            MainActivity.selectingRoomNum = room_num;
+            MainActivity.roomPopUpLayout.setVisibility(View.VISIBLE);
+            parentLayout.removeView(MainActivity.roomPopUpLayout);
+            if (parentLayout.indexOfChild(MainActivity.roomPopUpLayout) == -1)
+                parentLayout.addView(MainActivity.roomPopUpLayout);
+            MainActivity.roomPopUpLayout.setX(roomTextView.getX() + (roomTextView.getWidth() - MainActivity.roomPopUpLayout.getWidth()) / 2);
+            MainActivity.roomPopUpLayout.setY(roomTextView.getY() - MainActivity.roomPopUpLayout.getHeight()-5);
 
-            if (parentLayout.indexOfChild(MainActivity.roomInfoLayout) == -1)
-                parentLayout.addView(MainActivity.roomInfoLayout);
-//            roomTextView.bringToFront();
-//            parentLayout.requestLayout();
-            MainActivity.roomInfoLayout.setX(roomTextView.getX() + (roomTextView.getWidth() - MainActivity.roomInfoLayout.getWidth()) / 2);
-            MainActivity.roomInfoLayout.setY(roomTextView.getY() - MainActivity.roomInfoLayout.getHeight()-5);
+
         }
     };
+
+
 }
