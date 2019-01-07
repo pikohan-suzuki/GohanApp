@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -94,9 +95,14 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter searchRoomAdapter;
     private ListView serachRoomListView;
 
-    public static LinearLayout roomInfoLayout;
-    public static TextView roomInfoTextView;
-    public static TextView goToRoomTextView;
+    public static int selectingRoomNum;
+    public static LinearLayout roomPopUpLayout;
+    public static  TextView roomInfoTextView;
+    public static  TextView goToRoomTextView;
+    public static  LinearLayout roomInfoLayout;
+    public static ImageView roomImageView;
+    public static TextView roomDescriptionTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,10 +118,17 @@ public class MainActivity extends AppCompatActivity {
         screenSize = new Point(0, 0);
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
-        roomInfoLayout = findViewById(R.id.room_menu);
+        roomPopUpLayout = findViewById(R.id.room_menu);
         roomInfoTextView = findViewById(R.id.room_info);
         goToRoomTextView = findViewById(R.id.go_to_room);
+        roomInfoLayout = findViewById(R.id.room_info_layout);
+        roomImageView = findViewById(R.id.room_image);
+        roomDescriptionTextView = findViewById(R.id.room_description);
         parent_layout.removeView(roomInfoLayout);
+        parent_layout.removeView(roomPopUpLayout);
+
+        MainActivity.roomInfoTextView.setOnClickListener(roomInfoClickListener);
+        MainActivity.goToRoomTextView.setOnClickListener(goToRoomClickListener);
 
         road = findViewById(R.id.my_view);
         myLocation = new MyLocation(getApplication());
@@ -223,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
                 int requestCode = 1001;
                 startActivityForResult(intent, requestCode);
                 break;
-
         }
 
         return false;
@@ -243,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
             new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-                    parent_layout.removeView(roomInfoLayout);
+                    parent_layout.removeView(roomPopUpLayout);
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
@@ -269,9 +281,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     Bitmap bitmap = getViewCapture(parent_layout);
+                    parent_layout.removeView(roomInfoLayout);
                     int color = bitmap.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
                     Log.d("debug","color : "+color);
-                    if(parent_layout.indexOfChild(roomInfoLayout)==-1) {
+                    if(parent_layout.indexOfChild(roomPopUpLayout)==-1) {
                         if (building_number == 0) {
                             switch (color) {
                                 case -12199: //8
@@ -331,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }else {
-                        parent_layout.removeView(roomInfoLayout);
+                        parent_layout.removeView(roomPopUpLayout);
                     }
                     return false;
                 }
@@ -351,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-                    parent_layout.removeView(roomInfoLayout);
+                    parent_layout.removeView(roomPopUpLayout);
                     float factor = scaleGestureDetector.getScaleFactor();
                     if (focusRange.x == 0 && focusRange.y == 0)
                         focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
@@ -422,18 +435,6 @@ public class MainActivity extends AppCompatActivity {
                 removeViews();
                 changeFloor();
             }
-        }
-    };
-    private View.OnClickListener roomInfoClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-
-        }
-    };
-    private View.OnClickListener goToRoomClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-
         }
     };
 
@@ -877,4 +878,24 @@ public class MainActivity extends AppCompatActivity {
         // バッテリー消費を鑑みLocation requestを止める
         stopLocationUpdates();
     }
+    public View.OnClickListener roomInfoClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String[] roomInfo = database.getRoomInfo(building_number,selectingRoomNum);
+            roomDescriptionTextView.setText("Wifi : "+roomInfo[0]+"\n"+"情報コンセント : "+roomInfo[1]);
+            parent_layout.addView(roomInfoLayout);
+            parent_layout.removeView(roomPopUpLayout);
+        }
+    };
+    public View.OnClickListener goToRoomClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+            int requestCode = 1001;
+            intent.putExtra("building_number",building_number);
+//            intent.putExtra("floor",floor);
+            intent.putExtra("room_number",selectingRoomNum);
+            startActivityForResult(intent, requestCode);
+        }
+    };
 }
