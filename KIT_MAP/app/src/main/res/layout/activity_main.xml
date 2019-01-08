@@ -44,7 +44,7 @@
         android:id="@+id/room_info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#666666">
+        android:background="#9bcfff">
         <ImageView
             android:id="@+id/room_image"
             android:layout_width="wrap_content"
