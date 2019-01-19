@@ -664,6 +664,83 @@ public class MainActivity extends AppCompatActivity {
         }
         return result;
     }
+
+    private int[][][] searchRouteOutDoor(int startBuildingNumber, int startFloor, int startRoadId,int destBuildingNumber,int destFloor, int destRoadId){
+
+        float[] roadLength = database.getRoadLength(startBuildingNumber,startFloor);
+
+
+        float[][] distanceToRoad = new float[roadLength.length][roadLength[0].length];
+        for(int i=0;i<distanceToRoad.length;i++){
+            for(int j=0;j<distanceToRoad[i].length;j++){
+                if(roadLength[i][j]!=-1)
+                    distanceToRoad[i][j]=9999;
+                else
+                    distanceToRoad[i][j]=-1;
+            }
+        }
+        distanceToRoad[startFloor-1][startRoadId-1]=0;
+        int[][][]  comeFrom = new int[roadLength.length][roadLength[0].length][2];
+        int[][] roadStatus = new int[roadLength.length][roadLength[0].length];  //0:out of target 1:calculating 2:confirmed -1:empty
+        for(int i=0;i<distanceToRoad.length;i++){
+            for(int j=0;j<distanceToRoad[0].length;j++){
+                if(roadLength[i][j]!=-1)
+                    roadStatus[i][j]=0;
+                else
+                    roadStatus[i][j]=-1;
+            }
+        }
+        roadStatus[startFloor-1][startRoadId]=2;
+        int[] location ={startFloor,startRoadId};
+
+        while(roadStatus[destFloor-1][destRoadId-1]!=2){
+            for(int i=0;i<connectTable.length;i++){
+                if(location[0]==connectTable[i][0] && location[1] == connectTable[i][1]){
+                    if(roadStatus[connectTable[i][2]-1][connectTable[i][3]-1] != 2){
+                        if(distanceToRoad[connectTable[i][2]-1][connectTable[i][3]-1]>
+                                distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1]){
+                            distanceToRoad[connectTable[i][2]-1][connectTable[i][3]-1]=distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1];
+                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][0]=location[0];
+                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][1]=location[1];
+                            roadStatus[connectTable[i][2]-1][connectTable[i][3]-1]=1;
+                        }
+                    }
+                }
+            }
+            int[] next={0,0};
+            float min=9999;
+            for(int i=0;i<distanceToRoad.length;i++){
+                for(int j=0;j<distanceToRoad[i].length;j++){
+                    if(roadStatus[i][j]==1 && min > distanceToRoad[i][j]){
+                        min=distanceToRoad[i][j];
+                        next[0]=i+1;
+                        next[1]=j+1;
+                    }
+                }
+            }
+            roadStatus[next[0]-1][next[1]-1]=2;
+            location[0]=next[0];
+            location[1]=next[1];
+        }
+        ArrayList<ArrayList<Integer>> resultRoute = new ArrayList<ArrayList<Integer>>();
+        int[] now={destFloor,destRoadId};
+        while(now[0]!=0){
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            list.add(now[0]);
+            list.add(now[1]);
+            resultRoute.add(list);
+            int next[] = {comeFrom[now[0]-1][now[1]-1][0],comeFrom[now[0]-1][now[1]-1][1]};
+            now=next;
+        }
+        int[][] result = new int[resultRoute.size()][3];
+        for(int i=0;i<resultRoute.size();i++){
+            result[i][0]=startBuildingNumber;
+            result[i][1]=resultRoute.get(i).get(0);
+            result[i][2]=resultRoute.get(i).get(1);
+        }
+        return result;
+
+    }
     // locationのコールバックを受け取る
     private void createLocationCallback() {
         locationCallback = new LocationCallback() {
@@ -782,6 +859,9 @@ public class MainActivity extends AppCompatActivity {
                             removeViews();
                             changeFloor();
                         }
+                    }else{
+                        int[][][] resultRoute= searchRouteOutDoor(startBuildingNumber,startFloor,startRoadId,destBuildingNumber,destFloor,destRoadId);
+
                     }
                 }
                 break;
