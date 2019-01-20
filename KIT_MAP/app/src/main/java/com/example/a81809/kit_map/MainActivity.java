@@ -287,15 +287,22 @@ public class MainActivity extends AppCompatActivity {
                     if(parent_layout.indexOfChild(roomPopUpLayout)==-1) {
                         if (building_number == 0) {
                             switch (color) {
-                                case -12199: //8
-                                    building_number = 8;
+                                case -142749: //1
+                                    building_number = 1;
                                     floor = 1;
                                     removeViews();
                                     changeFloor();
                                     if (touchFlg) setUI();
                                     break;
-                                case -1055568: //23
-                                    building_number = 23;
+                                case -12713: //2
+                                    building_number = 2;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -538540: //3
+                                    building_number = 3;
                                     floor = 1;
                                     removeViews();
                                     changeFloor();
@@ -308,13 +315,50 @@ public class MainActivity extends AppCompatActivity {
                                     changeFloor();
                                     if (touchFlg) setUI();
                                     break;
-                                case -12713: //3
-                                    building_number = 3;
+                                case -143009: //6
+                                    building_number = 6;
                                     floor = 1;
                                     removeViews();
                                     changeFloor();
                                     if (touchFlg) setUI();
                                     break;
+                                case -12196: //7
+                                    building_number = 7;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -12199: //8
+                                    building_number = 8;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -77473: //21
+                                    building_number = 21;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -11937: //23
+                                    building_number = 23;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -11938: //24
+                                    building_number = 24;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+
+
                                 default:
                                     if (touchFlg) {
                                         touchFlg = false;
