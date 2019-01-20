@@ -38,7 +38,9 @@ public class Room {
         this.yper = Float.parseFloat(info[2]);
         roomTextView = new TextView(context);
         layout.addView(roomTextView);
-        if (name != null) {
+        if(building_number==0) {
+            roomTextView.setText(name);
+        }else if (name != null) {
             String str[] = name.split(",");
             if (str.length == 1)
                 roomTextView.setText(building_number + "-" + room_num + "\n" + str[0]);

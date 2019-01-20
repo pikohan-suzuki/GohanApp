@@ -286,7 +286,10 @@ public class DatabaseRead {
         ArrayList<String> list = searchData(sql, where);
         int[] result = new int[3];
         result[0]=Integer.parseInt(building_number);
-        result[1]=Integer.parseInt(room_number.substring(0,1));
+        if(room_number.length()==3)
+            result[1]=Integer.parseInt(room_number.substring(0,1));
+        else
+            result[1]=0;
         result[2]=Integer.parseInt(list.get(0));
         return result;
     }
