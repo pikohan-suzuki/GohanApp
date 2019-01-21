@@ -162,7 +162,7 @@ public class SearchActivity extends AppCompatActivity {
         locaListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                locaEditText.setText(locaSearchResult.get(position));
+
                 if(locaSearchResult.get(position).contains("号館")){
                     locaInfo[0]="0";
                     locaInfo[1]=locaSearchResult.get(position).substring(0,locaSearchResult.get(position).length()-2);
@@ -172,21 +172,24 @@ public class SearchActivity extends AppCompatActivity {
                     locaInfo[1] = str[1];
 
                 }
+                locaEditText.setText(locaSearchResult.get(position));
                 parent_layout.removeView(locaListView);
             }
         });
         destListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                destEditText.setText(destSearchResult.get(position));
+
                 if(destSearchResult.get(position).contains("号館")){
                     destInfo[0]="0";
                     destInfo[1]=destSearchResult.get(position).substring(0,destSearchResult.get(position).length()-2);
                 }else {
+
                     String[] str = destSearchResult.get(0).split("-| ");
                     destInfo[0] = str[0];
                     destInfo[1] = str[1];
                 }
+                destEditText.setText(destSearchResult.get(position));
                 parent_layout.removeView(destListView);
             }
         });
