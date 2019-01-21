@@ -294,15 +294,15 @@ public class MainActivity extends AppCompatActivity {
                                     changeFloor();
                                     if (touchFlg) setUI();
                                     break;
-                                case -12713: //2
-                                    building_number = 2;
+                                case -12713: //3
+                                    building_number = 3;
                                     floor = 1;
                                     removeViews();
                                     changeFloor();
                                     if (touchFlg) setUI();
                                     break;
-                                case -538540: //3
-                                    building_number = 3;
+                                case -538540: //2
+                                    building_number = 2;
                                     floor = 1;
                                     removeViews();
                                     changeFloor();
@@ -709,11 +709,111 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-//    private int[][][] searchRouteOutDoor(int startBuildingNumber, int startFloor, int startRoadId,int destBuildingNumber,int destFloor, int destRoadId){
-//
-//        float[] roadLength = database.getRoadLength(startBuildingNumber,startFloor);
-//
-//
+    private int[][] searchRouteOutDoor(int startBuildingNumber, int startFloor, int startRoadId,int destBuildingNumber,int destFloor, int destRoadId){
+
+        int[][] buildingToRoad= database.getBuildingToRoad();
+        int outDoorStartRoadId=1;
+        int outDoorDestRoadId=1;
+        for(int i =0; i<buildingToRoad.length;i++){
+            if(buildingToRoad[i][0]==startBuildingNumber){
+                outDoorStartRoadId=buildingToRoad[i][1];
+                break;
+            }
+        }
+        for(int i =0; i<buildingToRoad.length;i++){
+            if(buildingToRoad[i][0]==destBuildingNumber){
+                outDoorDestRoadId=buildingToRoad[i][1];
+                break;
+            }
+        }
+        int[][] connectTable = database.getFloorDir(0, 0);
+        float[] roadLength = database.getRoadLength(0, 0);
+        int[][] outDoorResult = search_route_inFloor(connectTable,roadLength,0,0,outDoorStartRoadId,outDoorDestRoadId);
+
+        int[][] entrance = database.getEntrance();
+        ArrayList<int[]> resultRoute = new ArrayList<>();
+        Boolean inBuilding;
+
+        int entranceBuiding_number;
+        int entranceFloor;
+        int entranceRoadId;
+        int exitBuiding_number;
+        int exitFloor = 0;
+        int exitRoadId=0;
+        if(startBuildingNumber==0) {
+            inBuilding = false;
+            entranceBuiding_number = 0;
+            entranceFloor=0;
+            entranceRoadId=startRoadId;
+        }else {
+            inBuilding = true;
+            entranceBuiding_number=startBuildingNumber;
+            entranceFloor=startFloor;
+            entranceRoadId=startRoadId;
+        }
+
+
+        for(int i=0;i<outDoorResult.length;i++){
+            if(inBuilding){
+                boolean flg =false;
+                for(int j=0;j<entrance.length;j++){
+                    if(outDoorResult[i][2]==entrance[j][1]){
+                        flg=true;
+                        exitBuiding_number=entranceBuiding_number;
+                        exitFloor=1;
+                        exitRoadId= entrance[j][2];
+                        break;
+                    }
+                }
+                if(flg){
+                    inBuilding=false;
+                    int[][] buildingConnectTable = database.getBuildingDir(entranceBuiding_number);
+                    int numberOfFloor = database.getNumberOfFloor(entranceBuiding_number);
+                    int maxNumberOfRoad = database.getMaxNumberOfRoad(entranceBuiding_number);
+                    float[][] buildingRoadLength = database.getBuildingRoadLength(entranceBuiding_number,numberOfFloor,maxNumberOfRoad);
+                    int[][] buildingResult=searchRouteInBuilding(buildingConnectTable,buildingRoadLength,entranceBuiding_number,entranceFloor,entranceRoadId,exitFloor,exitRoadId);
+                    for(int j=0;j<buildingResult.length;j++){
+                        resultRoute.add(buildingResult[j]);
+                    }
+                }else if(!flg && i==outDoorResult.length-1){
+                    exitBuiding_number=destBuildingNumber;
+                    exitFloor=destFloor;
+                    exitRoadId=destRoadId;
+                    int[][] buildingConnectTable = database.getBuildingDir(entranceBuiding_number);
+                    int numberOfFloor = database.getNumberOfFloor(entranceBuiding_number);
+                    int maxNumberOfRoad = database.getMaxNumberOfRoad(entranceBuiding_number);
+                    float[][] buildingRoadLength = database.getBuildingRoadLength(entranceBuiding_number,numberOfFloor,maxNumberOfRoad);
+                    int[][] buildingResult=searchRouteInBuilding(buildingConnectTable,buildingRoadLength,entranceBuiding_number,entranceFloor,entranceRoadId,exitFloor,exitRoadId);
+                    for(int j=0;j<buildingResult.length;j++){
+                        resultRoute.add(buildingResult[j]);
+                    }
+                }
+            }else{
+                boolean flg = false;
+                for(int j=0;j<entrance.length;j++){
+                    if(outDoorResult[i][2]==entrance[j][1]){
+                        flg=true;
+                        inBuilding=true;
+                        entranceBuiding_number=entrance[j][0];
+                        entranceFloor=1;
+                        entranceRoadId=entrance[j][2];
+                        break;
+                    }
+                }
+                if (!flg) {
+                    resultRoute.add(outDoorResult[i]);
+                }
+            }
+        }
+
+        int[][] result = new int[resultRoute.size()][3];
+        for(int i=0;i<resultRoute.size();i++){
+            for(int j=0;j<3;j++){
+                result[i][j]=resultRoute.get(i)[j];
+            }
+        }
+        return result;
+
 //        float[][] distanceToRoad = new float[roadLength.length][roadLength[0].length];
 //        for(int i=0;i<distanceToRoad.length;i++){
 //            for(int j=0;j<distanceToRoad[i].length;j++){
@@ -782,9 +882,7 @@ public class MainActivity extends AppCompatActivity {
 //            result[i][1]=resultRoute.get(i).get(0);
 //            result[i][2]=resultRoute.get(i).get(1);
 //        }
-//        return result;
-//
-//    }
+    }
     // locationのコールバックを受け取る
     private void createLocationCallback() {
         locationCallback = new LocationCallback() {
@@ -904,8 +1002,12 @@ public class MainActivity extends AppCompatActivity {
                             changeFloor();
                         }
                     }else{
-//                        int[][][] resultRoute= searchRouteOutDoor(startBuildingNumber,startFloor,startRoadId,destBuildingNumber,destFloor,destRoadId);
-
+                        int[][] resultRoute= searchRouteOutDoor(startBuildingNumber,startFloor,startRoadId,destBuildingNumber,destFloor,destRoadId);
+                        search_route=new int[resultRoute.length][3];
+                        search_route=resultRoute;
+                        isSearchMode=true;
+                        removeViews();
+                        changeFloor();
                     }
                 }
                 break;
