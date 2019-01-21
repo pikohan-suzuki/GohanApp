@@ -312,4 +312,42 @@ public class DatabaseRead {
         result[1] = list.get(0);
         return result;
     }
+
+    public int[][] getBuildingToRoad(){
+        String sql ="SELECT building_number FROM building_to_road";
+        String[] where= new String[0];
+        ArrayList<String> list = searchData(sql,where);
+        int[][] result = new int[list.size()][2];
+        for (int i =0;i<list.size();i++){
+            result[i][0] = Integer.parseInt(list.get(i));
+        }
+        sql="SELECT road_id FROM building_to_road";
+        list = searchData(sql,where);
+        for (int i =0;i<list.size();i++){
+            result[i][1] = Integer.parseInt(list.get(i));
+        }
+        return result;
+    }
+
+    public int[][] getEntrance(){
+        String sql ="SELECT building_number FROM entrance ORDER BY outdoor_road_id";
+        String[] where= new String[0];
+        ArrayList<String> list = searchData(sql,where);
+        int[][] result = new int[list.size()][3];
+        for (int i =0;i<list.size();i++){
+            result[i][0] = Integer.parseInt(list.get(i));
+        }
+        sql="SELECT outdoor_road_id FROM entrance ORDER BY outdoor_road_id";
+        list = searchData(sql,where);
+        for (int i =0;i<list.size();i++){
+            result[i][1] = Integer.parseInt(list.get(i));
+        }
+        sql="SELECT indoor_road_id FROM entrance ORDER BY outdoor_road_id";
+        list = searchData(sql,where);
+        for (int i =0;i<list.size();i++){
+            result[i][2] = Integer.parseInt(list.get(i));
+        }
+
+        return result;
+    }
 }
