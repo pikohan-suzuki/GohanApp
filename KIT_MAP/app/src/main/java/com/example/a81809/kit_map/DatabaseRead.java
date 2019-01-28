@@ -286,8 +286,68 @@ public class DatabaseRead {
         ArrayList<String> list = searchData(sql, where);
         int[] result = new int[3];
         result[0]=Integer.parseInt(building_number);
-        result[1]=Integer.parseInt(room_number.substring(0,1));
+        if(room_number.length()==3)
+            result[1]=Integer.parseInt(room_number.substring(0,1));
+        else
+            result[1]=0;
         result[2]=Integer.parseInt(list.get(0));
+        return result;
+    }
+    public String getRoomName(String building_number,String room_number){
+        String sql ="SELECT name FROM room WHERE building_number = ? AND room_number = ?";
+        String[] where ={building_number,room_number};
+        ArrayList<String> list = searchData(sql, where);
+        String result="";
+        result = list.get(0);
+        return result;
+    }
+    public String[] getRoomInfo(int building_number,int room_number){
+        String sql ="SELECT wifi FROM room_info WHERE building_number = ? AND room_number = ?";
+        String[] where ={String.valueOf(building_number),String.valueOf(room_number)};
+        ArrayList<String> list = searchData(sql, where);
+        String[] result = new String[2];
+        result[0] = list.get(0);
+        sql ="SELECT info_plug FROM room_info WHERE building_number = ? AND room_number = ?";
+        list = searchData(sql, where);
+        result[1] = list.get(0);
+        return result;
+    }
+
+    public int[][] getBuildingToRoad(){
+        String sql ="SELECT building_number FROM building_to_road";
+        String[] where= new String[0];
+        ArrayList<String> list = searchData(sql,where);
+        int[][] result = new int[list.size()][2];
+        for (int i =0;i<list.size();i++){
+            result[i][0] = Integer.parseInt(list.get(i));
+        }
+        sql="SELECT road_id FROM building_to_road";
+        list = searchData(sql,where);
+        for (int i =0;i<list.size();i++){
+            result[i][1] = Integer.parseInt(list.get(i));
+        }
+        return result;
+    }
+
+    public int[][] getEntrance(){
+        String sql ="SELECT building_number FROM entrance ORDER BY outdoor_road_id";
+        String[] where= new String[0];
+        ArrayList<String> list = searchData(sql,where);
+        int[][] result = new int[list.size()][3];
+        for (int i =0;i<list.size();i++){
+            result[i][0] = Integer.parseInt(list.get(i));
+        }
+        sql="SELECT outdoor_road_id FROM entrance ORDER BY outdoor_road_id";
+        list = searchData(sql,where);
+        for (int i =0;i<list.size();i++){
+            result[i][1] = Integer.parseInt(list.get(i));
+        }
+        sql="SELECT indoor_road_id FROM entrance ORDER BY outdoor_road_id";
+        list = searchData(sql,where);
+        for (int i =0;i<list.size();i++){
+            result[i][2] = Integer.parseInt(list.get(i));
+        }
+
         return result;
     }
 }
