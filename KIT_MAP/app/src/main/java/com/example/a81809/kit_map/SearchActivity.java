@@ -65,6 +65,17 @@ public class SearchActivity extends AppCompatActivity {
 
         locaEditText = findViewById(R.id.loca_editText);
         destEditText = findViewById(R.id.dest_editText);
+
+        Intent intent = getIntent();
+        destInfo[0] = String.valueOf(intent.getIntExtra("building_number",-1));
+        destInfo[1] = String.valueOf(intent.getIntExtra("room_number",-1));
+        if(!destInfo[0].contains("-1")) {
+            String roomName = database.getRoomName(destInfo[0], destInfo[1]);
+            if (roomName.contains("号館"))
+                destEditText.setText(roomName);
+            else
+                destEditText.setText(destInfo[0] + "-" + destInfo[1] + " " + roomName);
+        }
         locaEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -151,20 +162,34 @@ public class SearchActivity extends AppCompatActivity {
         locaListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                if(locaSearchResult.get(position).contains("号館")){
+                    locaInfo[0]="0";
+                    locaInfo[1]=locaSearchResult.get(position).substring(0,locaSearchResult.get(position).length()-2);
+                }else {
+                    String[] str = locaSearchResult.get(0).split("-| ");
+                    locaInfo[0] = str[0];
+                    locaInfo[1] = str[1];
+
+                }
                 locaEditText.setText(locaSearchResult.get(position));
-                String[] str =locaSearchResult.get(0).split("-| ");
-                locaInfo[0]=str[0];
-                locaInfo[1]=str[1];
                 parent_layout.removeView(locaListView);
             }
         });
         destListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                if(destSearchResult.get(position).contains("号館")){
+                    destInfo[0]="0";
+                    destInfo[1]=destSearchResult.get(position).substring(0,destSearchResult.get(position).length()-2);
+                }else {
+
+                    String[] str = destSearchResult.get(0).split("-| ");
+                    destInfo[0] = str[0];
+                    destInfo[1] = str[1];
+                }
                 destEditText.setText(destSearchResult.get(position));
-                String[] str =destSearchResult.get(0).split("-| ");
-                destInfo[0]=str[0];
-                destInfo[1]=str[1];
                 parent_layout.removeView(destListView);
             }
         });

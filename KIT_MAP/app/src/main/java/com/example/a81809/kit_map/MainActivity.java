@@ -1,6 +1,7 @@
 package com.example.a81809.kit_map;
 
 import android.Manifest;
+import android.graphics.Color;
 import android.support.v7.widget.SearchView;
 import android.app.Activity;
 import android.content.Intent;
@@ -23,7 +24,13 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -82,7 +89,19 @@ public class MainActivity extends AppCompatActivity {
     private int priority = 0;
 
     private int[][] search_route;
-//    private int[] search_route_id;
+
+    private String[][] search_rooms;
+    private ArrayList<String> roomSearchResult;
+    private ArrayAdapter searchRoomAdapter;
+    private ListView serachRoomListView;
+
+    public static int selectingRoomNum;
+    public static LinearLayout roomPopUpLayout;
+    public static  TextView roomInfoTextView;
+    public static  TextView goToRoomTextView;
+    public static  LinearLayout roomInfoLayout;
+    public static ImageView roomImageView;
+    public static TextView roomDescriptionTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +118,17 @@ public class MainActivity extends AppCompatActivity {
         screenSize = new Point(0, 0);
         Display display = this.getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
+        roomPopUpLayout = findViewById(R.id.room_menu);
+        roomInfoTextView = findViewById(R.id.room_info);
+        goToRoomTextView = findViewById(R.id.go_to_room);
+        roomInfoLayout = findViewById(R.id.room_info_layout);
+        roomImageView = findViewById(R.id.room_image);
+        roomDescriptionTextView = findViewById(R.id.room_description);
+        parent_layout.removeView(roomInfoLayout);
+        parent_layout.removeView(roomPopUpLayout);
+
+        MainActivity.roomInfoTextView.setOnClickListener(roomInfoClickListener);
+        MainActivity.goToRoomTextView.setOnClickListener(goToRoomClickListener);
 
         road = findViewById(R.id.my_view);
         myLocation = new MyLocation(getApplication());
@@ -108,7 +138,8 @@ public class MainActivity extends AppCompatActivity {
         UIManager.upButton.setOnClickListener(upButtonClickListener);
         UIManager.downButton.setOnClickListener(downButtonClickListener);
 
-
+        search_rooms=database.getSearchRoom();
+        serachRoomListView=new ListView(this);
 
         //タッチイベント
         parent_layout.setOnTouchListener(mTouchEventListener);
@@ -135,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
         startLocationUpdates();
 //            }
 //        });
-
 //        // 測位終了
 //        Button buttonStop = (Button) findViewById(R.id.button_stop);
 //        buttonStop.setOnClickListener(new View.OnClickListener() {
@@ -165,8 +195,36 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onQueryTextChange(String s) {
+
+            roomSearchResult = new ArrayList<String>();
+            int numberOfForecast = 0;
+            for (int i = 0; i < search_rooms.length; i++) {
+                if(s.length()!=0) {
+                    if (search_rooms[i][0].contains(s) || search_rooms[i][1].contains(s) || search_rooms[i][2].contains(s) ||
+                            (search_rooms[i][0] + "-" + search_rooms[i][1] + " " + search_rooms[i][2]).contains(s)) {
+                        if(search_rooms[i][2].contains("号館"))
+                            roomSearchResult.add(search_rooms[i][2]);
+                        else
+                            roomSearchResult.add(search_rooms[i][0] + "-" + search_rooms[i][1] + " " + search_rooms[i][2]);
+                        numberOfForecast++;
+                    }
+                }
+            }
+            searchRoomAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, roomSearchResult);
+            serachRoomListView.setAdapter(searchRoomAdapter);
+            serachRoomListView.setBackgroundColor(Color.argb(255,240,240,250));
+            if (numberOfForecast < 6)
+                serachRoomListView.setLayoutParams(new FrameLayout.LayoutParams(screenSize.x/3, ViewGroup.LayoutParams.WRAP_CONTENT));
+            else
+                serachRoomListView.setLayoutParams(new FrameLayout.LayoutParams(screenSize.x/3, screenSize.y/4));
+            serachRoomListView.setX(screenSize.x/2-screenSize.x/6);
+            serachRoomListView.setY(parent_layout.getY());
+
+            if (parent_layout.indexOfChild(serachRoomListView) == -1)
+                parent_layout.addView(serachRoomListView);
             return false;
         }
+
     };
 
     @Override
@@ -178,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
                 int requestCode = 1001;
                 startActivityForResult(intent, requestCode);
                 break;
-
         }
 
         return false;
@@ -198,11 +255,7 @@ public class MainActivity extends AppCompatActivity {
             new GestureDetector.OnGestureListener() {
                 @Override
                 public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-//                    if (touchFlg) {
-//                        touchFlg = false;
-//                        hideActionBar();
-//                    }
-
+                    parent_layout.removeView(roomPopUpLayout);
                     image.onScroll(distanceX, distanceY);
                     for (int i = 0; i < faclities.length; i++)
                         faclities[i].onScroll(image.getImageSize(), image.getImageLocation(), distanceX, distanceY);
@@ -228,65 +281,114 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onSingleTapUp(MotionEvent motionEvent) {
                     Bitmap bitmap = getViewCapture(parent_layout);
+                    parent_layout.removeView(roomInfoLayout);
                     int color = bitmap.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
                     Log.d("debug","color : "+color);
-                    if (building_number == 0) {
-                        switch (color) {
-                            case -12199: //8
-                                building_number = 8;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            case -1055568: //23
-                                building_number = 23;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            case -12457: //5
-                                building_number = 5;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            case -12713: //3
-                                building_number = 3;
-                                floor = 1;
-                                removeViews();
-                                changeFloor();
-                                if (touchFlg) setUI();
-                                break;
-                            default:
-                                if (touchFlg) {
-                                    touchFlg = false;
-                                    hideActionBar();
-                                } else {
-                                    touchFlg = true;
-                                    showActionBar();
-                                }
-                                break;
-                        }
-                    } else if (color == -2293834) {
-                        building_number = 0;
-                        floor = 0;
-                        removeViews();
-                        changeFloor();
-                        if (touchFlg)
-                            removeUI();
-                    } else {
-                        if (touchFlg) {
-                            touchFlg = false;
-                            hideActionBar();
-                            removeUI();
+                    if(parent_layout.indexOfChild(roomPopUpLayout)==-1) {
+                        if (building_number == 0) {
+                            switch (color) {
+                                case -142749: //1
+                                    building_number = 1;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -12713: //3
+                                    building_number = 3;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -538540: //2
+                                    building_number = 2;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -12457: //5
+                                    building_number = 5;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -143009: //6
+                                    building_number = 6;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -12196: //7
+                                    building_number = 7;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -12199: //8
+                                    building_number = 8;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -77473: //21
+                                    building_number = 21;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -11937: //23
+                                    building_number = 23;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+                                case -11938: //24
+                                    building_number = 24;
+                                    floor = 1;
+                                    removeViews();
+                                    changeFloor();
+                                    if (touchFlg) setUI();
+                                    break;
+
+
+                                default:
+                                    if (touchFlg) {
+                                        touchFlg = false;
+                                        hideActionBar();
+                                    } else {
+                                        touchFlg = true;
+                                        showActionBar();
+                                    }
+                                    break;
+                            }
+                        } else if (color == -2293834) {
+                            building_number = 0;
+                            floor = 0;
+                            removeViews();
+                            changeFloor();
+                            if (touchFlg)
+                                removeUI();
                         } else {
-                            touchFlg = true;
-                            showActionBar();
-                            setUI();
+                            if (touchFlg) {
+                                touchFlg = false;
+                                hideActionBar();
+                                removeUI();
+                            } else {
+                                touchFlg = true;
+                                showActionBar();
+                                setUI();
+                            }
                         }
+                    }else {
+                        parent_layout.removeView(roomPopUpLayout);
                     }
                     return false;
                 }
@@ -306,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
             new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
                 public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-
+                    parent_layout.removeView(roomPopUpLayout);
                     float factor = scaleGestureDetector.getScaleFactor();
                     if (focusRange.x == 0 && focusRange.y == 0)
                         focusRange.set((int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY());
@@ -335,17 +437,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void hideActionBar() {
         getSupportActionBar().hide();
-//        image.hideActionBar();
-//        for (Facility facility:faclities) facility.hideActionBar();
-//        for (Room room : rooms) room.hideActionBar();
+
 
     }
 
     private void showActionBar() {
         getSupportActionBar().show();
-//        image.showActionBar();
-//        for (Facility faclity : faclities) faclity.showActionBar();
-//        for (Room room : rooms) room.showActionBar();
+
     }
 
     //スクリーンショットの撮影
@@ -361,23 +459,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private void setLocationIcon() {
-//        double[] range = image.getimageRange();
-//        if (location != null) {
-//            if (location.getLongitude() > range[0]&& location.getLongitude() < range[0] + range[2]
-//                    && location.getLatitude() < range[1] && location.getLatitude() > range[1] - range[3]) {
-//                myLocation.setLocationIcon(parent_layout, locationShowing,location,image.getImageLocation(),image.getImageSize(),range[1],range[0],range[3],range[2]);
-//                if (!locationShowing) locationShowing = true;
-//                Toast toast = Toast.makeText(this, "Added", Toast.LENGTH_SHORT);
-//                toast.show();
-//            } else if (locationShowing) {
-//                myLocation.removeLocationIcon(parent_layout);
-//                locationShowing = !locationShowing;
-//                Toast toast = Toast.makeText(this, "removed", Toast.LENGTH_SHORT);
-//                toast.show();
-//            }
-//        }
-//    }
 
     private View.OnClickListener upButtonClickListener = new View.OnClickListener() {
         @Override
@@ -449,15 +530,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-//            for(int i=0;i<search_route_id.length;i++) asdf.add(search_route_id[i]);
-//            for(int i=0;i<roadId.length;i++){
-//                if(asdf.contains(roadId[i]) && search_route[i][0]==building_number && search_route[i][1] == floor){
-//                    x.add(roadX[i]);
-//                    y.add(roadY[i]);
-//                    len.add(length[i]);
-//                    isX.add(isXDir[i]);
-//                }
-//            }
+
             roadX = new float[x.size()];
             roadY=new float[x.size()];
             length=new float[x.size()];
@@ -503,11 +576,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    private void resetRoute() {
-//        routeBuilding = new ArrayList<Integer>();
-//        routeFloor = new ArrayList<Integer>();
-//        routeId = new ArrayList<Integer>();
-//    }
+
 
     private int[][] search_route_inFloor(int[][] connectTable, float[] roadLength, int startBuildingNumber, int startFloor, int startRoadId, int destRoadId) {
         float[] distanceToRoad = new float[roadLength.length];
@@ -639,6 +708,181 @@ public class MainActivity extends AppCompatActivity {
         }
         return result;
     }
+
+    private int[][] searchRouteOutDoor(int startBuildingNumber, int startFloor, int startRoadId,int destBuildingNumber,int destFloor, int destRoadId){
+
+        int[][] buildingToRoad= database.getBuildingToRoad();
+        int outDoorStartRoadId=1;
+        int outDoorDestRoadId=1;
+        for(int i =0; i<buildingToRoad.length;i++){
+            if(buildingToRoad[i][0]==startBuildingNumber){
+                outDoorStartRoadId=buildingToRoad[i][1];
+                break;
+            }
+        }
+        for(int i =0; i<buildingToRoad.length;i++){
+            if(buildingToRoad[i][0]==destBuildingNumber){
+                outDoorDestRoadId=buildingToRoad[i][1];
+                break;
+            }
+        }
+        int[][] connectTable = database.getFloorDir(0, 0);
+        float[] roadLength = database.getRoadLength(0, 0);
+        int[][] outDoorResult = search_route_inFloor(connectTable,roadLength,0,0,outDoorStartRoadId,outDoorDestRoadId);
+
+        int[][] entrance = database.getEntrance();
+        ArrayList<int[]> resultRoute = new ArrayList<>();
+        Boolean inBuilding;
+
+        int entranceBuiding_number;
+        int entranceFloor;
+        int entranceRoadId;
+        int exitBuiding_number;
+        int exitFloor = 0;
+        int exitRoadId=0;
+        if(startBuildingNumber==0) {
+            inBuilding = false;
+            entranceBuiding_number = 0;
+            entranceFloor=0;
+            entranceRoadId=startRoadId;
+        }else {
+            inBuilding = true;
+            entranceBuiding_number=startBuildingNumber;
+            entranceFloor=startFloor;
+            entranceRoadId=startRoadId;
+        }
+
+
+        for(int i=0;i<outDoorResult.length;i++){
+            if(inBuilding){
+                boolean flg =false;
+                for(int j=0;j<entrance.length;j++){
+                    if(outDoorResult[i][2]==entrance[j][1]){
+                        flg=true;
+                        exitBuiding_number=entranceBuiding_number;
+                        exitFloor=1;
+                        exitRoadId= entrance[j][2];
+                        break;
+                    }
+                }
+                if(flg){
+                    inBuilding=false;
+                    int[][] buildingConnectTable = database.getBuildingDir(entranceBuiding_number);
+                    int numberOfFloor = database.getNumberOfFloor(entranceBuiding_number);
+                    int maxNumberOfRoad = database.getMaxNumberOfRoad(entranceBuiding_number);
+                    float[][] buildingRoadLength = database.getBuildingRoadLength(entranceBuiding_number,numberOfFloor,maxNumberOfRoad);
+                    int[][] buildingResult=searchRouteInBuilding(buildingConnectTable,buildingRoadLength,entranceBuiding_number,entranceFloor,entranceRoadId,exitFloor,exitRoadId);
+                    for(int j=0;j<buildingResult.length;j++){
+                        resultRoute.add(buildingResult[j]);
+                    }
+                }else if(!flg && i==outDoorResult.length-1){
+                    exitBuiding_number=destBuildingNumber;
+                    exitFloor=destFloor;
+                    exitRoadId=destRoadId;
+                    int[][] buildingConnectTable = database.getBuildingDir(entranceBuiding_number);
+                    int numberOfFloor = database.getNumberOfFloor(entranceBuiding_number);
+                    int maxNumberOfRoad = database.getMaxNumberOfRoad(entranceBuiding_number);
+                    float[][] buildingRoadLength = database.getBuildingRoadLength(entranceBuiding_number,numberOfFloor,maxNumberOfRoad);
+                    int[][] buildingResult=searchRouteInBuilding(buildingConnectTable,buildingRoadLength,entranceBuiding_number,entranceFloor,entranceRoadId,exitFloor,exitRoadId);
+                    for(int j=0;j<buildingResult.length;j++){
+                        resultRoute.add(buildingResult[j]);
+                    }
+                }
+            }else{
+                boolean flg = false;
+                for(int j=0;j<entrance.length;j++){
+                    if(outDoorResult[i][2]==entrance[j][1]){
+                        flg=true;
+                        inBuilding=true;
+                        entranceBuiding_number=entrance[j][0];
+                        entranceFloor=1;
+                        entranceRoadId=entrance[j][2];
+                        break;
+                    }
+                }
+                if (!flg) {
+                    resultRoute.add(outDoorResult[i]);
+                }
+            }
+        }
+
+        int[][] result = new int[resultRoute.size()][3];
+        for(int i=0;i<resultRoute.size();i++){
+            for(int j=0;j<3;j++){
+                result[i][j]=resultRoute.get(i)[j];
+            }
+        }
+        return result;
+
+//        float[][] distanceToRoad = new float[roadLength.length][roadLength[0].length];
+//        for(int i=0;i<distanceToRoad.length;i++){
+//            for(int j=0;j<distanceToRoad[i].length;j++){
+//                if(roadLength[i][j]!=-1)
+//                    distanceToRoad[i][j]=9999;
+//                else
+//                    distanceToRoad[i][j]=-1;
+//            }
+//        }
+//        distanceToRoad[startFloor-1][startRoadId-1]=0;
+//        int[][][]  comeFrom = new int[roadLength.length][roadLength[0].length][2];
+//        int[][] roadStatus = new int[roadLength.length][roadLength[0].length];  //0:out of target 1:calculating 2:confirmed -1:empty
+//        for(int i=0;i<distanceToRoad.length;i++){
+//            for(int j=0;j<distanceToRoad[0].length;j++){
+//                if(roadLength[i][j]!=-1)
+//                    roadStatus[i][j]=0;
+//                else
+//                    roadStatus[i][j]=-1;
+//            }
+//        }
+//        roadStatus[startFloor-1][startRoadId]=2;
+//        int[] location ={startFloor,startRoadId};
+//
+//        while(roadStatus[destFloor-1][destRoadId-1]!=2){
+//            for(int i=0;i<connectTable.length;i++){
+//                if(location[0]==connectTable[i][0] && location[1] == connectTable[i][1]){
+//                    if(roadStatus[connectTable[i][2]-1][connectTable[i][3]-1] != 2){
+//                        if(distanceToRoad[connectTable[i][2]-1][connectTable[i][3]-1]>
+//                                distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1]){
+//                            distanceToRoad[connectTable[i][2]-1][connectTable[i][3]-1]=distanceToRoad[location[0]-1][location[1]-1]+roadLength[connectTable[i][2]-1][connectTable[i][3]-1];
+//                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][0]=location[0];
+//                            comeFrom[connectTable[i][2]-1][connectTable[i][3]-1][1]=location[1];
+//                            roadStatus[connectTable[i][2]-1][connectTable[i][3]-1]=1;
+//                        }
+//                    }
+//                }
+//            }
+//            int[] next={0,0};
+//            float min=9999;
+//            for(int i=0;i<distanceToRoad.length;i++){
+//                for(int j=0;j<distanceToRoad[i].length;j++){
+//                    if(roadStatus[i][j]==1 && min > distanceToRoad[i][j]){
+//                        min=distanceToRoad[i][j];
+//                        next[0]=i+1;
+//                        next[1]=j+1;
+//                    }
+//                }
+//            }
+//            roadStatus[next[0]-1][next[1]-1]=2;
+//            location[0]=next[0];
+//            location[1]=next[1];
+//        }
+//        ArrayList<ArrayList<Integer>> resultRoute = new ArrayList<ArrayList<Integer>>();
+//        int[] now={destFloor,destRoadId};
+//        while(now[0]!=0){
+//            ArrayList<Integer> list = new ArrayList<Integer>();
+//            list.add(now[0]);
+//            list.add(now[1]);
+//            resultRoute.add(list);
+//            int next[] = {comeFrom[now[0]-1][now[1]-1][0],comeFrom[now[0]-1][now[1]-1][1]};
+//            now=next;
+//        }
+//        int[][] result = new int[resultRoute.size()][3];
+//        for(int i=0;i<resultRoute.size();i++){
+//            result[i][0]=startBuildingNumber;
+//            result[i][1]=resultRoute.get(i).get(0);
+//            result[i][2]=resultRoute.get(i).get(1);
+//        }
+    }
     // locationのコールバックを受け取る
     private void createLocationCallback() {
         locationCallback = new LocationCallback() {
@@ -757,6 +1001,13 @@ public class MainActivity extends AppCompatActivity {
                             removeViews();
                             changeFloor();
                         }
+                    }else{
+                        int[][] resultRoute= searchRouteOutDoor(startBuildingNumber,startFloor,startRoadId,destBuildingNumber,destFloor,destRoadId);
+                        search_route=new int[resultRoute.length][3];
+                        search_route=resultRoute;
+                        isSearchMode=true;
+                        removeViews();
+                        changeFloor();
                     }
                 }
                 break;
@@ -784,13 +1035,6 @@ public class MainActivity extends AppCompatActivity {
                                         Manifest.permission.ACCESS_COARSE_LOCATION) !=
                                         PackageManager.PERMISSION_GRANTED) {
 
-                                    // TODO: Consider calling
-                                    //    ActivityCompat#requestPermissions
-                                    // here to request the missing permissions, and then overriding
-                                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                    //                                          int[] grantResults)
-                                    // to handle the case where the user grants the permission. See the documentation
-                                    // for ActivityCompat#requestPermissions for more details.
                                     return;
                                 }
                                 fusedLocationClient.requestLocationUpdates(
@@ -860,4 +1104,24 @@ public class MainActivity extends AppCompatActivity {
         // バッテリー消費を鑑みLocation requestを止める
         stopLocationUpdates();
     }
+    public View.OnClickListener roomInfoClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String[] roomInfo = database.getRoomInfo(building_number,selectingRoomNum);
+            roomDescriptionTextView.setText("Wifi : "+roomInfo[0]+"\n"+"情報コンセント : "+roomInfo[1]);
+            parent_layout.addView(roomInfoLayout);
+            parent_layout.removeView(roomPopUpLayout);
+        }
+    };
+    public View.OnClickListener goToRoomClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+            int requestCode = 1001;
+            intent.putExtra("building_number",building_number);
+//            intent.putExtra("floor",floor);
+            intent.putExtra("room_number",selectingRoomNum);
+            startActivityForResult(intent, requestCode);
+        }
+    };
 }
